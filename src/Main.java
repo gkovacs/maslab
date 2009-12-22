@@ -20,8 +20,8 @@ public class Main {
      */
 
 	public static void convolve(WritableRaster r1, WritableRaster r2, int[][] m, int w) {
-		int[] rgbf = new int[3];
-		int[] rgbft = new int[3];
+		int[] rgbf = new int[r1.getNumBands()];
+		int[] rgbft = new int[r1.getNumBands()];
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			for (int y = 0; y < r1.getHeight(); ++y) {
 				for (int i = 0; i < rgbf.length; ++i)
@@ -44,25 +44,16 @@ public class Main {
 		}
 	}
 
-	public static void convolveBW(WritableRaster r1, WritableRaster r2, int[][] m, int w) {
-		int[] rgbf = new int[1];
-		int[] rgbft = new int[3];
+	public static void copyChannels(WritableRaster r1, WritableRaster r2, int ch) {
+		int[] buf1 = new int[r1.getNumBands()];
+		int[] buf2 = new int[r2.getNumBands()];
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			for (int y = 0; y < r1.getHeight(); ++y) {
-				rgbf[0] = 0;
-				for (int my = 0; my < m.length; ++my) {
-					if (y+my-m.length/2 < 0 || y+my-m.length/2 >= r1.getHeight()) continue;
-					for (int mx = 0; mx < m[my].length; ++mx) {
-						if (x+mx-m[my].length/2 < 0 || x+mx-m[my].length/2 >= r1.getWidth()) continue;
-						r1.getPixel(x+mx-m[my].length/2, y+my-m.length/2, rgbft);
-						//System.out.println("("+rgbft[0]+","+rgbft[1]+","+rgbft[2]+")");
-						for (int i = 0; i < rgbft.length; ++i)
-							rgbf[0] += rgbft[i]*m[my][mx];
-					}
+				r1.getPixel(x, y, buf1);
+				for (int i = 0; i < buf2.length; ++i) {
+					buf2[i] = buf1[ch+i];
 				}
-				rgbf[0] /= w;
-				//System.out.println("("+rgbf[0]+","+rgbf[1]+","+rgbf[2]+")");
-				r2.setPixel(x, y, rgbf);
+				r2.setPixel(x, y, buf2);
 			}
 		}
 	}
@@ -89,11 +80,43 @@ public class Main {
 	public static void sqrtImageBW(WritableRaster r1, WritableRaster r2, WritableRaster r3) {
 		for (int x = 0; x < r3.getWidth(); ++x) {
 			for (int y = 0; y < r3.getHeight(); ++y) {
-				r3.setSample(x, y, 0, Math.sqrt(square(r1.getSample(x, y, 0))+square(r2.getSample(x, y, 0))));
+				r3.setSample(x, y, 0, (int)Math.sqrt(square(r1.getSample(x, y, 0))+square(r2.getSample(x, y, 0))));
 			}
 		}
 	}
 
+	public static void normImage(WritableRaster r1, WritableRaster r2) {
+		//int[] buf = new int[3];
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				//r1.getPixel(x, y, buf);
+				//int tot = buf[0]+buf[1]+buf[2];
+				//buf[0] *= (400.0f/tot);
+				//buf[1] *= (400.0f/tot);
+				//buf[2] *= (400.0f/tot);
+				//r2.setPixel(x, y, buf);
+				int r = r1.getSample(x, y, 0);
+				int g = r1.getSample(x, y, 1);
+				int b = r1.getSample(x, y, 2);
+				int tot = r+g+b;
+				r2.setSample(x, y, 0, r*255/tot);
+				r2.setSample(x, y, 1, g*255/tot);
+				r2.setSample(x, y, 2, b*255/tot);
+				r2.setSample(x, y, 3, 255-tot/3);
+			}
+		}
+	}
+
+	public static void rmlastchannel(WritableRaster r1, WritableRaster r2) {
+		int[] buf = new int[r1.getNumBands()];
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				r1.getPixel(x, y, buf);
+				buf[buf.length-1] = 255;
+				r2.setPixel(x, y, buf);
+			}
+		}
+	}
 
     public static void main(String[] args) {
 		//for (String x : args)
@@ -127,14 +150,51 @@ public class Main {
 		BufferedImage im3 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		WritableRaster r3 = im3.getRaster();
 		int[][] m3 = {{1,2,1},{0,0,0},{-1,-2,-1}};
-		convolveBW(r2, r3, m3, 16);
+		convolve(r2, r3, m3, 16);
 		BufferedImage im4 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		WritableRaster r4 = im4.getRaster();
 		int[][] m4 = {{1,0,-1},{2,0,-2},{1,0,-1}};
-		convolveBW(r2, r4, m4, 16);
+		convolve(r2, r4, m4, 16);
 		BufferedImage im5 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		WritableRaster r5 = im5.getRaster();
 		sqrtImageBW(r3, r4, r5);
+		BufferedImage im6 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		WritableRaster r6 = im6.getRaster();
+		normImage(r, r6);
+		BufferedImage im7 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		WritableRaster r7 = im7.getRaster();
+		convolve(r6, r7, m, 159);
+		BufferedImage im8 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
+		WritableRaster r8 = im8.getRaster();
+		copyChannels(r7, r8, 0);
+		BufferedImage im9 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r9 = im9.getRaster();
+		copyChannels(r7, r9, 3);
+		BufferedImage im10 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r10 = im10.getRaster();
+		convolve(r8, r10, m3, 16);
+		BufferedImage im11 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r11 = im11.getRaster();
+		convolve(r8, r11, m4, 16);
+		BufferedImage im12 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r12 = im12.getRaster();
+		sqrtImageBW(r10, r11, r12);
+		BufferedImage im9b = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r9b = im9b.getRaster();
+		convolve(r9, r9b, m, 159);
+		BufferedImage im13 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r13 = im13.getRaster();
+		convolve(r9b, r13, m3, 16);
+		BufferedImage im14 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r14 = im14.getRaster();
+		convolve(r9b, r14, m4, 16);
+		BufferedImage im15 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r15 = im15.getRaster();
+		sqrtImageBW(r13, r14, r15);
+		BufferedImage im16 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r16 = im16.getRaster();
+		sqrtImageBW(r12, r15, r16);
+		//convolve(r6, r8, m, 159);
 		//for (int x = 0; x < 50; ++x) {
 		//	for (int y = 0; y < 50; ++y)
 		//		im.getR
@@ -143,31 +203,61 @@ public class Main {
 		JFrame jf = new JFrame();
 		ImageIcon ic = new ImageIcon();
 		JLabel jl = new JLabel();
-		ic.setImage(im2);
+		ic.setImage(im);
 		jl.setIcon(ic);
 		ImageIcon ic2 = new ImageIcon();
 		JLabel jl2 = new JLabel();
-		ic2.setImage(im3);
+		ic2.setImage(im2);
 		jl2.setIcon(ic2);
 		ImageIcon ic3 = new ImageIcon();
 		JLabel jl3 = new JLabel();
-		ic3.setImage(im4);
+		ic3.setImage(im5);
 		jl3.setIcon(ic3);
 		ImageIcon ic4 = new ImageIcon();
 		JLabel jl4 = new JLabel();
-		ic4.setImage(im5);
+		ic4.setImage(im6);
 		jl4.setIcon(ic4);
-		JPanel cp = new JPanel(new GridLayout(1,4));
+		ImageIcon ic5 = new ImageIcon();
+		JLabel jl5 = new JLabel();
+		ic5.setImage(im7);
+		jl5.setIcon(ic5);
+		ImageIcon ic6 = new ImageIcon();
+		JLabel jl6 = new JLabel();
+		ic6.setImage(im8);
+		jl6.setIcon(ic6);
+		ImageIcon ic7 = new ImageIcon();
+		JLabel jl7 = new JLabel();
+		ic7.setImage(im9);
+		jl7.setIcon(ic7);
+		ImageIcon ic8 = new ImageIcon();
+		JLabel jl8 = new JLabel();
+		ic8.setImage(im12);
+		jl8.setIcon(ic8);
+		ImageIcon ic9 = new ImageIcon();
+		JLabel jl9 = new JLabel();
+		ic9.setImage(im15);
+		jl9.setIcon(ic9);
+		ImageIcon ic10 = new ImageIcon();
+		JLabel jl10 = new JLabel();
+		ic10.setImage(im16);
+		jl10.setIcon(ic10);
+		JPanel cp = new JPanel(new GridLayout(3,4));
 		cp.add(jl);
 		cp.add(jl2);
 		cp.add(jl3);
 		cp.add(jl4);
+		cp.add(jl5);
+		cp.add(jl6);
+		cp.add(jl7);
+		cp.add(jl8);
+		cp.add(jl9);
+		cp.add(jl10);
 		//jf.getContentPane().add(jl);
 		//jf.getContentPane().add(jl2);
 		//jf.setSize(im.getWidth()*2, im.getHeight());
 		//jf.setVisible(true);
 		jf.setContentPane(cp);
-		jf.setSize(im.getWidth()*4, im.getHeight());
+		jf.setSize(im.getWidth()*4, im.getHeight()*3);
 		jf.setVisible(true);
 		//jf2.setSize(im2.getWidth(), im2.getHeight());
 		//jf2.setVisible(true);

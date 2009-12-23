@@ -58,6 +58,24 @@ public class Main {
 		}
 	}
 
+	public static void mergeChannels(WritableRaster r1, WritableRaster r2, WritableRaster r3) {
+		int[] buf1 = new int[r1.getNumBands()];
+		int[] buf2 = new int[r2.getNumBands()];
+		int[] buf3 = new int[r1.getNumBands()+r2.getNumBands()];
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r2.getHeight(); ++y) {
+				r1.getPixel(x, y, buf1);
+				r2.getPixel(x, y, buf2);
+				for (int i = 0; i < buf1.length; ++i) {
+					buf3[i] = buf1[i];
+				} for (int i = 0; i < buf2.length; ++i) {
+					buf3[i+buf1.length] = buf2[i];
+				}
+				r3.setPixel(x, y, buf3);
+			}
+		}
+	}
+
 	public static void sqrtImage(WritableRaster r1, WritableRaster r2, WritableRaster r3) {
 		int[] buf1 = new int[3];
 		int[] buf2 = new int[3];
@@ -107,6 +125,27 @@ public class Main {
 		}
 	}
 
+	public static void mergeAlpha(WritableRaster r1, WritableRaster r2) {
+		//int[] buf = new int[3];
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				//r1.getPixel(x, y, buf);
+				//int tot = buf[0]+buf[1]+buf[2];
+				//buf[0] *= (400.0f/tot);
+				//buf[1] *= (400.0f/tot);
+				//buf[2] *= (400.0f/tot);
+				//r2.setPixel(x, y, buf);
+				int r = r1.getSample(x, y, 0);
+				int g = r1.getSample(x, y, 1);
+				int b = r1.getSample(x, y, 2);
+				int tot = 3*(255-r1.getSample(x, y, 3));
+				r2.setSample(x, y, 0, r*tot/255);
+				r2.setSample(x, y, 1, g*tot/255);
+				r2.setSample(x, y, 2, b*tot/255);
+			}
+		}
+	}
+
 	public static void rmlastchannel(WritableRaster r1, WritableRaster r2) {
 		int[] buf = new int[r1.getNumBands()];
 		for (int x = 0; x < r1.getWidth(); ++x) {
@@ -114,6 +153,33 @@ public class Main {
 				r1.getPixel(x, y, buf);
 				buf[buf.length-1] = 255;
 				r2.setPixel(x, y, buf);
+			}
+		}
+	}
+
+	public static void rgb2hsv(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				int r = r1.getSample(x, y, 0);
+				int g = r1.getSample(x, y, 1);
+				int b = r1.getSample(x, y, 2);
+				int max = Math.max(Math.max(r, g), b);
+				int min = Math.min(Math.min(r, g), b);
+				int h = 0;
+				if (max == min) {
+					
+				} else if (max == r) {
+					h = (g-b)*85/(2*(max-min));
+					if (h < 0)
+						h += 255;
+				} else if (max == g) {
+					h = 85 + (b-r)*85/(2*(max-min));
+				} else { // max == b
+					h = 170 + (r-g)*85/(2*(max-min));
+				}
+				r2.setSample(x, y, 0, h); // h
+				r2.setSample(x, y, 1, (max == 0) ? 0 : 255*(max-min)/max); // s
+				r2.setSample(x, y, 2, max); // v
 			}
 		}
 	}
@@ -161,15 +227,40 @@ public class Main {
 		BufferedImage im6 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		WritableRaster r6 = im6.getRaster();
 		normImage(r, r6);
-		BufferedImage im7 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		WritableRaster r7 = im7.getRaster();
-		convolve(r6, r7, m, 159);
+		//BufferedImage im7 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		//WritableRaster r7 = im7.getRaster();
+		//convolve(r6, r7, m, 159);
 		BufferedImage im8 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r8 = im8.getRaster();
-		copyChannels(r7, r8, 0);
+		copyChannels(r6, r8, 0);
 		BufferedImage im9 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		WritableRaster r9 = im9.getRaster();
-		copyChannels(r7, r9, 3);
+		copyChannels(r6, r9, 3);
+		BufferedImage im10 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r10 = im10.getRaster();
+		convolve(r9, r10, m, 159);
+		BufferedImage im11 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r11 = im11.getRaster();
+		convolve(r10, r11, m, 159);
+		BufferedImage im12 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		WritableRaster r12 = im12.getRaster();
+		mergeChannels(r8, r11, r12);
+		BufferedImage im12n = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
+		WritableRaster r12n = im12n.getRaster();
+		mergeAlpha(r12, r12n);
+		BufferedImage im13 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r13 = im13.getRaster();
+		convolve(r12n, r13, m3, 16);
+		BufferedImage im14 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r14 = im14.getRaster();
+		convolve(r12n, r14, m4, 16);
+		BufferedImage im15 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		WritableRaster r15 = im15.getRaster();
+		sqrtImageBW(r13, r14, r15);
+		BufferedImage im16 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
+		WritableRaster r16 = im16.getRaster();
+		rgb2hsv(r, r16);
+		/*
 		BufferedImage im10 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		WritableRaster r10 = im10.getRaster();
 		convolve(r8, r10, m3, 16);
@@ -194,6 +285,7 @@ public class Main {
 		BufferedImage im16 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		WritableRaster r16 = im16.getRaster();
 		sqrtImageBW(r12, r15, r16);
+		*/
 		//convolve(r6, r8, m, 159);
 		//for (int x = 0; x < 50; ++x) {
 		//	for (int y = 0; y < 50; ++y)
@@ -218,9 +310,9 @@ public class Main {
 		ic4.setImage(im6);
 		jl4.setIcon(ic4);
 		ImageIcon ic5 = new ImageIcon();
-		JLabel jl5 = new JLabel();
-		ic5.setImage(im7);
-		jl5.setIcon(ic5);
+		//JLabel jl5 = new JLabel();
+		//ic5.setImage(im7);
+		//jl5.setIcon(ic5);
 		ImageIcon ic6 = new ImageIcon();
 		JLabel jl6 = new JLabel();
 		ic6.setImage(im8);
@@ -235,7 +327,7 @@ public class Main {
 		jl8.setIcon(ic8);
 		ImageIcon ic9 = new ImageIcon();
 		JLabel jl9 = new JLabel();
-		ic9.setImage(im15);
+		ic9.setImage(im12n);
 		jl9.setIcon(ic9);
 		ImageIcon ic10 = new ImageIcon();
 		JLabel jl10 = new JLabel();
@@ -246,7 +338,7 @@ public class Main {
 		cp.add(jl2);
 		cp.add(jl3);
 		cp.add(jl4);
-		cp.add(jl5);
+		//cp.add(jl5);
 		cp.add(jl6);
 		cp.add(jl7);
 		cp.add(jl8);

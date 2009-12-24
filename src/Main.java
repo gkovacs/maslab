@@ -251,7 +251,16 @@ public class Main {
 
 	public static void findGate(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
-			
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				int r = r1.getSample(x, y, 0);
+				int g = r1.getSample(x, y, 1);
+				int b = r1.getSample(x, y, 2);
+				if (r > 90 && g > 70 && b < 50) {
+					r2.setSample(x, y, 0, 100);
+					r2.setSample(x, y, 1, 100);
+					r2.setSample(x, y, 2, 100);
+				}
+			}
 		}
 	}
 

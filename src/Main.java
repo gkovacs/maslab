@@ -266,12 +266,17 @@ public class Main {
 	}
 
 	public static boolean isRed(WritableRaster r1, int x, int y) {
-		if (x > 0 && y > 0 && x < r1.getWidth() && y < r1.getHeight()) {
+		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
 			//int g = r1.getSample(x, y, 1);
 			//int b = r1.getSample(x, y, 2);
 			if (r > 110) return true;
 		} return false;
+	}
+
+	public static void safeDraw(WritableRaster r1, int x, int y) {
+		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight())
+			r1.setSample(x, y, 0, 255);
 	}
 
 	public static void rasterCircle(WritableRaster r1, int x0, int y0, int radius)
@@ -281,10 +286,10 @@ public class Main {
 		int ddF_y = -2 * radius;
 		int x = 0;
 		int y = radius;
-		r1.setSample(x0, y0 + radius, 0, 255);
-		r1.setSample(x0, y0 - radius, 0, 255);
-		r1.setSample(x0 + radius, y0, 0, 255);
-		r1.setSample(x0 - radius, y0, 0, 255);
+		safeDraw(r1,x0, y0 + radius);
+		safeDraw(r1, x0, y0 - radius);
+		safeDraw(r1, x0 + radius, y0);
+		safeDraw(r1, x0 - radius, y0);
 
 		while(x < y)
 		{
@@ -300,59 +305,81 @@ public class Main {
 			x++;
 			ddF_x += 2;
 			f += ddF_x;
-			r1.setSample(x0 + x, y0 + y, 0, 255);
-			r1.setSample(x0 - x, y0 + y, 0, 255);
-			r1.setSample(x0 + x, y0 - y, 0, 255);
-			r1.setSample(x0 - x, y0 - y, 0, 255);
-			r1.setSample(x0 + y, y0 + x, 0, 255);
-			r1.setSample(x0 - y, y0 + x, 0, 255);
-			r1.setSample(x0 + y, y0 - x, 0, 255);
-			r1.setSample(x0 - y, y0 - x, 0, 255);
+			safeDraw(r1, x0 + x, y0 + y);
+			safeDraw(r1, x0 - x, y0 + y);
+			safeDraw(r1, x0 + x, y0 - y);
+			safeDraw(r1, x0 - x, y0 - y);
+			safeDraw(r1, x0 + y, y0 + x);
+			safeDraw(r1, x0 - y, y0 + x);
+			safeDraw(r1, x0 + y, y0 - x);
+			safeDraw(r1, x0 - y, y0 - x);
 		}
 	}
 
 	public static void circleDetect(WritableRaster r1, WritableRaster r2, int startx, int starty) {
 		ArrayList<Integer> uy = new ArrayList<Integer>();
 		ArrayList<Integer> ly = new ArrayList<Integer>();
+		int nstarty = starty;
+		while (isRed(r1,startx,nstarty)) ++nstarty;
+		nstarty = (starty+nstarty)/2;
 		int x = 0;
 		int y = 0;
 		for (x = startx; x < r1.getWidth(); ++x) {
-			if (!isRed(r1,x,starty)) break;
-			for (y = starty; y < r1.getHeight(); ++y) {
+			if (!isRed(r1,x,nstarty)) break;
+			for (y = nstarty; y < r1.getHeight(); ++y) {
 				if (!isRed(r1,x,y)) {
 					uy.add(y);
 					break;
 				}
-			} for (y = starty; y > 0; --y) {
+			} for (y = nstarty; y >= 0; --y) {
 				if (!isRed(r1,x,y)) {
 					ly.add(y);
 					break;
 				}
 			}
 		}
-		int r = Math.min(uy.size()/2, uy.get(uy.size()/2)-ly.get(uy.size()/2));
-		int centery = 0;
-		for (x = 0; x < uy.size(); ++x) {
-			centery += uy.get(x)+ly.get(x);
-		}
-		centery /= (2*uy.size());
-		System.out.println(centery);
-		System.out.println("original estimated r is"+r);
+		//int r = Math.min(uy.size()/2, uy.get(uy.size()/2)-ly.get(uy.size()/2));
+		//int r = (uy.get(uy.size()/2)-ly.get(uy.size()/2))/2;
+		//int r = uy.size()/2;
+		//int centery = 0;
+		//for (x = 0; x < uy.size(); ++x) {
+		//	centery += uy.get(x)+ly.get(x);
+		//}
+		//centery /= (2*uy.size());
+		//System.out.println(centery);
+		//int lmean = 0;
+		//int lvar = 0;
+		int prevnr = uy.size()/2;
+		//int lvar = 0;
+		int ltotal = 0;
+		int lweight = 0;
+		//System.out.println("original estimated r is"+r);
 		for (x = 1; x < uy.size()/2; ++x) {
 			int c = uy.get(x)-ly.get(x);
-			int h = x;
+			int h = x+1;
 			int nr = (c*c+4*h*h)/(8*h);
-			System.out.println(nr);
+			int w = 1024/(Math.max(nr-prevnr, 1));
+			System.out.println(nr+"weight"+w);
+			lweight += w;
+			ltotal += nr*w;
 		}
+		System.out.println("left estimated r is "+ltotal/lweight+" with weight "+lweight);
 		System.out.println("other side");
-		for (x = uy.size()-1; x > uy.size()/2; --x) {
+		prevnr = uy.size()/2;
+		int rtotal = 0;
+		int rweight = 0;
+		for (x = uy.size()-2; x >= uy.size()/2; --x) {
 			int c = uy.get(x)-ly.get(x);
 			int h = uy.size()-x;
 			int nr = (c*c+4*h*h)/(8*h);
-			System.out.println(nr);
+			int w = 1024/(Math.max(nr-prevnr, 1));
+			System.out.println(nr+"weight"+w);
+			rweight += w;
+			rtotal += nr*w;
 		}
-		//r2.setSample(startx, centery, 0, 255);
-		rasterCircle(r2, startx+r, centery, r);
+		System.out.println("right estimated r is "+rtotal/rweight+" with weight "+rweight);
+		//r2.setSample(startx, nstarty, 2, 255);
+		//rasterCircle(r2, startx+r, nstarty, r);
 	}
 
 	public static void seekStart(WritableRaster r1, WritableRaster r2) {

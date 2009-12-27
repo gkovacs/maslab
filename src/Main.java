@@ -337,7 +337,20 @@ public class Main {
 		}
 		centery /= (2*uy.size());
 		System.out.println(centery);
-		System.out.println(r);
+		System.out.println("original estimated r is"+r);
+		for (x = 1; x < uy.size()/2; ++x) {
+			int c = uy.get(x)-ly.get(x);
+			int h = x;
+			int nr = (c*c+4*h*h)/(8*h);
+			System.out.println(nr);
+		}
+		System.out.println("other side");
+		for (x = uy.size()-1; x > uy.size()/2; --x) {
+			int c = uy.get(x)-ly.get(x);
+			int h = uy.size()-x;
+			int nr = (c*c+4*h*h)/(8*h);
+			System.out.println(nr);
+		}
 		//r2.setSample(startx, centery, 0, 255);
 		rasterCircle(r2, startx+r, centery, r);
 	}

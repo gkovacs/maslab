@@ -8,6 +8,7 @@ import javax.imageio.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.*;
+import java.util.*;
 
 /**
  *
@@ -264,6 +265,98 @@ public class Main {
 		}
 	}
 
+	public static boolean isRed(WritableRaster r1, int x, int y) {
+		if (x > 0 && y > 0 && x < r1.getWidth() && y < r1.getHeight()) {
+			int r = r1.getSample(x, y, 0);
+			//int g = r1.getSample(x, y, 1);
+			//int b = r1.getSample(x, y, 2);
+			if (r > 110) return true;
+		} return false;
+	}
+
+	public static void rasterCircle(WritableRaster r1, int x0, int y0, int radius)
+	{
+		int f = 1 - radius;
+		int ddF_x = 1;
+		int ddF_y = -2 * radius;
+		int x = 0;
+		int y = radius;
+		r1.setSample(x0, y0 + radius, 0, 255);
+		r1.setSample(x0, y0 - radius, 0, 255);
+		r1.setSample(x0 + radius, y0, 0, 255);
+		r1.setSample(x0 - radius, y0, 0, 255);
+
+		while(x < y)
+		{
+			// ddF_x == 2 * x + 1;
+			// ddF_y == -2 * y;
+			// f == x*x + y*y - radius*radius + 2*x - y + 1;
+			if(f >= 0)
+			{
+				y--;
+				ddF_y += 2;
+				f += ddF_y;
+			}
+			x++;
+			ddF_x += 2;
+			f += ddF_x;
+			r1.setSample(x0 + x, y0 + y, 0, 255);
+			r1.setSample(x0 - x, y0 + y, 0, 255);
+			r1.setSample(x0 + x, y0 - y, 0, 255);
+			r1.setSample(x0 - x, y0 - y, 0, 255);
+			r1.setSample(x0 + y, y0 + x, 0, 255);
+			r1.setSample(x0 - y, y0 + x, 0, 255);
+			r1.setSample(x0 + y, y0 - x, 0, 255);
+			r1.setSample(x0 - y, y0 - x, 0, 255);
+		}
+	}
+
+	public static void circleDetect(WritableRaster r1, WritableRaster r2, int startx, int starty) {
+		ArrayList<Integer> uy = new ArrayList<Integer>();
+		ArrayList<Integer> ly = new ArrayList<Integer>();
+		int x = 0;
+		int y = 0;
+		for (x = startx; x < r1.getWidth(); ++x) {
+			if (!isRed(r1,x,starty)) break;
+			for (y = starty; y < r1.getHeight(); ++y) {
+				if (!isRed(r1,x,y)) {
+					uy.add(y);
+					break;
+				}
+			} for (y = starty; y > 0; --y) {
+				if (!isRed(r1,x,y)) {
+					ly.add(y);
+					break;
+				}
+			}
+		}
+		int r = Math.min(uy.size()/2, uy.get(uy.size()/2)-ly.get(uy.size()/2));
+		int centery = 0;
+		for (x = 0; x < uy.size(); ++x) {
+			centery += uy.get(x)+ly.get(x);
+		}
+		centery /= (2*uy.size());
+		System.out.println(centery);
+		System.out.println(r);
+		//r2.setSample(startx, centery, 0, 255);
+		rasterCircle(r2, startx+r, centery, r);
+	}
+
+	public static void seekStart(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				if (isRed(r1,x,y) &&
+					!isRed(r2,x,y) && !isRed(r2,x-1,y) && !isRed(r2,x,y-1) &&
+					!isRed(r2,x-1,y-1) && !isRed(r2,x+1,y-1) && !isRed(r2,x+1,y) &&
+					!isRed(r2,x-1,y+1) && !isRed(r2,x,y+1) && !isRed(r2,x+1,y+1)) {
+					circleDetect(r1,r2,x,y);
+					System.out.println("circledetect");
+					return;
+				}
+			}
+		}
+	}
+
 	public static void findEdge(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int state = 0;
@@ -435,14 +528,15 @@ public class Main {
 		sqrtImageBW(r12, r15, r16);
 		BufferedImage im17 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r17 = im17.getRaster();
-		findRed(r8 , r17);
+		seekStart(r8, r17);
+		//findRed(r8 , r17);
 		BufferedImage im18 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r18 = im18.getRaster();
 		findBlue(r8 , r17);
 		BufferedImage im19 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r19 = im19.getRaster();
 		findEdge(r2, r17);
-		findGate(r8, r17);
+		//findGate(r8, r17);
 		
 		//convolve(r6, r8, m, 159);
 		//for (int x = 0; x < 50; ++x) {

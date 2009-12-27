@@ -349,35 +349,41 @@ public class Main {
 		//System.out.println(centery);
 		//int lmean = 0;
 		//int lvar = 0;
-		int prevnr = uy.size()/2;
+		float prevnr = uy.size()/2;
 		//int lvar = 0;
-		int ltotal = 0;
-		int lweight = 0;
+		float ltotal = 0.0f;
+		float lweight = 0.0f;
 		//System.out.println("original estimated r is"+r);
 		for (x = 1; x < uy.size()/2; ++x) {
-			int c = uy.get(x)-ly.get(x);
-			int h = x+1;
-			int nr = (c*c+4*h*h)/(8*h);
-			int w = 1024/(Math.max(nr-prevnr, 1));
+			float c = uy.get(x)-ly.get(x);
+			float h = x+1;
+			float nr = (c*c+4*h*h)/(8*h);
+			float w = 0.0f;
+			if (nr > prevnr)
+				w = 1.0f/(Math.max(nr-prevnr, 0.0001f));
+			else
+				w = 1.0f/(Math.max(prevnr-nr, 0.0001f));
 			System.out.println(nr+"weight"+w);
 			lweight += w;
 			ltotal += nr*w;
+			prevnr = nr;
 		}
-		System.out.println("left estimated r is "+ltotal/lweight+" with weight "+lweight);
+		System.out.println("left estimated r is "+ltotal/lweight+" with weight "+lweight+" / "+(10000*uy.size()/2-10000));
 		System.out.println("other side");
 		prevnr = uy.size()/2;
-		int rtotal = 0;
-		int rweight = 0;
+		float rtotal = 0.0f;
+		float rweight = 0.0f;
 		for (x = uy.size()-2; x >= uy.size()/2; --x) {
-			int c = uy.get(x)-ly.get(x);
-			int h = uy.size()-x;
-			int nr = (c*c+4*h*h)/(8*h);
-			int w = 1024/(Math.max(nr-prevnr, 1));
+			float c = uy.get(x)-ly.get(x);
+			float h = uy.size()-x;
+			float nr = (c*c+4*h*h)/(8*h);
+			float w = 1.0f/(Math.max(nr-prevnr, 0.0001f));
 			System.out.println(nr+"weight"+w);
 			rweight += w;
 			rtotal += nr*w;
+			prevnr = nr;
 		}
-		System.out.println("right estimated r is "+rtotal/rweight+" with weight "+rweight);
+		System.out.println("right estimated r is "+rtotal/rweight+" with weight "+rweight+" / "+(10000*uy.size()/2-10000));
 		//r2.setSample(startx, nstarty, 2, 255);
 		//rasterCircle(r2, startx+r, nstarty, r);
 	}

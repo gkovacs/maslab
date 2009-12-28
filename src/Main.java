@@ -316,7 +316,20 @@ public class Main {
 		}
 	}
 
+	public static void filledCircle(WritableRaster r1, int x0, int y0, int r) {
+		int xe = Math.min(r1.getWidth(), x0+r+1);
+		int ye = Math.min(r1.getHeight(), y0+r+1);
+		for (int x = Math.max(0, x0-r); x < xe; ++x) {
+			int xq = (x0-x)*(x0-x);
+			for (int y = Math.max(0, y0-r); y < ye; ++y) {
+				if (xq+(y0-y)*(y0-y) <= r*r)
+					r1.setSample(x, y, 0, 255);
+			}
+		}
+	}
+
 	public static float median(float[] arr) {
+		if (arr.length == 0) return 0.0f;
 		if (arr.length % 2 == 0) {
 			return (arr[arr.length/2-1] + arr[arr.length/2])/2;
 		} else {
@@ -346,6 +359,7 @@ public class Main {
 				}
 			}
 		}
+		if (uy.size()/2 == 0) return;
 		//int r = Math.min(uy.size()/2, uy.get(uy.size()/2)-ly.get(uy.size()/2));
 		//int r = (uy.get(uy.size()/2)-ly.get(uy.size()/2))/2;
 		//int r = uy.size()/2;
@@ -384,6 +398,21 @@ public class Main {
 		Arrays.sort(rvals);
 		float rdev = median(rvals);
 		System.out.println("rr is "+rr+" rdev is "+rdev);
+		if (ldev < rdev) {
+			if (ldev < 3.0f) {
+				filledCircle(r2,(int)(Math.ceil(startx+lr)),nstarty,(int)(Math.ceil(lr)));
+				r2.setSample((int)(Math.ceil(startx+lr)), nstarty, 2, 255);
+			} else {
+				System.out.println("failed circledetect");
+			}
+		} else {
+			if (rdev < 3.0f) {
+				filledCircle(r2,(int)(Math.ceil(startx+uy.size()-rr)),nstarty,(int)(Math.ceil(rr)));
+				r2.setSample((int)(Math.ceil(startx+uy.size()-rr)), nstarty, 2, 255);
+			} else {
+				System.out.println("failed circledetect");
+			}
+		}
 		//System.out.println("right estimated r is "+rtotal/rweight+" with weight "+rweight+" / "+(10000*uy.size()/2-10000));
 		//r2.setSample(startx, nstarty, 2, 255);
 		//rasterCircle(r2, startx+r, nstarty, r);
@@ -397,8 +426,8 @@ public class Main {
 					!isRed(r2,x-1,y-1) && !isRed(r2,x+1,y-1) && !isRed(r2,x+1,y) &&
 					!isRed(r2,x-1,y+1) && !isRed(r2,x,y+1) && !isRed(r2,x+1,y+1)) {
 					circleDetect(r1,r2,x,y);
-					System.out.println("circledetect");
-					return;
+					System.out.println("circledetect at "+x+" , "+y);
+					//return;
 				}
 			}
 		}

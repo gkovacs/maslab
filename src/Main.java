@@ -338,28 +338,27 @@ public class Main {
 	}
 
 	public static void circleDetect(WritableRaster r1, WritableRaster r2, int startx, int starty) {
-		ArrayList<Integer> uy = new ArrayList<Integer>();
-		ArrayList<Integer> ly = new ArrayList<Integer>();
 		int nstarty = starty;
 		while (isRed(r1,startx,nstarty)) ++nstarty;
 		nstarty = (starty+nstarty)/2;
-		int x = 0;
-		int y = 0;
-		for (x = startx; x < r1.getWidth(); ++x) {
-			if (!isRed(r1,x,nstarty)) break;
-			for (y = nstarty; y < r1.getHeight(); ++y) {
+		int diam = 0;
+		while (isRed(r1,startx+diam,nstarty)) ++diam;
+		if (diam/2 == 0) return;
+		int[] uy = new int[diam];
+		int[] ly = new int[diam];
+		for (int x = startx; x < startx+diam; ++x) {
+			for (int y = nstarty; y < r1.getHeight(); ++y) {
 				if (!isRed(r1,x,y)) {
-					uy.add(y);
+					uy[x-startx] = y;
 					break;
 				}
-			} for (y = nstarty; y >= 0; --y) {
+			} for (int y = nstarty; y >= 0; --y) {
 				if (!isRed(r1,x,y)) {
-					ly.add(y);
+					ly[x-startx] = y;
 					break;
 				}
 			}
 		}
-		if (uy.size()/2 == 0) return;
 		//int r = Math.min(uy.size()/2, uy.get(uy.size()/2)-ly.get(uy.size()/2));
 		//int r = (uy.get(uy.size()/2)-ly.get(uy.size()/2))/2;
 		//int r = uy.size()/2;
@@ -371,33 +370,44 @@ public class Main {
 		//System.out.println(centery);
 		//int lmean = 0;
 		//int lvar = 0;
-		float[] rvals = new float[uy.size()/2-1];
+		float[] rvals = new float[diam/2-1];
 		//rvals[0] = uy.size()/2.0f;
 		//rvals[uy.size()-1] = (uy.get(uy.size()/2)-ly.get(uy.size()/2))/2.0f;
-		for (x = 0; x < rvals.length; ++x) {
-			float c = uy.get(x+1)-ly.get(x+1);
+		for (int x = 0; x < rvals.length; ++x) {
+			float c = uy[x+1]-ly[x+1];
 			float h = x+2;
 			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
 		Arrays.sort(rvals);
 		float lr = median(rvals);
-		for (x = 0; x < rvals.length; ++x)
+		for (int x = 0; x < rvals.length; ++x)
 			rvals[x] = Math.abs(lr-rvals[x]);
 		Arrays.sort(rvals);
 		float ldev = median(rvals);
 		System.out.println("lr is "+lr+" ldev is "+ldev);
-		for (x = 0; x < rvals.length; ++x) {
-			float c = uy.get(uy.size()-x-1)-ly.get(uy.size()-x-1);
+		for (int x = 0; x < rvals.length; ++x) {
+			float c = uy[diam-x-1]-ly[diam-x-1];
 			float h = x+2;
 			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
 		Arrays.sort(rvals);
 		float rr = median(rvals);
-		for (x = 0; x < rvals.length; ++x)
+		for (int x = 0; x < rvals.length; ++x)
 			rvals[x] = Math.abs(rr-rvals[x]);
 		Arrays.sort(rvals);
 		float rdev = median(rvals);
+		rvals = null;
 		System.out.println("rr is "+rr+" rdev is "+rdev);
+		int tc = 0;
+		int maxv = 0;
+		for (int x = 0; x < diam; ++x) {
+			if (uy[x] > maxv) {
+				maxv = uy[x];
+				tc = x;
+			}
+		}
+		
+
 		if (ldev < rdev) {
 			if (ldev < 3.0f) {
 				filledCircle(r2,(int)(Math.ceil(startx+lr)),nstarty,(int)(Math.ceil(lr)));
@@ -407,8 +417,8 @@ public class Main {
 			}
 		} else {
 			if (rdev < 3.0f) {
-				filledCircle(r2,(int)(Math.ceil(startx+uy.size()-rr)),nstarty,(int)(Math.ceil(rr)));
-				r2.setSample((int)(Math.ceil(startx+uy.size()-rr)), nstarty, 2, 255);
+				filledCircle(r2,(int)(Math.ceil(startx+diam-rr)),nstarty,(int)(Math.ceil(rr)));
+				r2.setSample((int)(Math.ceil(startx+diam-rr)), nstarty, 2, 255);
 			} else {
 				System.out.println("failed circledetect");
 			}

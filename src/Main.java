@@ -352,7 +352,7 @@ public class Main {
 					uy[x-startx] = y;
 					break;
 				}
-			} for (int y = nstarty; y >= 0; --y) {
+			} for (int y = nstarty-1; y >= 0; --y) {
 				if (!isRed(r1,x,y)) {
 					ly[x-startx] = y;
 					break;
@@ -374,8 +374,8 @@ public class Main {
 		//rvals[0] = uy.size()/2.0f;
 		//rvals[uy.size()-1] = (uy.get(uy.size()/2)-ly.get(uy.size()/2))/2.0f;
 		for (int x = 0; x < rvals.length; ++x) {
-			float c = uy[x+1]-ly[x+1];
-			float h = x+2;
+			int c = uy[x+1]-ly[x+1];
+			int h = x+2;
 			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
 		Arrays.sort(rvals);
@@ -386,8 +386,9 @@ public class Main {
 		float ldev = median(rvals);
 		System.out.println("lr is "+lr+" ldev is "+ldev);
 		for (int x = 0; x < rvals.length; ++x) {
-			float c = uy[diam-x-1]-ly[diam-x-1];
-			float h = x+2;
+			int c = uy[diam-x-1]-ly[diam-x-1];
+			//System.out.println(c);
+			int h = x+2;
 			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
 		Arrays.sort(rvals);
@@ -401,13 +402,31 @@ public class Main {
 		int tc = 0;
 		int maxv = 0;
 		for (int x = 0; x < diam; ++x) {
-			if (uy[x] > maxv) {
-				maxv = uy[x];
+			if (uy[x]-nstarty > maxv) {
+				maxv = uy[x]-nstarty;
 				tc = x;
 			}
 		}
-		
-
+		rvals = new float[maxv];
+		for (int y = maxv+nstarty; y > nstarty; --y) {
+			int c = 0;
+			for (int x = tc; x < diam; ++x) {
+				if (uy[x] >= y) ++c;
+				else break;
+			} for (int x = tc-1; x >= 0; --x) {
+				if (uy[x] >= y) ++c;
+				else break;
+			}
+			int h = maxv-y+nstarty+1;
+			rvals[maxv-y+nstarty] = (c*c+4.0f*h*h)/(8.0f*h);
+		}
+		Arrays.sort(rvals);
+		float ur = median(rvals);
+		for (int x = 0; x < maxv; ++x)
+			rvals[x] = Math.abs(ur-rvals[x]);
+		Arrays.sort(rvals);
+		float udev = median(rvals);
+		System.out.println("ur is "+ur+" udev is "+udev);
 		if (ldev < rdev) {
 			if (ldev < 3.0f) {
 				filledCircle(r2,(int)(Math.ceil(startx+lr)),nstarty,(int)(Math.ceil(lr)));

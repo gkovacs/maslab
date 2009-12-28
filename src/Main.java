@@ -399,34 +399,64 @@ public class Main {
 		float rdev = median(rvals);
 		rvals = null;
 		System.out.println("rr is "+rr+" rdev is "+rdev);
-		int tc = 0;
-		int maxv = 0;
+		int uc = 0;
+		int umaxv = 0;
 		for (int x = 0; x < diam; ++x) {
-			if (uy[x]-nstarty > maxv) {
-				maxv = uy[x]-nstarty;
-				tc = x;
+			if (uy[x]-nstarty > umaxv) {
+				umaxv = uy[x]-nstarty;
+				uc = x;
 			}
 		}
-		rvals = new float[maxv];
-		for (int y = maxv+nstarty; y > nstarty; --y) {
+		rvals = new float[umaxv];
+		for (int y = umaxv+nstarty; y > nstarty; --y) {
 			int c = 0;
-			for (int x = tc; x < diam; ++x) {
+			for (int x = uc; x < diam; ++x) {
 				if (uy[x] >= y) ++c;
 				else break;
-			} for (int x = tc-1; x >= 0; --x) {
+			} for (int x = uc-1; x >= 0; --x) {
 				if (uy[x] >= y) ++c;
 				else break;
 			}
-			int h = maxv-y+nstarty+1;
-			rvals[maxv-y+nstarty] = (c*c+4.0f*h*h)/(8.0f*h);
+			int h = umaxv-y+nstarty+1;
+			rvals[umaxv-y+nstarty] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
 		Arrays.sort(rvals);
 		float ur = median(rvals);
-		for (int x = 0; x < maxv; ++x)
+		for (int x = 0; x < umaxv; ++x)
 			rvals[x] = Math.abs(ur-rvals[x]);
 		Arrays.sort(rvals);
 		float udev = median(rvals);
 		System.out.println("ur is "+ur+" udev is "+udev);
+		rvals = null;
+		int bc = 0;
+		int bmaxv = 0;
+		for (int x = 0; x < diam; ++x) {
+			if (nstarty-ly[x] > bmaxv) {
+				bmaxv = nstarty-ly[x];
+				bc = x;
+			}
+		}
+		System.out.println("bmaxv is "+bmaxv+" bc is "+bc);
+		rvals = new float[bmaxv];
+		for (int y = nstarty-bmaxv; y < nstarty; ++y) {
+			int c = 0;
+			for (int x = bc; x < diam; ++x) {
+				if (ly[x] <= y) ++c;
+				else break;
+			} for (int x = bc-1; x >= 0; --x) {
+				if (ly[x] <= y) ++c;
+				else break;
+			}
+			int h = bmaxv+y-nstarty+1;
+			rvals[bmaxv+y-nstarty] = (c*c+4.0f*h*h)/(8.0f*h);
+		}
+		Arrays.sort(rvals);
+		float br = median(rvals);
+		for (int x = 0; x < bmaxv; ++x)
+			rvals[x] = Math.abs(br-rvals[x]);
+		Arrays.sort(rvals);
+		float bdev = median(rvals);
+		System.out.println("br is "+br+" bdev is "+bdev);
 		if (ldev < rdev) {
 			if (ldev < 3.0f) {
 				filledCircle(r2,(int)(Math.ceil(startx+lr)),nstarty,(int)(Math.ceil(lr)));

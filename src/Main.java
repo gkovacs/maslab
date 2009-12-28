@@ -316,6 +316,14 @@ public class Main {
 		}
 	}
 
+	public static float median(float[] arr) {
+		if (arr.length % 2 == 0) {
+			return (arr[arr.length/2-1] + arr[arr.length/2])/2;
+		} else {
+			return arr[arr.length/2];
+		}
+	}
+
 	public static void circleDetect(WritableRaster r1, WritableRaster r2, int startx, int starty) {
 		ArrayList<Integer> uy = new ArrayList<Integer>();
 		ArrayList<Integer> ly = new ArrayList<Integer>();
@@ -349,41 +357,34 @@ public class Main {
 		//System.out.println(centery);
 		//int lmean = 0;
 		//int lvar = 0;
-		float prevnr = uy.size()/2;
-		//int lvar = 0;
-		float ltotal = 0.0f;
-		float lweight = 0.0f;
-		//System.out.println("original estimated r is"+r);
-		for (x = 1; x < uy.size()/2; ++x) {
-			float c = uy.get(x)-ly.get(x);
-			float h = x+1;
-			float nr = (c*c+4*h*h)/(8*h);
-			float w = 0.0f;
-			if (nr > prevnr)
-				w = 1.0f/(Math.max(nr-prevnr, 0.0001f));
-			else
-				w = 1.0f/(Math.max(prevnr-nr, 0.0001f));
-			System.out.println(nr+"weight"+w);
-			lweight += w;
-			ltotal += nr*w;
-			prevnr = nr;
+		float[] rvals = new float[uy.size()/2-1];
+		//rvals[0] = uy.size()/2.0f;
+		//rvals[uy.size()-1] = (uy.get(uy.size()/2)-ly.get(uy.size()/2))/2.0f;
+		for (x = 0; x < rvals.length; ++x) {
+			float c = uy.get(x+1)-ly.get(x+1);
+			float h = x+2;
+			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
-		System.out.println("left estimated r is "+ltotal/lweight+" with weight "+lweight+" / "+(10000*uy.size()/2-10000));
-		System.out.println("other side");
-		prevnr = uy.size()/2;
-		float rtotal = 0.0f;
-		float rweight = 0.0f;
-		for (x = uy.size()-2; x >= uy.size()/2; --x) {
-			float c = uy.get(x)-ly.get(x);
-			float h = uy.size()-x;
-			float nr = (c*c+4*h*h)/(8*h);
-			float w = 1.0f/(Math.max(nr-prevnr, 0.0001f));
-			System.out.println(nr+"weight"+w);
-			rweight += w;
-			rtotal += nr*w;
-			prevnr = nr;
+		Arrays.sort(rvals);
+		float lr = median(rvals);
+		for (x = 0; x < rvals.length; ++x)
+			rvals[x] = Math.abs(lr-rvals[x]);
+		Arrays.sort(rvals);
+		float ldev = median(rvals);
+		System.out.println("lr is "+lr+" ldev is "+ldev);
+		for (x = 0; x < rvals.length; ++x) {
+			float c = uy.get(uy.size()-x-1)-ly.get(uy.size()-x-1);
+			float h = x+2;
+			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
-		System.out.println("right estimated r is "+rtotal/rweight+" with weight "+rweight+" / "+(10000*uy.size()/2-10000));
+		Arrays.sort(rvals);
+		float rr = median(rvals);
+		for (x = 0; x < rvals.length; ++x)
+			rvals[x] = Math.abs(rr-rvals[x]);
+		Arrays.sort(rvals);
+		float rdev = median(rvals);
+		System.out.println("rr is "+rr+" rdev is "+rdev);
+		//System.out.println("right estimated r is "+rtotal/rweight+" with weight "+rweight+" / "+(10000*uy.size()/2-10000));
 		//r2.setSample(startx, nstarty, 2, 255);
 		//rasterCircle(r2, startx+r, nstarty, r);
 	}

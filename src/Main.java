@@ -565,10 +565,10 @@ public class Main {
 		if (rvals.length < 6) bdev = Float.MAX_VALUE;
 		System.out.println("br is "+br+" bdev is "+bdev);
 		*/
-		if (ldev < 0.4f && ldev < rdev /*&& ldev < udev && ldev < bdev*/ && lr > 3.0f) {
+		if (ldev < 0.5f && ldev < rdev /*&& ldev < udev && ldev < bdev*/ && lr > 3.0f) {
 			filledCircle(r2,(int)(startx+Math.ceil(lr)),nstarty,(int)(Math.ceil(lr)));
 			r2.setSample((int)(Math.ceil(startx+lr)), nstarty, 2, 255);
-		} else if (rdev < 0.4f && rdev < ldev /*&& rdev < udev && rdev < bdev*/ && rr > 3.0f) {
+		} else if (rdev < 0.5f && rdev < ldev /*&& rdev < udev && rdev < bdev*/ && rr > 3.0f) {
 			filledCircle(r2,(int)(startx+diam-Math.ceil(rr)),nstarty,(int)(Math.ceil(rr)));
 			r2.setSample((int)(Math.ceil(startx+diam-rr)), nstarty, 2, 255);
 		} /*else if (udev < 1.0f && udev < ldev && udev < rdev && udev < bdev && ur > 3.0f) {
@@ -579,6 +579,63 @@ public class Main {
 			r2.setSample((int)(Math.ceil(startx+bc)), (int)(nstarty-bmaxv+Math.ceil(br)), 2, 255);
 		}*/ else {
 			System.out.println("circledetect failed");
+		}
+	}
+
+	public static void circleDetectRight(WritableRaster r1, WritableRaster r2, int startx, int starty) {
+		int diam = 0;
+		while (isRed(r1,startx+diam,starty)) ++diam;
+		if (diam/2 == 0) return;
+		int[] uy = new int[diam];
+		int[] ly = new int[diam];
+		for (int x = startx; x < startx+diam; ++x) {
+			for (int y = starty; y < r1.getHeight(); ++y) {
+				if (!isRed(r1,x,y)) {
+					uy[x-startx] = y;
+					break;
+				}
+			} for (int y = starty-1; y >= 0; --y) {
+				if (!isRed(r1,x,y)) {
+					ly[x-startx] = y;
+					break;
+				}
+			}
+		}
+		float[] rvals = new float[diam/2-1];
+		for (int x = 0; x < rvals.length; ++x) {
+			int c = uy[x+1]-ly[x+1];
+			int h = x+2;
+			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
+		}
+		Arrays.sort(rvals);
+		float lr = median(rvals);
+		for (int x = 0; x < rvals.length; ++x)
+			rvals[x] = Math.abs(lr-rvals[x]);
+		Arrays.sort(rvals);
+		float ldev = median(rvals);
+		if (rvals.length < 5) ldev = Float.MAX_VALUE;
+		System.out.println("lr is "+lr+" ldev is "+ldev);
+		if (ldev < 1.0f && lr > 3.0f) {
+			filledCircle(r2,(int)(startx+Math.ceil(lr)),starty,(int)(Math.ceil(lr)));
+			r2.setSample((int)(Math.ceil(startx+lr)), starty, 2, 255);
+		}
+	}
+
+	public static void seekStart2(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			int y = 0;
+			int ey = 0;
+			while (ey < r2.getHeight()) {
+				if (isRed(r1,x,ey)) {
+					while (isRed(r1,x,ey) && ey < r2.getHeight()) ++ey;
+					y += ey;
+					y /= 2;
+					if (!isRed(r1,x-1,y)) {
+						circleDetectRight(r1,r2,x,y);
+					}
+				}
+				y = ++ey;
+			}
 		}
 	}
 
@@ -773,7 +830,7 @@ public class Main {
 		sqrtImageBW(r12, r15, r16);
 		BufferedImage im17 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r17 = im17.getRaster();
-		seekStart(r8, r17);
+		seekStart2(r8, r17);
 		//findRed(r8 , r17);
 		BufferedImage im18 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r18 = im18.getRaster();

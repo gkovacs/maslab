@@ -346,6 +346,15 @@ public class Main {
 		System.out.println(c[c.length-1]+" ]");
 	}
 
+	public static void printList(float[] c) {
+		if (c.length == 0) return;
+		System.out.print("[ ");
+		for (int x = 0; x < c.length-1; ++x) {
+			System.out.print(c[x]+", ");
+		}
+		System.out.println(c[c.length-1]+" ]");
+	}
+
 	public static void circleDetectTop(WritableRaster r1, WritableRaster r2, int startx, int starty) {
 		int nstartx = startx;
 		while (isRed(r1,nstartx,starty)) ++nstartx;
@@ -380,6 +389,8 @@ public class Main {
 			rvals[x] = Math.abs(lr-rvals[x]);
 		Arrays.sort(rvals);
 		float ldev = median(rvals);
+		printList(rvals);
+		if (rvals.length < 2) ldev = Float.MAX_VALUE;
 		System.out.println("lr is "+lr+" ldev is "+ldev);
 		for (int x = 0; x < rvals.length; ++x) {
 			int c = uy[diam-x-1]-ly[diam-x-1];
@@ -393,6 +404,7 @@ public class Main {
 			rvals[x] = Math.abs(rr-rvals[x]);
 		Arrays.sort(rvals);
 		float rdev = median(rvals);
+		if (rvals.length < 2) rdev = Float.MAX_VALUE;
 		rvals = null;
 		System.out.println("rr is "+rr+" rdev is "+rdev);
 		if (ldev < 1.0f && ldev < rdev /*&& ldev < udev && ldev < bdev*/) {
@@ -464,6 +476,7 @@ public class Main {
 			rvals[x] = Math.abs(lr-rvals[x]);
 		Arrays.sort(rvals);
 		float ldev = median(rvals);
+		if (rvals.length < 2) ldev = Float.MAX_VALUE;
 		System.out.println("lr is "+lr+" ldev is "+ldev);
 		for (int x = 0; x < rvals.length; ++x) {
 			int c = uy[diam-x-1]-ly[diam-x-1];
@@ -477,6 +490,7 @@ public class Main {
 			rvals[x] = Math.abs(rr-rvals[x]);
 		Arrays.sort(rvals);
 		float rdev = median(rvals);
+		if (rvals.length < 2) rdev = Float.MAX_VALUE;
 		rvals = null;
 		System.out.println("rr is "+rr+" rdev is "+rdev);
 		int uc = 0;
@@ -511,6 +525,7 @@ public class Main {
 			rvals[x] = Math.abs(ur-rvals[x]);
 		Arrays.sort(rvals);
 		float udev = median(rvals);
+		if (rvals.length < 2) udev = Float.MAX_VALUE;
 		System.out.println("ur is "+ur+" udev is "+udev);
 		rvals = null;
 		int bc = 0;
@@ -546,6 +561,7 @@ public class Main {
 			rvals[x] = Math.abs(br-rvals[x]);
 		Arrays.sort(rvals);
 		float bdev = median(rvals);
+		if (rvals.length < 2) bdev = Float.MAX_VALUE;
 		System.out.println("br is "+br+" bdev is "+bdev);
 		if (ldev < 1.0f && ldev < rdev && ldev < udev && ldev < bdev && lr > 3.0f) {
 			filledCircle(r2,(int)(startx+Math.ceil(lr)),nstarty,(int)(Math.ceil(lr)));

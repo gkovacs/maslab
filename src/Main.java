@@ -489,7 +489,7 @@ public class Main {
 		}
 		{
 			int nuc = uc;
-			while (nuc < diam && nstarty-ly[nuc] == umaxv) ++nuc;
+			while (nuc < diam && uy[nuc]-nstarty == umaxv) ++nuc;
 			uc = (uc+nuc)/2;
 		}
 		rvals = new float[umaxv];
@@ -570,7 +570,9 @@ public class Main {
 	}
 
 	public static void seekStart(WritableRaster r1, WritableRaster r2) {
+		//for (int x = r1.getWidth()-1; x >= 0; --x) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
+			//for (int y = r1.getHeight()-1; y >= 0; --y) {
 			for (int y = 0; y < r1.getHeight(); ++y) {
 		//for (int y = 0; y < r1.getHeight(); ++y) {
 		//	for (int x = 0; x < r1.getWidth(); ++x) {

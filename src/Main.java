@@ -547,21 +547,16 @@ public class Main {
 		Arrays.sort(rvals);
 		float bdev = median(rvals);
 		System.out.println("br is "+br+" bdev is "+bdev);
-		/*
-		if (ldev < 1.0f && ldev < rdev && ldev < udev && ldev < bdev && lr > 1.0f) {
+		if (ldev < 1.0f && ldev < rdev && ldev < udev && ldev < bdev && lr > 3.0f) {
 			filledCircle(r2,(int)(startx+Math.ceil(lr)),nstarty,(int)(Math.ceil(lr)));
 			r2.setSample((int)(Math.ceil(startx+lr)), nstarty, 2, 255);
-		} else if (rdev < 1.0f && rdev < ldev && rdev < udev && rdev < bdev && rr > 1.0f) {
+		} else if (rdev < 1.0f && rdev < ldev && rdev < udev && rdev < bdev && rr > 3.0f) {
 			filledCircle(r2,(int)(startx+diam-Math.ceil(rr)),nstarty,(int)(Math.ceil(rr)));
 			r2.setSample((int)(Math.ceil(startx+diam-rr)), nstarty, 2, 255);
-		} else*/ if (udev < 2.0f /*&& udev < ldev && udev < rdev*/ && udev < bdev && ur > 1.0f) {
+		} else if (udev < 1.0f && udev < ldev && udev < rdev && udev < bdev && ur > 3.0f) {
 			filledCircle(r2,(int)(Math.ceil(startx+uc)),(int)(nstarty+umaxv-Math.ceil(ur)),(int)(Math.ceil(ur)));
 			r2.setSample((int)(Math.ceil(startx+uc)), (int)(nstarty+umaxv-Math.ceil(ur)), 2, 255);
-			//filledCircle(r2,(int)(Math.ceil(startx+bc)),(int)(nstarty-bmaxv+Math.ceil(br)),(int)(Math.ceil(br)));
-			//r2.setSample((int)(Math.ceil(startx+bc)), (int)(nstarty-bmaxv+Math.ceil(br)), 2, 255);
-		} else if  (bdev < 2.0f /*&& bdev < ldev && bdev < rdev*/ && bdev < udev && br > 1.0f) {
-			//filledCircle(r2,(int)(Math.ceil(startx+uc)),(int)(nstarty+umaxv-Math.ceil(ur)),(int)(Math.ceil(ur)));
-			//r2.setSample((int)(Math.ceil(startx+uc)), (int)(nstarty+umaxv-Math.ceil(ur)), 2, 255);
+		} else if (bdev < 1.0f && bdev < ldev && bdev < rdev && bdev < udev && br > 3.0f) {
 			filledCircle(r2,(int)(Math.ceil(startx+bc)),(int)(nstarty-bmaxv+Math.ceil(br)),(int)(Math.ceil(br)));
 			r2.setSample((int)(Math.ceil(startx+bc)), (int)(nstarty-bmaxv+Math.ceil(br)), 2, 255);
 		} else {

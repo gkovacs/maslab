@@ -606,13 +606,29 @@ public class Main {
 				}
 			}
 		}
+
+		float[] rvals = new float[stoptop];
+		for (int x = 0; x < stoptop; ++x) {
+			int c = 2*(uy[x]-starty);
+			int h = x+1;
+			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
+		}
+		printList(rvals);
+		Arrays.sort(rvals);
+		float lrt = median(rvals);
+		for (int x = 0; x < rvals.length; ++x)
+			rvals[x] = Math.abs(lrt-rvals[x]);
+		Arrays.sort(rvals);
+		float ldevt = median(rvals);
+		System.out.println("lrt is "+lrt+" ldevt is "+ldevt);
+
 		prevy = prevprevy = r1.getHeight();
 		int stopbot = 0;
 		end2:
 		for (int x = startx; x < startx+diam; ++x) {
 			for (int y = starty-1; y >= 0; --y) {
 				if (!isRed(r1,x,y)) {
-					if (y <= prevy || y > prevprevy) {
+					if (y <= prevy || y < prevprevy) {
 						prevprevy = prevy;
 						ly[x-startx] = prevy = y;
 						++stopbot;
@@ -632,6 +648,7 @@ public class Main {
 			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
 		*/
+		/*
 		float[] rvals = new float[stoptop+stopbot];
 		for (int x = 0; x < stoptop; ++x) {
 			int c = 2*(uy[x]-starty);
@@ -642,6 +659,37 @@ public class Main {
 			int h = x+1;
 			rvals[x+stoptop] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
+		*/
+		
+		rvals = new float[stopbot];
+		for (int x = 0; x < stopbot; ++x) {
+			int c = 2*(starty-ly[x]);
+			int h = x+1;
+			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
+		}
+		printList(rvals);
+		Arrays.sort(rvals);
+		float lrb = median(rvals);
+		for (int x = 0; x < rvals.length; ++x)
+			rvals[x] = Math.abs(lrb-rvals[x]);
+		Arrays.sort(rvals);
+		float ldevb = median(rvals);
+		if (stoptop < 4 || stoptop*2 < stopbot) ldevt = Float.MAX_VALUE;
+		if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
+		System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
+
+		if (ldevt < ldevb) {
+			if (ldevt < 2.0f && lrt > 3.0f) {
+				filledCircle(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
+				r2.setSample((int)(Math.ceil(startx+lrt)), starty, 2, 255);
+			}
+		} else {
+			if (ldevb < 2.0f && lrb > 3.0f) {
+				filledCircle(r2,(int)(startx+Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
+				r2.setSample((int)(Math.ceil(startx+lrb)), starty, 2, 255);
+			}
+		}
+		/*
 		printList(rvals);
 		Arrays.sort(rvals);
 		float lr = median(rvals);
@@ -655,6 +703,7 @@ public class Main {
 			filledCircle(r2,(int)(startx+Math.ceil(lr)),starty,(int)(Math.ceil(lr)));
 			r2.setSample((int)(Math.ceil(startx+lr)), starty, 2, 255);
 		}
+		*/
 	}
 
 	public static void seekStart2(WritableRaster r1, WritableRaster r2) {
@@ -667,8 +716,12 @@ public class Main {
 					y += ey;
 					y /= 2;
 					if (!isRed(r1,x-1,y)) {
-						circleDetectRight(r1,r2,x,y);
-					}
+						if (!isRed(r2,x,y) && !isRed(r2,x+1,y) && !isRed(r2,x+2,y) && !isRed(r2,x+3,y))
+							circleDetectRight(r1,r2,x,y);
+					} //if (!isRed(r1,x+1,y)) {
+					//	if (!isRed(r2,x,y) && !isRed(r2,x-1,y) && !isRed(r2,x-2,y) && !isRed(r2,x-3,y))
+					//		circleDetectLeft(r1,r2,x,y);
+					//}
 				}
 				y = ++ey;
 			}

@@ -588,34 +588,70 @@ public class Main {
 		if (diam/2 == 0) return;
 		int[] uy = new int[diam];
 		int[] ly = new int[diam];
+		int stoptop = 0;
+		int prevy = 0;
+		int prevprevy = 0;
+		end1:
 		for (int x = startx; x < startx+diam; ++x) {
 			for (int y = starty; y < r1.getHeight(); ++y) {
 				if (!isRed(r1,x,y)) {
-					uy[x-startx] = y;
-					break;
-				}
-			} for (int y = starty-1; y >= 0; --y) {
-				if (!isRed(r1,x,y)) {
-					ly[x-startx] = y;
-					break;
+					if (y >= prevy || y > prevprevy) {
+						prevprevy = prevy;
+						uy[x-startx] = prevy = y;
+						++stoptop;
+						break;
+					} else {
+						break end1;
+					}
 				}
 			}
 		}
-		float[] rvals = new float[diam/2-1];
-		for (int x = 0; x < rvals.length; ++x) {
-			int c = uy[x+1]-ly[x+1];
-			int h = x+2;
+		prevy = prevprevy = r1.getHeight();
+		int stopbot = 0;
+		end2:
+		for (int x = startx; x < startx+diam; ++x) {
+			for (int y = starty-1; y >= 0; --y) {
+				if (!isRed(r1,x,y)) {
+					if (y <= prevy || y > prevprevy) {
+						prevprevy = prevy;
+						ly[x-startx] = prevy = y;
+						++stopbot;
+						break;
+					} else {
+						break end2;
+					}
+				}
+			}
+		}
+		/*
+		int ev = Math.min(stoptop, stopbot);
+		float[] rvals = new float[ev];
+		for (int x = 0; x < ev; ++x) {
+			int c = uy[x]-ly[x];
+			int h = x+1;
 			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
+		*/
+		float[] rvals = new float[stoptop+stopbot];
+		for (int x = 0; x < stoptop; ++x) {
+			int c = 2*(uy[x]-starty);
+			int h = x+1;
+			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
+		} for (int x = 0; x < stopbot; ++x) {
+			int c = 2*(starty-ly[x]);
+			int h = x+1;
+			rvals[x+stoptop] = (c*c+4.0f*h*h)/(8.0f*h);
+		}
+		printList(rvals);
 		Arrays.sort(rvals);
 		float lr = median(rvals);
 		for (int x = 0; x < rvals.length; ++x)
 			rvals[x] = Math.abs(lr-rvals[x]);
 		Arrays.sort(rvals);
 		float ldev = median(rvals);
-		if (rvals.length < 5) ldev = Float.MAX_VALUE;
+		if (rvals.length < 6) ldev = Float.MAX_VALUE;
 		System.out.println("lr is "+lr+" ldev is "+ldev);
-		if (ldev < 1.0f && lr > 3.0f) {
+		if (ldev < 2.0f && lr > 3.0f) {
 			filledCircle(r2,(int)(startx+Math.ceil(lr)),starty,(int)(Math.ceil(lr)));
 			r2.setSample((int)(Math.ceil(startx+lr)), starty, 2, 255);
 		}

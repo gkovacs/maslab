@@ -595,8 +595,6 @@ public class Main {
 		int diam = 0;
 		while (isRed(r1,startx+diam,starty)) ++diam;
 		if (diam/2 == 0) return;
-		//int[] uy = new int[diam];
-		//int[] ly = new int[diam];
 		float[] rvals = new float[diam];
 		int stoptop = 0;
 		int prevy = 0;
@@ -607,7 +605,6 @@ public class Main {
 				if (!isRed(r1,x,y)) {
 					if (y >= prevy || y > prevprevy) {
 						prevprevy = prevy;
-						//uy[x-startx] = prevy = y;
 						prevy = y;
 						++stoptop;
 						int c = 2*(y-starty);
@@ -619,14 +616,6 @@ public class Main {
 				}
 			}
 		}
-		/*
-		//float[] rvals = new float[stoptop];
-		for (int x = 0; x < stoptop; ++x) {
-			int c = 2*(uy[x]-starty);
-			int h = x+1;
-			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
-		}
-		*/
 		printList(rvals);
 		Arrays.sort(rvals, 0, stoptop);
 		printList(rvals);
@@ -636,7 +625,6 @@ public class Main {
 		Arrays.sort(rvals, 0, stoptop);
 		float ldevt = median(rvals, stoptop);
 		System.out.println("lrt is "+lrt+" ldevt is "+ldevt);
-
 		prevy = prevprevy = r1.getHeight();
 		int stopbot = 0;
 		end2:
@@ -656,36 +644,6 @@ public class Main {
 				}
 			}
 		}
-		/*
-		int ev = Math.min(stoptop, stopbot);
-		float[] rvals = new float[ev];
-		for (int x = 0; x < ev; ++x) {
-			int c = uy[x]-ly[x];
-			int h = x+1;
-			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
-		}
-		*/
-		/*
-		float[] rvals = new float[stoptop+stopbot];
-		for (int x = 0; x < stoptop; ++x) {
-			int c = 2*(uy[x]-starty);
-			int h = x+1;
-			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
-		} for (int x = 0; x < stopbot; ++x) {
-			int c = 2*(starty-ly[x]);
-			int h = x+1;
-			rvals[x+stoptop] = (c*c+4.0f*h*h)/(8.0f*h);
-		}
-		*/
-		/*
-		rvals = new float[stopbot];
-		for (int x = 0; x < stopbot; ++x) {
-			int c = 2*(starty-ly[x]);
-			int h = x+1;
-			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
-		}
-		*/
-		printList(rvals);
 		Arrays.sort(rvals, 0, stopbot);
 		float lrb = median(rvals, stopbot);
 		for (int x = 0; x < stopbot; ++x)
@@ -695,7 +653,6 @@ public class Main {
 		if (stoptop < 4 || stoptop*2 < stopbot) ldevt = Float.MAX_VALUE;
 		if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
 		System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
-
 		if (ldevt < ldevb) {
 			if (ldevt < 2.0f && lrt > 3.0f) {
 				filledCircle(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
@@ -707,21 +664,6 @@ public class Main {
 				r2.setSample((int)(Math.ceil(startx+lrb)), starty, 2, 255);
 			}
 		}
-		/*
-		printList(rvals);
-		Arrays.sort(rvals);
-		float lr = median(rvals);
-		for (int x = 0; x < rvals.length; ++x)
-			rvals[x] = Math.abs(lr-rvals[x]);
-		Arrays.sort(rvals);
-		float ldev = median(rvals);
-		if (rvals.length < 6) ldev = Float.MAX_VALUE;
-		System.out.println("lr is "+lr+" ldev is "+ldev);
-		if (ldev < 2.0f && lr > 3.0f) {
-			filledCircle(r2,(int)(startx+Math.ceil(lr)),starty,(int)(Math.ceil(lr)));
-			r2.setSample((int)(Math.ceil(startx+lr)), starty, 2, 255);
-		}
-		*/
 	}
 
 	public static void seekStart2(WritableRaster r1, WritableRaster r2) {

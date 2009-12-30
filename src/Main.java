@@ -656,12 +656,87 @@ public class Main {
 		if (ldevt < ldevb) {
 			if (ldevt < 2.0f && lrt > 3.0f) {
 				filledCircle(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
-				r2.setSample((int)(Math.ceil(startx+lrt)), starty, 2, 255);
+				r2.setSample((int)(startx+Math.ceil(lrt)), starty, 2, 255);
 			}
 		} else {
 			if (ldevb < 2.0f && lrb > 3.0f) {
 				filledCircle(r2,(int)(startx+Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 				r2.setSample((int)(Math.ceil(startx+lrb)), starty, 2, 255);
+			}
+		}
+	}
+
+	public static void circleDetectLeft(WritableRaster r1, WritableRaster r2, int startx, int starty) {
+		int diam = 0;
+		while (isRed(r1,startx-diam,starty)) ++diam;
+		if (diam/2 == 0) return;
+		float[] rvals = new float[diam];
+		int stoptop = 0;
+		int prevy = 0;
+		int prevprevy = 0;
+		end1:
+		for (int x = startx; x > startx-diam; --x) {
+			for (int y = starty; y < r1.getHeight(); ++y) {
+				if (!isRed(r1,x,y)) {
+					if (y >= prevy || y > prevprevy) {
+						prevprevy = prevy;
+						prevy = y;
+						++stoptop;
+						int c = 2*(y-starty);
+						rvals[startx-x] = (c*c+4.0f*stoptop*stoptop)/(8.0f*stoptop);
+						break;
+					} else {
+						break end1;
+					}
+				}
+			}
+		}
+		printList(rvals);
+		Arrays.sort(rvals, 0, stoptop);
+		printList(rvals);
+		float lrt = median(rvals, stoptop);
+		for (int x = 0; x < stoptop; ++x)
+			rvals[x] = Math.abs(lrt-rvals[x]);
+		Arrays.sort(rvals, 0, stoptop);
+		float ldevt = median(rvals, stoptop);
+		System.out.println("lrt is "+lrt+" ldevt is "+ldevt);
+		prevy = prevprevy = r1.getHeight();
+		int stopbot = 0;
+		end2:
+		for (int x = startx; x > startx-diam; --x) {
+			for (int y = starty-1; y >= 0; --y) {
+				if (!isRed(r1,x,y)) {
+					if (y <= prevy || y < prevprevy) {
+						prevprevy = prevy;
+						prevy = y;
+						++stopbot;
+						int c = 2*(starty-y);
+						rvals[startx-x] = (c*c+4.0f*stopbot*stopbot)/(8.0f*stopbot);
+						break;
+					} else {
+						break end2;
+					}
+				}
+			}
+		}
+		Arrays.sort(rvals, 0, stopbot);
+		float lrb = median(rvals, stopbot);
+		for (int x = 0; x < stopbot; ++x)
+			rvals[x] = Math.abs(lrb-rvals[x]);
+		Arrays.sort(rvals, 0, stopbot);
+		float ldevb = median(rvals, stopbot);
+		if (stoptop < 4 || stoptop*2 < stopbot) ldevt = Float.MAX_VALUE;
+		if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
+		System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
+		if (ldevt < ldevb) {
+			if (ldevt < 2.0f && lrt > 3.0f) {
+				filledCircle(r2,(int)(startx-Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
+				r2.setSample((int)(startx-Math.ceil(lrt)), starty, 2, 255);
+			}
+		} else {
+			if (ldevb < 2.0f && lrb > 3.0f) {
+				filledCircle(r2,(int)(startx-Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
+				r2.setSample((int)(startx-Math.ceil(lrb)), starty, 2, 255);
 			}
 		}
 	}
@@ -678,10 +753,11 @@ public class Main {
 					if (!isRed(r1,x-1,y)) {
 						if (!isRed(r2,x,y) && !isRed(r2,x+1,y) && !isRed(r2,x+2,y) && !isRed(r2,x+3,y))
 							circleDetectRight(r1,r2,x,y);
-					} //if (!isRed(r1,x+1,y)) {
-					//	if (!isRed(r2,x,y) && !isRed(r2,x-1,y) && !isRed(r2,x-2,y) && !isRed(r2,x-3,y))
-					//		circleDetectLeft(r1,r2,x,y);
-					//}
+					}
+					if (!isRed(r1,x+1,y)) {
+						if (!isRed(r2,x,y) && !isRed(r2,x-1,y) && !isRed(r2,x-2,y) && !isRed(r2,x-3,y))
+							circleDetectLeft(r1,r2,x,y);
+					}
 				}
 				y = ++ey;
 			}

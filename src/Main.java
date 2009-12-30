@@ -337,6 +337,15 @@ public class Main {
 		}
 	}
 
+	public static float median (float[] arr, int end) {
+		if (end == 0) return 0.0f;
+		if (end % 2 == 0) {
+			return (arr[end/2-1] + arr[end/2])/2;
+		} else {
+			return arr[end/2];
+		}
+	}
+
 	public static void printList(int[] c) {
 		if (c.length == 0) return;
 		System.out.print("[ ");
@@ -586,8 +595,9 @@ public class Main {
 		int diam = 0;
 		while (isRed(r1,startx+diam,starty)) ++diam;
 		if (diam/2 == 0) return;
-		int[] uy = new int[diam];
-		int[] ly = new int[diam];
+		//int[] uy = new int[diam];
+		//int[] ly = new int[diam];
+		float[] rvals = new float[diam];
 		int stoptop = 0;
 		int prevy = 0;
 		int prevprevy = 0;
@@ -597,8 +607,11 @@ public class Main {
 				if (!isRed(r1,x,y)) {
 					if (y >= prevy || y > prevprevy) {
 						prevprevy = prevy;
-						uy[x-startx] = prevy = y;
+						//uy[x-startx] = prevy = y;
+						prevy = y;
 						++stoptop;
+						int c = 2*(y-starty);
+						rvals[x-startx] = (c*c+4.0f*stoptop*stoptop)/(8.0f*stoptop);
 						break;
 					} else {
 						break end1;
@@ -606,20 +619,22 @@ public class Main {
 				}
 			}
 		}
-
-		float[] rvals = new float[stoptop];
+		/*
+		//float[] rvals = new float[stoptop];
 		for (int x = 0; x < stoptop; ++x) {
 			int c = 2*(uy[x]-starty);
 			int h = x+1;
 			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
+		*/
 		printList(rvals);
-		Arrays.sort(rvals);
-		float lrt = median(rvals);
-		for (int x = 0; x < rvals.length; ++x)
+		Arrays.sort(rvals, 0, stoptop);
+		printList(rvals);
+		float lrt = median(rvals, stoptop);
+		for (int x = 0; x < stoptop; ++x)
 			rvals[x] = Math.abs(lrt-rvals[x]);
-		Arrays.sort(rvals);
-		float ldevt = median(rvals);
+		Arrays.sort(rvals, 0, stoptop);
+		float ldevt = median(rvals, stoptop);
 		System.out.println("lrt is "+lrt+" ldevt is "+ldevt);
 
 		prevy = prevprevy = r1.getHeight();
@@ -630,8 +645,10 @@ public class Main {
 				if (!isRed(r1,x,y)) {
 					if (y <= prevy || y < prevprevy) {
 						prevprevy = prevy;
-						ly[x-startx] = prevy = y;
+						prevy = y;
 						++stopbot;
+						int c = 2*(starty-y);
+						rvals[x-startx] = (c*c+4.0f*stopbot*stopbot)/(8.0f*stopbot);
 						break;
 					} else {
 						break end2;
@@ -660,20 +677,21 @@ public class Main {
 			rvals[x+stoptop] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
 		*/
-		
+		/*
 		rvals = new float[stopbot];
 		for (int x = 0; x < stopbot; ++x) {
 			int c = 2*(starty-ly[x]);
 			int h = x+1;
 			rvals[x] = (c*c+4.0f*h*h)/(8.0f*h);
 		}
+		*/
 		printList(rvals);
-		Arrays.sort(rvals);
-		float lrb = median(rvals);
-		for (int x = 0; x < rvals.length; ++x)
+		Arrays.sort(rvals, 0, stopbot);
+		float lrb = median(rvals, stopbot);
+		for (int x = 0; x < stopbot; ++x)
 			rvals[x] = Math.abs(lrb-rvals[x]);
-		Arrays.sort(rvals);
-		float ldevb = median(rvals);
+		Arrays.sort(rvals, 0, stopbot);
+		float ldevb = median(rvals, stopbot);
 		if (stoptop < 4 || stoptop*2 < stopbot) ldevt = Float.MAX_VALUE;
 		if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
 		System.out.println("lrb is "+lrb+" ldevb is "+ldevb);

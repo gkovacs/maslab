@@ -9,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
+import maslab.telemetry.channel.*;
+import orc.*;
 
 /**
  *
@@ -851,7 +853,100 @@ public class Main {
 		}
 	}
 
+	public static double sum5(double[] a) {
+		return a[0]+a[1]+a[2]+a[3]+a[4];
+	}
+
+	public static double sum5l(double[] a) {
+		return a[5]+a[6]+a[7]+a[8]+a[9];
+	}
+
+	public static void shiftleft(double[] a, double nd) {
+		a[0] = a[1];
+		a[1] = a[2];
+		a[2] = a[3];
+		a[3] = a[4];
+		a[4] = a[5];
+		a[5] = a[6];
+		a[6] = a[7];
+		a[7] = a[8];
+		a[8] = a[9];
+		a[9] = nd;
+	}
+
 	public static void main(String[] args) {
+		try {
+		TextChannel tx = new TextChannel("team6");
+		java.lang.Thread.sleep(3000);
+		tx.publish("connected\n");
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		Motor m0 = new Motor(o, 0, false);
+		Motor m1 = new Motor(o, 1, false);
+		AnalogInput a = new AnalogInput(o, 0);
+		double[] prevd = new double[10];
+		{
+			double d = 62.5/a.getVoltage();
+			for (int x = 0; x < prevd.length; ++x) {
+				prevd[x] = d;
+			}
+		}
+		while (true) { // Vd = 62.5
+			//System.out.println(62.5/a.getVoltage());
+			double nd = 62.5/a.getVoltage();
+			shiftleft(prevd, nd);
+			if (Math.abs(sum5(prevd)-sum5l(prevd)) > 10.0) {
+				// if varies greater than 10 cm, wall has changed
+				tx.publish("wall changed\n");
+				//System.out.println("wall changed\n");
+				//d = nd;
+				//java.lang.Thread.sleep(10000);
+				m0.setPWM(0.0);
+				m1.setPWM(0.0);
+				break;
+			} else {
+				tx.publish(Math.abs(sum5(prevd)-sum5l(prevd))+"old5 is "+sum5(prevd)+"new5 is "+sum5l(prevd));
+				//System.out.println(Math.abs(sum5(prevd)-sum5l(prevd))+"old5 is "+sum5(prevd)+"new5 is "+sum5l(prevd));
+				//tx.publish("delta is "+Math.abs(d-nd)+"\n");
+				//tx.publish(""+Math.abs(d-nd)+"\n");
+				//System.out.println(""+Math.abs(d-nd)+" nd is "+nd+"\n");
+				//d = nd;
+				m0.setPWM(0.5);
+				m1.setPWM(0.5);
+			}
+			//System.out.println(a.getVoltage());
+		}
+		//java.lang.Thread.sleep(10000);
+		} catch (Exception e) {
+
+		}
+	}
+
+	public static void main3(String[] args) {
+		try {
+		/*
+		TextChannel tx = new TextChannel("team6");
+		java.lang.Thread.sleep(10000);
+		tx.publish("Hello World");
+		java.lang.Thread.sleep(10000);
+		*/
+		/*
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		Motor m = new Motor(o, 0, false);
+		m.setWatchDog(6000000);
+		m.setPWM(0.1);
+		*/
+		//while (true) {
+		//m.setPWM(1.0);
+		//}
+		java.lang.Thread.sleep(10000);
+		} catch (Exception e) {
+			
+		}
+	}
+
+	public static void main2(String[] args) {
 		//for (String x : args)
 		//	System.out.println(x);
 		if (args.length < 1)

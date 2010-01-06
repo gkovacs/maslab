@@ -990,7 +990,7 @@ public class Main {
 			ic2.setImage(im2);
 			jl2.setIcon(ic2);
 			jl2.repaint();
-			seekStart(r2,r3);
+			seekStart2(r2,r3);
 			ic3.setImage(im3);
 			jl3.setIcon(ic3);
 			jl3.repaint();

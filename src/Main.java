@@ -276,9 +276,9 @@ public class Main {
 	public static boolean isRed(WritableRaster r1, int x, int y) {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
-			//int g = r1.getSample(x, y, 1);
+			int g = r1.getSample(x, y, 1);
 			//int b = r1.getSample(x, y, 2);
-			if (r > 110) return true;
+			if (r > 110 && g < 80) return true;
 		} return false;
 	}
 

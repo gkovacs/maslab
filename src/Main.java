@@ -881,9 +881,16 @@ public class Main {
 		orc.camera.Camera c = new orc.camera.Camera("/dev/video0");
 		BufferedImage i = c.createImage();
 		c.capture(i);
+		JFrame jf = new JFrame();
 		ImageIcon ic = new ImageIcon();
 		JLabel jl = new JLabel();
-		
+		ic.setImage(i);
+		jl.setIcon(ic);
+		JPanel cp = new JPanel(new GridLayout(1,1));
+		cp.add(jl);
+		jf.setContentPane(cp);
+		jf.setSize(i.getWidth(), i.getHeight());
+		jf.setVisible(true);
 		} catch (Exception e) {
 
 		}

@@ -206,19 +206,23 @@ public class Main {
 				int max = Math.max(Math.max(r, g), b);
 				int min = Math.min(Math.min(r, g), b);
 				int h = 0;
-				if (max == min) {
-					
-				} else if (max == r) {
-					h = (g-b)*85/(2*(max-min));
-					if (h < 0)
-						h += 255;
-				} else if (max == g) {
-					h = 85 + (b-r)*85/(2*(max-min));
-				} else { // max == b
-					h = 170 + (r-g)*85/(2*(max-min));
+				int s = 0;
+				int delta = max-min;
+				if (delta == 0) delta = 1;
+				if (max != 0) {
+					s = 255*delta/max;
+					if (max == r) {
+						h = (g-b)*85/(2*delta);
+						if (h < 0)
+							h += 255;
+					} else if (max == g) {
+						h = 85 + (b-r)*85/(2*delta);
+					} else { // max == b
+						h = 170 + (r-g)*85/(2*delta);
+					}
 				}
 				r2.setSample(x, y, 0, h); // h
-				r2.setSample(x, y, 1, (max == 0) ? 0 : 255*(max-min)/max); // s
+				r2.setSample(x, y, 1, s); // s
 				r2.setSample(x, y, 2, max); // v
 			}
 		}
@@ -272,7 +276,7 @@ public class Main {
 			int r = r1.getSample(x, y, 0);
 			//int g = r1.getSample(x, y, 1);
 			//int b = r1.getSample(x, y, 2);
-			if (r > 70) return true;
+			if (r > 110) return true;
 		} return false;
 	}
 
@@ -658,12 +662,12 @@ public class Main {
 		if (ldevt < ldevb) {
 			if (ldevt < 2.0f && lrt > 3.0f) {
 				filledCircle(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
-				r2.setSample((int)(startx+Math.ceil(lrt)), starty, 2, 255);
+				//r2.setSample((int)(startx+Math.ceil(lrt)), starty, 2, 255);
 			}
 		} else {
 			if (ldevb < 2.0f && lrb > 3.0f) {
 				filledCircle(r2,(int)(startx+Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
-				r2.setSample((int)(Math.ceil(startx+lrb)), starty, 2, 255);
+				//r2.setSample((int)(Math.ceil(startx+lrb)), starty, 2, 255);
 			}
 		}
 	}
@@ -733,12 +737,12 @@ public class Main {
 		if (ldevt < ldevb) {
 			if (ldevt < 2.0f && lrt > 3.0f) {
 				filledCircle(r2,(int)(startx-Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
-				r2.setSample((int)(startx-Math.ceil(lrt)), starty, 2, 255);
+				//r2.setSample((int)(startx-Math.ceil(lrt)), starty, 2, 255);
 			}
 		} else {
 			if (ldevb < 2.0f && lrb > 3.0f) {
 				filledCircle(r2,(int)(startx-Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
-				r2.setSample((int)(startx-Math.ceil(lrb)), starty, 2, 255);
+				//r2.setSample((int)(startx-Math.ceil(lrb)), starty, 2, 255);
 			}
 		}
 	}
@@ -880,12 +884,17 @@ public class Main {
 				int r = r1.getSample(x, y, 0);
 				int g = r1.getSample(x, y, 1);
 				int b = r1.getSample(x, y, 2);
-				int tot = (r+g+b)/2;
+				int tot = r+g+b;
 				//System.err.println("r "+r+" g "+g+" b "+b+" tot "+tot);
-				if (tot == 0) tot = 1;
-				r2.setSample(x, y, 0, bound(r*255/tot, 255, -255));
-				r2.setSample(x, y, 1, bound(g*255/tot, 255, -255));
-				r2.setSample(x, y, 2, bound(b*255/tot, 255, -255));
+				if (tot != 0) {
+					r2.setSample(x, y, 0, bound(r*255/tot, 255, -255));
+					r2.setSample(x, y, 1, bound(g*255/tot, 255, -255));
+					r2.setSample(x, y, 2, bound(b*255/tot, 255, -255));
+				} else {
+					r2.setSample(x, y, 0, 0);
+					r2.setSample(x, y, 1, 0);
+					r2.setSample(x, y, 2, 0);
+				}
 			}
 		}
 	}
@@ -905,7 +914,9 @@ public class Main {
 		c.capture(im);
 		WritableRaster r = im.getRaster();
 		BufferedImage im2 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
+		//BufferedImage im2 = orc.camera.ImageUtil.rgbToHsv(im);
 		WritableRaster r2 = im2.getRaster();
+		//rgb2hsv(r,r2);
 		normImage2(r,r2);
 		BufferedImage im3 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r3 = im3.getRaster();
@@ -932,6 +943,20 @@ public class Main {
 		jf.setContentPane(cp);
 		jf.setSize(im.getWidth()*3, im.getHeight());
 		jf.setVisible(true);
+		while (true) {
+			c.capture(im);
+			ic.setImage(im);
+			jl.setIcon(ic);
+			jl.repaint();
+			normImage2(r,r2);
+			//rgb2hsv(r,r2);
+			//im2 = orc.camera.ImageUtil.rgbToHsv(im);
+			ic2.setImage(im2);
+			jl2.setIcon(ic2);
+			jl2.repaint();
+			//seekStart(r2,r3);
+			//ic3.setImage(im3);
+		}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1089,7 +1114,8 @@ public class Main {
 		//convolve(r6, r7, m, 159);
 		BufferedImage im8 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r8 = im8.getRaster();
-		copyChannels(r6, r8, 0, 3);
+		//copyChannels(r6, r8, 0, 3);
+		normImage2(r2,r8);
 		BufferedImage im9 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r9 = im9.getRaster();
 		copyChannels(r6, r9, 3, 1);

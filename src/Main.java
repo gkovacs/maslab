@@ -876,6 +876,22 @@ public class Main {
 
 	public static void main(String[] args) {
 		try {
+		if (args.length > 1) {
+			System.out.println(args[0]);
+			if (args[0].contentEquals("testmotor")) testmotor();
+			if (args[0].contentEquals("testir")) testir();
+			if (args[0].contentEquals("testchannel")) testchannel();
+			if (args[0].contentEquals("testcirc")) testcirc(args[1]);
+		} else {
+			System.out.println("need argument");
+		}
+		} catch (Exception e) {
+			
+		}
+	}
+
+	public static void testir() {
+		try {
 		TextChannel tx = new TextChannel("team6");
 		java.lang.Thread.sleep(3000);
 		tx.publish("connected\n");
@@ -922,7 +938,7 @@ public class Main {
 		}
 	}
 
-	public static void main3(String[] args) {
+	public static void testmotor() {
 		try {
 		/*
 		TextChannel tx = new TextChannel("team6");
@@ -930,13 +946,13 @@ public class Main {
 		tx.publish("Hello World");
 		java.lang.Thread.sleep(10000);
 		*/
-		/*
+		
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		Motor m = new Motor(o, 0, false);
 		m.setWatchDog(6000000);
 		m.setPWM(0.1);
-		*/
+		
 		//while (true) {
 		//m.setPWM(1.0);
 		//}
@@ -946,18 +962,29 @@ public class Main {
 		}
 	}
 
-	public static void main2(String[] args) {
+	public static void testchannel() {
+		try {
+		TextChannel tx = new TextChannel("team6");
+		java.lang.Thread.sleep(10000);
+		tx.publish("Hello World");
+		java.lang.Thread.sleep(10000);
+		} catch (Exception e) {
+
+		}
+	}
+
+	public static void testcirc(String imgloc) {
 		//for (String x : args)
 		//	System.out.println(x);
-		if (args.length < 1)
-		{
-			System.out.println("not enough args");
-			return;
-		}
-		File f = new File(args[0]);
+		//if (args.length < 1)
+		//{
+		//	System.out.println("not enough args");
+		//	return;
+		//}
+		File f = new File(imgloc);
 		if (!f.exists())
 		{
-			System.out.println("file "+args[0]+"does not exist");
+			System.out.println("file "+imgloc+" does not exist");
 			return;
 		}
 		BufferedImage im = null;//new BufferedImage();

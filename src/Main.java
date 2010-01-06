@@ -272,7 +272,7 @@ public class Main {
 			int r = r1.getSample(x, y, 0);
 			//int g = r1.getSample(x, y, 1);
 			//int b = r1.getSample(x, y, 2);
-			if (r > 110) return true;
+			if (r > 70) return true;
 		} return false;
 	}
 
@@ -402,7 +402,7 @@ public class Main {
 		float ldev = median(rvals);
 		printList(rvals);
 		if (rvals.length < 2) ldev = Float.MAX_VALUE;
-		System.out.println("lr is "+lr+" ldev is "+ldev);
+		//System.out.println("lr is "+lr+" ldev is "+ldev);
 		for (int x = 0; x < rvals.length; ++x) {
 			int c = uy[diam-x-1]-ly[diam-x-1];
 			//System.out.println(c);
@@ -873,26 +873,67 @@ public class Main {
 		a[8] = a[9];
 		a[9] = nd;
 	}
+
+	public static void normImage2(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = r1.getHeight()-1; y >= 0; --y) {
+				int r = r1.getSample(x, y, 0);
+				int g = r1.getSample(x, y, 1);
+				int b = r1.getSample(x, y, 2);
+				int tot = (r+g+b)/2;
+				//System.err.println("r "+r+" g "+g+" b "+b+" tot "+tot);
+				if (tot == 0) tot = 1;
+				r2.setSample(x, y, 0, bound(r*255/tot, 255, -255));
+				r2.setSample(x, y, 1, bound(g*255/tot, 255, -255));
+				r2.setSample(x, y, 2, bound(b*255/tot, 255, -255));
+			}
+		}
+	}
 	
-	public static void cameraTest() {
+	public static void testcamera() {
 		try {
-		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
-		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		orc.camera.Camera c = new orc.camera.Camera("/dev/video0");
-		BufferedImage i = c.createImage();
-		c.capture(i);
+		//byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		//Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		System.out.println("1");
+		orc.camera.Camera c;
+		System.out.println("1a");
+		c = new orc.camera.Camera("/dev/video0");
+		//c = orc.camera.Camera.makeCamera();
+		System.out.println("2");
+		//orc.camera.Camera c = new orc.camera.Camera("/dev/video0");
+		BufferedImage im = c.createImage();
+		c.capture(im);
+		WritableRaster r = im.getRaster();
+		BufferedImage im2 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
+		WritableRaster r2 = im2.getRaster();
+		normImage2(r,r2);
+		BufferedImage im3 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
+		WritableRaster r3 = im3.getRaster();
+		seekStart2(r2,r3);
+		System.out.println("3");
+		System.out.println("4");
 		JFrame jf = new JFrame();
 		ImageIcon ic = new ImageIcon();
 		JLabel jl = new JLabel();
-		ic.setImage(i);
+		ic.setImage(im);
 		jl.setIcon(ic);
-		JPanel cp = new JPanel(new GridLayout(1,1));
+		ImageIcon ic2 = new ImageIcon();
+		JLabel jl2 = new JLabel();
+		ic2.setImage(im2);
+		jl2.setIcon(ic2);
+		ImageIcon ic3 = new ImageIcon();
+		JLabel jl3 = new JLabel();
+		ic3.setImage(im3);
+		jl3.setIcon(ic3);
+		JPanel cp = new JPanel(new GridLayout(1,3));
 		cp.add(jl);
+		cp.add(jl2);
+		cp.add(jl3);
 		jf.setContentPane(cp);
-		jf.setSize(i.getWidth(), i.getHeight());
+		jf.setSize(im.getWidth()*3, im.getHeight());
 		jf.setVisible(true);
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 	}
 
@@ -901,9 +942,11 @@ public class Main {
 		if (args.length > 0) {
 			System.out.println(args[0]);
 			if (args[0].contentEquals("testmotor")) testmotor();
-			if (args[0].contentEquals("testir")) testir();
-			if (args[0].contentEquals("testchannel")) testchannel();
-			if (args[0].contentEquals("testcirc")) testcirc(args[1]);
+			else if (args[0].contentEquals("testir")) testir();
+			else if (args[0].contentEquals("testchannel")) testchannel();
+			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
+			else if (args[0].contentEquals("testcamera")) testcamera();
+			else System.out.println("unknown option");
 		} else {
 			System.out.println("need argument");
 		}

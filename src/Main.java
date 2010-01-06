@@ -873,10 +873,25 @@ public class Main {
 		a[8] = a[9];
 		a[9] = nd;
 	}
+	
+	public static void cameraTest() {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		orc.camera.Camera c = new orc.camera.Camera("/dev/video0");
+		BufferedImage i = c.createImage();
+		c.capture(i);
+		ImageIcon ic = new ImageIcon();
+		JLabel jl = new JLabel();
+		
+		} catch (Exception e) {
+
+		}
+	}
 
 	public static void main(String[] args) {
 		try {
-		if (args.length > 1) {
+		if (args.length > 0) {
 			System.out.println(args[0]);
 			if (args[0].contentEquals("testmotor")) testmotor();
 			if (args[0].contentEquals("testir")) testir();
@@ -949,9 +964,12 @@ public class Main {
 		
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		Motor m = new Motor(o, 0, false);
-		m.setWatchDog(6000000);
-		m.setPWM(0.1);
+		Motor m0 = new Motor(o, 0, false);
+		m0.setWatchDog(6000000);
+		m0.setPWM(0.5);
+                Motor m1 = new Motor(o, 1, false);
+		m1.setWatchDog(6000000);
+		m1.setPWM(0.5);
 		
 		//while (true) {
 		//m.setPWM(1.0);

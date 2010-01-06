@@ -222,6 +222,8 @@ public class Main {
 					}
 				}
 				r2.setSample(x, y, 0, h); // h
+				//r2.setSample(x, y, 1, h);
+				//r2.setSample(x, y, 2, h);
 				r2.setSample(x, y, 1, s); // s
 				r2.setSample(x, y, 2, max); // v
 			}
@@ -240,7 +242,7 @@ public class Main {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			for (int y = 0; y < r1.getHeight(); ++y) {
 				int r = r1.getSample(x, y, 0);
-				if (r > 110)
+				if (r > 130)
 					r2.setSample(x, y, 0, 255);
 			}
 		}
@@ -735,12 +737,12 @@ public class Main {
 		if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
 		System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
 		if (ldevt < ldevb) {
-			if (ldevt < 2.0f && lrt > 3.0f) {
+			if (ldevt < 3.0f && lrt > 3.0f) {
 				filledCircle(r2,(int)(startx-Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
 				//r2.setSample((int)(startx-Math.ceil(lrt)), starty, 2, 255);
 			}
 		} else {
-			if (ldevb < 2.0f && lrb > 3.0f) {
+			if (ldevb < 3.0f && lrb > 3.0f) {
 				filledCircle(r2,(int)(startx-Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 				//r2.setSample((int)(startx-Math.ceil(lrb)), starty, 2, 255);
 			}
@@ -898,6 +900,32 @@ public class Main {
 			}
 		}
 	}
+
+	public static void blankimg(WritableRaster r) {
+		for (int x = 0; x < r.getWidth(); ++x) {
+			for (int y = 0; y < r.getHeight(); ++y) {
+				r.setSample(x, y, 0, 0);
+				r.setSample(x, y, 1, 0);
+				r.setSample(x, y, 2, 0);
+			}
+		}
+	}
+
+	public static void shadeRed(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				if (isRed(r1,x,y)) {
+					r2.setSample(x, y, 0, 255);
+					r2.setSample(x, y, 1, 255);
+					r2.setSample(x, y, 2, 255);
+				} else {
+					r2.setSample(x, y, 0, 0);
+					r2.setSample(x, y, 1, 0);
+					r2.setSample(x, y, 2, 0);
+				}
+			}
+		}
+	}
 	
 	public static void testcamera() {
 		try {
@@ -921,6 +949,9 @@ public class Main {
 		BufferedImage im3 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r3 = im3.getRaster();
 		seekStart2(r2,r3);
+		BufferedImage im4 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
+		WritableRaster r4 = im4.getRaster();
+		shadeRed(r2,r4);
 		System.out.println("3");
 		System.out.println("4");
 		JFrame jf = new JFrame();
@@ -936,12 +967,17 @@ public class Main {
 		JLabel jl3 = new JLabel();
 		ic3.setImage(im3);
 		jl3.setIcon(ic3);
-		JPanel cp = new JPanel(new GridLayout(1,3));
+		ImageIcon ic4 = new ImageIcon();
+		JLabel jl4 = new JLabel();
+		ic4.setImage(im4);
+		jl4.setIcon(ic4);
+		JPanel cp = new JPanel(new GridLayout(1,4));
 		cp.add(jl);
 		cp.add(jl2);
 		cp.add(jl3);
+		cp.add(jl4);
 		jf.setContentPane(cp);
-		jf.setSize(im.getWidth()*3, im.getHeight());
+		jf.setSize(im.getWidth()*4, im.getHeight());
 		jf.setVisible(true);
 		while (true) {
 			c.capture(im);
@@ -954,8 +990,15 @@ public class Main {
 			ic2.setImage(im2);
 			jl2.setIcon(ic2);
 			jl2.repaint();
-			//seekStart(r2,r3);
-			//ic3.setImage(im3);
+			seekStart(r2,r3);
+			ic3.setImage(im3);
+			jl3.setIcon(ic3);
+			jl3.repaint();
+			blankimg(r3);
+			shadeRed(r2,r4);
+			ic4.setImage(im4);
+			jl4.setIcon(ic4);
+			jl4.repaint();
 		}
 		} catch (Exception e) {
 			e.printStackTrace();

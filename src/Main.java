@@ -672,11 +672,11 @@ public class Main {
 		//if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
 		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
 		if (ldevt < ldevb) {
-			if (ldevt < 0.15f*(float)diam && lrt > 4.0f) {
+			if (ldevt < 0.15f*(float)diam && lrt > 3.0f) {
 				circleFound(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
 			}
 		} else {
-			if (ldevb < 0.15f*(float)diam && lrb > 4.0f) {
+			if (ldevb < 0.15f*(float)diam && lrb > 3.0f) {
 				circleFound(r2,(int)(startx+Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 			}
 		}
@@ -752,11 +752,11 @@ public class Main {
 		//if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
 		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
 		if (ldevt < ldevb) {
-			if (ldevt < 0.15f*(float)diam && lrt > 4.0f) {
+			if (ldevt < 0.15f*(float)diam && lrt > 3.0f) {
 				circleFound(r2,(int)(startx-Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
 			}
 		} else {
-			if (ldevb < 0.15f*(float)diam && lrb > 4.0f) {
+			if (ldevb < 0.15f*(float)diam && lrb > 3.0f) {
 				circleFound(r2,(int)(startx-Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 			}
 		}
@@ -1173,6 +1173,22 @@ public class Main {
 		}
 	}
 
+	public static void fetchball() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(1);
+		Vision v = new Vision();
+		v.setup(a, 0);
+		a.start();
+		v.start();
+		java.lang.Thread.sleep(50000); // 50 seconds
+		v.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args) {
 		try {
 		if (args.length > 0) {
@@ -1182,6 +1198,7 @@ public class Main {
 			else if (args[0].contentEquals("testchannel")) testchannel();
 			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
 			else if (args[0].contentEquals("testcamera")) testcamera();
+			else if (args[0].contentEquals("fetchball")) fetchball();
 			else System.out.println("unknown option");
 		} else {
 			System.out.println("need argument");
@@ -1253,7 +1270,7 @@ public class Main {
 		Motor m0 = new Motor(o, 0, false);
 		m0.setWatchDog(6000000);
 		m0.setPWM(0.5);
-                Motor m1 = new Motor(o, 1, false);
+		Motor m1 = new Motor(o, 1, false);
 		m1.setWatchDog(6000000);
 		m1.setPWM(0.5);
 		

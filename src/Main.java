@@ -22,6 +22,9 @@ public class Main {
      * @param args the command line arguments
      */
 
+	public int ncd = 0;
+	public double nca = 0.0;
+
 	public static void convolve(WritableRaster r1, WritableRaster r2, int[][] m, int w) {
 		int[] rgbf = new int[r1.getNumBands()];
 		int[] rgbft = new int[r1.getNumBands()];
@@ -599,6 +602,166 @@ public class Main {
 		}
 	}
 
+	public static void circleDetectRightFull(WritableRaster r1, WritableRaster r2, int startx, int starty) {
+		int diam = 0;
+		while (isRed(r1,startx+diam,starty)) ++diam;
+		if (diam/2 == 0) return;
+		float[] rvals = new float[diam];
+		int h = 0;
+		for (int x = startx; x < startx+diam/2; ++x) {
+			for (int y = starty; y < r1.getHeight(); ++y) {
+				if (!isRed(r1,x,y)) {
+					int c = 2*(y-starty);
+					++h;
+					rvals[x-startx] = (c*c+4.0f*h*h)/(8.0f*h);
+					break;
+				}
+			}
+		}
+		h = (diam+1)/2+1;
+		for (int x = startx+diam/2; x < startx+diam; ++x) {
+			for (int y = starty; y < r1.getHeight(); ++y) {
+				if (!isRed(r1,x,y)) {
+					int c = 2*(y-starty);
+					--h;
+					rvals[x-startx] = (c*c+4.0f*h*h)/(8.0f*h);
+					break;
+				}
+			}
+		}
+		printList(rvals);
+		Arrays.sort(rvals);
+		//printList(rvals);
+		float lrt = median(rvals);
+		for (int x = 0; x < diam; ++x)
+			rvals[x] = Math.abs(lrt-rvals[x]);
+		Arrays.sort(rvals);
+		float ldevt = median(rvals);
+		ldevt += 32.0f*Math.abs((float)lrt-(float)diam/2.0f)/(float)diam;
+		System.out.println("lrt is "+lrt+" ldevt is "+ldevt);
+		h = 0;
+		for (int x = startx; x < startx+diam/2; ++x) {
+			for (int y = starty-1; y >= 0; --y) {
+				if (!isRed(r1,x,y)) {
+					int c = 2*(starty-y);
+					++h;
+					rvals[x-startx] = (c*c+4.0f*h*h)/(8.0f*h);
+					break;
+				}
+			}
+		}
+		h = (diam+1)/2+1;
+		for (int x = startx+diam/2; x < startx+diam; ++x) {
+			for (int y = starty-1; y >= 0; --y) {
+				if (!isRed(r1,x,y)) {
+					int c = 2*(starty-y);
+					--h;
+					rvals[x-startx] = (c*c+4.0f*h*h)/(8.0f*h);
+					break;
+				}
+			}
+		}
+		Arrays.sort(rvals);
+		float lrb = median(rvals);
+		for (int x = 0; x < diam; ++x)
+			rvals[x] = Math.abs(lrb-rvals[x]);
+		Arrays.sort(rvals);
+		float ldevb = median(rvals);
+		ldevb += 32.0f*Math.abs((float)lrb-(float)diam/2.0f)/(float)diam;
+		//if (stoptop < 4 || stoptop*2 < stopbot) ldevt = Float.MAX_VALUE;
+		//if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
+		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
+		if (ldevt < ldevb) {
+			if (ldevt < 0.05f*(float)diam && lrt > 4.0f) {
+				circleFound(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
+			}
+		} else {
+			if (ldevb < 0.05f*(float)diam && lrb > 4.0f) {
+				circleFound(r2,(int)(startx+Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
+			}
+		}
+	}
+
+	public static void circleDetectLeftFull(WritableRaster r1, WritableRaster r2, int startx, int starty) {
+		int diam = 0;
+		while (isRed(r1,startx-diam,starty)) ++diam;
+		if (diam/2 == 0) return;
+		float[] rvals = new float[diam];
+		int h = 0;
+		for (int x = startx; x > startx-diam/2; --x) {
+			for (int y = starty; y < r1.getHeight(); ++y) {
+				if (!isRed(r1,x,y)) {
+					int c = 2*(y-starty);
+					++h;
+					rvals[startx-x] = (c*c+4.0f*h*h)/(8.0f*h);
+					break;
+				}
+			}
+		}
+		h = (diam+1)/2+1;
+		for (int x = startx-diam/2; x > startx-diam; --x) {
+			for (int y = starty; y < r1.getHeight(); ++y) {
+				if (!isRed(r1,x,y)) {
+					int c = 2*(y-starty);
+					--h;
+					rvals[startx-x] = (c*c+4.0f*h*h)/(8.0f*h);
+					break;
+				}
+			}
+		}
+		//printList(rvals);
+		Arrays.sort(rvals);
+		//printList(rvals);
+		float lrt = median(rvals);
+		for (int x = 0; x < diam; ++x)
+			rvals[x] = Math.abs(lrt-rvals[x]);
+		Arrays.sort(rvals);
+		float ldevt = median(rvals);
+		ldevt += 32.0f*Math.abs((float)lrt-(float)diam/2.0f)/(float)diam;
+		//System.out.println("lrt is "+lrt+" ldevt is "+ldevt);
+		h = 0;
+		for (int x = startx; x > startx-diam/2; --x) {
+			for (int y = starty-1; y >= 0; --y) {
+				if (!isRed(r1,x,y)) {
+					int c = 2*(starty-y);
+					++h;
+					rvals[startx-x] = (c*c+4.0f*h*h)/(8.0f*h);
+					break;
+				}
+			}
+		}
+		h = (diam+1)/2+1;
+		for (int x = startx-diam/2; x > startx-diam; --x) {
+			for (int y = starty-1; y >= 0; --y) {
+				if (!isRed(r1,x,y)) {
+					int c = 2*(starty-y);
+					--h;
+					rvals[startx-x] = (c*c+4.0f*h*h)/(8.0f*h);
+					break;
+				}
+			}
+		}
+		Arrays.sort(rvals);
+		float lrb = median(rvals);
+		for (int x = 0; x < diam; ++x)
+			rvals[x] = Math.abs(lrb-rvals[x]);
+		Arrays.sort(rvals);
+		float ldevb = median(rvals);
+		ldevb += 32.0f*Math.abs((float)lrb-(float)diam/2.0f)/(float)diam;
+		//if (stoptop < 4 || stoptop*2 < stopbot) ldevt = Float.MAX_VALUE;
+		//if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
+		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
+		if (ldevt < ldevb) {
+			if (ldevt < 0.05f*diam && lrt > 4.0f) {
+				circleFound(r2,(int)(startx-Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
+			}
+		} else {
+			if (ldevb < 0.05f*diam && lrb > 4.0f) {
+				circleFound(r2,(int)(startx-Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
+			}
+		}
+	}
+
 	public static void circleDetectRight(WritableRaster r1, WritableRaster r2, int startx, int starty) {
 		int diam = 0;
 		while (isRed(r1,startx+diam,starty)) ++diam;
@@ -626,7 +789,7 @@ public class Main {
 		}
 		printList(rvals);
 		Arrays.sort(rvals, 0, stoptop);
-		printList(rvals);
+		//printList(rvals);
 		float lrt = median(rvals, stoptop);
 		for (int x = 0; x < stoptop; ++x)
 			rvals[x] = Math.abs(lrt-rvals[x]);
@@ -660,16 +823,14 @@ public class Main {
 		float ldevb = median(rvals, stopbot);
 		if (stoptop < 4 || stoptop*2 < stopbot) ldevt = Float.MAX_VALUE;
 		if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
-		System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
+		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
 		if (ldevt < ldevb) {
-			if (ldevt < 2.0f && lrt > 3.0f) {
-				filledCircle(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
-				//r2.setSample((int)(startx+Math.ceil(lrt)), starty, 2, 255);
+			if (ldevt < 1.0f && lrt > 3.0f) {
+				circleFound(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
 			}
 		} else {
-			if (ldevb < 2.0f && lrb > 3.0f) {
-				filledCircle(r2,(int)(startx+Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
-				//r2.setSample((int)(Math.ceil(startx+lrb)), starty, 2, 255);
+			if (ldevb < 1.0f && lrb > 3.0f) {
+				circleFound(r2,(int)(startx+Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 			}
 		}
 	}
@@ -699,15 +860,15 @@ public class Main {
 				}
 			}
 		}
-		printList(rvals);
+		//printList(rvals);
 		Arrays.sort(rvals, 0, stoptop);
-		printList(rvals);
+		//printList(rvals);
 		float lrt = median(rvals, stoptop);
 		for (int x = 0; x < stoptop; ++x)
 			rvals[x] = Math.abs(lrt-rvals[x]);
 		Arrays.sort(rvals, 0, stoptop);
 		float ldevt = median(rvals, stoptop);
-		System.out.println("lrt is "+lrt+" ldevt is "+ldevt);
+		//System.out.println("lrt is "+lrt+" ldevt is "+ldevt);
 		prevy = prevprevy = r1.getHeight();
 		int stopbot = 0;
 		end2:
@@ -735,17 +896,24 @@ public class Main {
 		float ldevb = median(rvals, stopbot);
 		if (stoptop < 4 || stoptop*2 < stopbot) ldevt = Float.MAX_VALUE;
 		if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
-		System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
+		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
 		if (ldevt < ldevb) {
-			if (ldevt < 3.0f && lrt > 3.0f) {
-				filledCircle(r2,(int)(startx-Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
-				//r2.setSample((int)(startx-Math.ceil(lrt)), starty, 2, 255);
+			if (ldevt < 1.0f && lrt > 3.0f) {
+				circleFound(r2,(int)(startx-Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
 			}
 		} else {
-			if (ldevb < 3.0f && lrb > 3.0f) {
-				filledCircle(r2,(int)(startx-Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
-				//r2.setSample((int)(startx-Math.ceil(lrb)), starty, 2, 255);
+			if (ldevb < 1.0f && lrb > 3.0f) {
+				circleFound(r2,(int)(startx-Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 			}
+		}
+	}
+
+	public static void circleFound(WritableRaster r1, int x, int y, int r) {
+		if (x >= 0 && x < r1.getWidth() && y >= 0 && y < r1.getHeight()) {
+			filledCircle(r1,x,y,r);
+			r1.setSample(x, y, 2, 255);
+			//System.out.println(r);
+			System.out.println("distance is "+(600/r)+"cm offcenter is "+(x-r1.getWidth()/2)+"px angle is ");
 		}
 	}
 
@@ -760,11 +928,11 @@ public class Main {
 					y /= 2;
 					if (!isRed(r1,x-1,y)) {
 						if (!isRed(r2,x,y) && !isRed(r2,x+1,y) && !isRed(r2,x+2,y) && !isRed(r2,x+3,y))
-							circleDetectRight(r1,r2,x,y);
+							circleDetectRightFull(r1,r2,x,y);
 					}
 					if (!isRed(r1,x+1,y)) {
 						if (!isRed(r2,x,y) && !isRed(r2,x-1,y) && !isRed(r2,x-2,y) && !isRed(r2,x-3,y))
-							circleDetectLeft(r1,r2,x,y);
+							circleDetectLeftFull(r1,r2,x,y);
 					}
 				}
 				y = ++ey;

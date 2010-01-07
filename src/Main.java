@@ -280,8 +280,8 @@ public class Main {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
 			int g = r1.getSample(x, y, 1);
-			//int b = r1.getSample(x, y, 2);
-			if (r > 110 && g < 80) return true;
+			int b = r1.getSample(x, y, 2);
+			if (r > 80 && g+b < r) return true;
 		} return false;
 	}
 
@@ -672,11 +672,11 @@ public class Main {
 		//if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
 		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
 		if (ldevt < ldevb) {
-			if (ldevt < 0.05f*(float)diam && lrt > 4.0f) {
+			if (ldevt < 0.15f*(float)diam && lrt > 4.0f) {
 				circleFound(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
 			}
 		} else {
-			if (ldevb < 0.05f*(float)diam && lrb > 4.0f) {
+			if (ldevb < 0.15f*(float)diam && lrb > 4.0f) {
 				circleFound(r2,(int)(startx+Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 			}
 		}
@@ -752,11 +752,11 @@ public class Main {
 		//if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
 		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
 		if (ldevt < ldevb) {
-			if (ldevt < 0.05f*diam && lrt > 4.0f) {
+			if (ldevt < 0.15f*(float)diam && lrt > 4.0f) {
 				circleFound(r2,(int)(startx-Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
 			}
 		} else {
-			if (ldevb < 0.05f*diam && lrb > 4.0f) {
+			if (ldevb < 0.15f*(float)diam && lrb > 4.0f) {
 				circleFound(r2,(int)(startx-Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 			}
 		}
@@ -1116,10 +1116,10 @@ public class Main {
 		normImage2(r,r2);
 		BufferedImage im3 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r3 = im3.getRaster();
-		seekStart2(r2,r3);
+		seekStart2(r,r3);
 		BufferedImage im4 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r4 = im4.getRaster();
-		shadeRed(r2,r4);
+		shadeRed(r,r4);
 		System.out.println("3");
 		System.out.println("4");
 		JFrame jf = new JFrame();
@@ -1158,12 +1158,12 @@ public class Main {
 			ic2.setImage(im2);
 			jl2.setIcon(ic2);
 			jl2.repaint();
-			seekStart2(r2,r3);
+			seekStart2(r,r3);
 			ic3.setImage(im3);
 			jl3.setIcon(ic3);
 			jl3.repaint();
 			blankimg(r3);
-			shadeRed(r2,r4);
+			shadeRed(r,r4);
 			ic4.setImage(im4);
 			jl4.setIcon(ic4);
 			jl4.repaint();

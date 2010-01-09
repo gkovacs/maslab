@@ -281,7 +281,8 @@ public class Main {
 			int r = r1.getSample(x, y, 0);
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
-			if (r > 80 && g+b < r) return true;
+			if (r > 90 && 3*(g+b) < 4*r) return true;
+			//if (r > 110 && 3*(g+b) < 4*r) return true;
 		} return false;
 	}
 
@@ -672,11 +673,11 @@ public class Main {
 		//if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
 		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
 		if (ldevt < ldevb) {
-			if (ldevt < 0.15f*(float)diam && lrt > 3.0f) {
+			if (ldevt < 0.05f*(float)diam && lrt > 3.0f) {
 				circleFound(r2,(int)(startx+Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
 			}
 		} else {
-			if (ldevb < 0.15f*(float)diam && lrb > 3.0f) {
+			if (ldevb < 0.05f*(float)diam && lrb > 3.0f) {
 				circleFound(r2,(int)(startx+Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 			}
 		}
@@ -752,11 +753,11 @@ public class Main {
 		//if (stopbot < 4 || stopbot*2 < stoptop) ldevb = Float.MAX_VALUE;
 		//System.out.println("lrb is "+lrb+" ldevb is "+ldevb);
 		if (ldevt < ldevb) {
-			if (ldevt < 0.15f*(float)diam && lrt > 3.0f) {
+			if (ldevt < 1.0f+0.025f*(float)diam && lrt > 3.0f) {
 				circleFound(r2,(int)(startx-Math.ceil(lrt)),starty,(int)(Math.ceil(lrt)));
 			}
 		} else {
-			if (ldevb < 0.15f*(float)diam && lrb > 3.0f) {
+			if (ldevb < 1.0f+0.025f*(float)diam && lrb > 3.0f) {
 				circleFound(r2,(int)(startx-Math.ceil(lrb)),starty,(int)(Math.ceil(lrb)));
 			}
 		}
@@ -1294,6 +1295,118 @@ public class Main {
 		}
 	}
 
+	public static void setExtrema(final WritableRaster r1, final WritableRaster r2, final int x, final int y, final Extrema m) {
+		m.update(x, y);
+		r2.setSample(x, y, 0, 255);
+		if (isRed(r1,x+1,y) && r2.getSample(x+1, y, 0) != 255) {
+			setExtrema(r1,r2,x+1,y,m);
+		} if (isRed(r1,x-1,y) && r2.getSample(x-1, y, 0) != 255) {
+			setExtrema(r1,r2,x-1,y,m);
+		} if (isRed(r1,x,y+1) && r2.getSample(x, y+1, 0) != 255) {
+			setExtrema(r1,r2,x,y+1,m);
+		} if (isRed(r1,x,y-1) && r2.getSample(x, y-1, 0) != 255) {
+			setExtrema(r1,r2,x,y-1,m);
+		}
+	}
+
+	public static void drawline(final WritableRaster r, int x, int y, final int x2, final int y2) {
+		int w = x2 - x ;
+		int h = y2 - y ;
+		int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
+		if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
+		if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
+		if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
+		int longest = Math.abs(w) ;
+		int shortest = Math.abs(h) ;
+		if (!(longest>shortest)) {
+			longest = Math.abs(h) ;
+			shortest = Math.abs(w) ;
+			if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
+			dx2 = 0 ;
+		}
+		int numerator = longest >> 1 ;
+		for (int i=0;i<=longest;i++) {
+			r.setSample(x, y, 2, 255);
+			numerator += shortest ;
+		 if (!(numerator<longest)) {
+				numerator -= longest ;
+				x += dx1 ;
+			 y += dy1 ;
+			} else {
+				x += dx2 ;
+				y += dy2 ;
+			}
+		}
+	}
+
+	public static void countLine(final WritableRaster r, int x, int y, final int x2, final int y2, final int[] matchvnon) {
+		int w = x2 - x ;
+		int h = y2 - y ;
+		int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
+		if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
+		if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
+		if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
+		int longest = Math.abs(w) ;
+		int shortest = Math.abs(h) ;
+		if (!(longest>shortest)) {
+			longest = Math.abs(h) ;
+			shortest = Math.abs(w) ;
+			if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
+			dx2 = 0 ;
+		}
+		int numerator = longest >> 1 ;
+		for (int i=0;i<=longest;i++) {
+			//r.setSample(x, y, 2, 255);
+			if (isRed(r,x,y)) {
+				++matchvnon[0];
+			} else {
+				++matchvnon[1];
+			}
+			numerator += shortest ;
+		 if (!(numerator<longest)) {
+				numerator -= longest ;
+				x += dx1 ;
+			 y += dy1 ;
+			} else {
+				x += dx2 ;
+				y += dy2 ;
+			}
+		}
+	}
+
+	public static void findExtrema(final WritableRaster r1, final WritableRaster r2) {
+		Extrema m = new Extrema();
+		int[] matchvnon = new int[2];
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getWidth(); ++y) {
+				if (isRed(r1,x,y) && r2.getSample(x, y, 0) != 255) {
+					m.initval(x, y);
+					r2.setSample(x, y, 2, 255);
+					setExtrema(r1, r2, x, y, m);
+					r2.setSample(m.lbx, m.lby, 1, 255);
+					r2.setSample(m.rbx, m.rby, 1, 255);
+					r2.setSample(m.ltx, m.lty, 1, 255);
+					r2.setSample(m.rtx, m.rty, 1, 255);
+					matchvnon[0] = matchvnon[1] = 0;
+					countLine(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, matchvnon);
+					// drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4);
+					//  drawline(r2, m.lbx, m.lby, m.rbx, m.rby);
+					countLine(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, matchvnon);
+					// drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3);
+					//  drawline(r2, m.ltx, m.lty, m.rbx, m.rby);
+					countLine(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, matchvnon);
+					// drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3);
+					//  drawline(r2, m.rtx, m.rty, m.lbx, m.lby);
+					if (matchvnon[0] > matchvnon[1]) {
+						System.out.println("ball"+matchvnon[0]+" vs "+matchvnon[1]);
+					} else {
+						System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
+					}
+				}
+			}
+		}
+	}
+
 	public static void testcirc(String imgloc) {
 		//for (String x : args)
 		//	System.out.println(x);
@@ -1407,6 +1520,9 @@ public class Main {
 		BufferedImage im19 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
 		WritableRaster r19 = im19.getRaster();
 		findEdge(r2, r17);
+		BufferedImage im20 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
+		WritableRaster r20 = im20.getRaster();
+		findExtrema(r2, r20);
 		//findGate(r8, r17);
 		
 		//convolve(r6, r8, m, 159);
@@ -1466,7 +1582,7 @@ public class Main {
 		jl12.setIcon(ic12);
 		ImageIcon ic13 = new ImageIcon();
 		JLabel jl13 = new JLabel();
-		ic13.setImage(im19);
+		ic13.setImage(im20);
 		jl13.setIcon(ic13);
 		JPanel cp = new JPanel(new GridLayout(3,4));
 		cp.add(jl);

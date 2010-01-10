@@ -235,12 +235,23 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void findExtrema(final WritableRaster r1, final WritableRaster r2) {
+	public void findExtrema(final WritableRaster r1, final WritableRaster r2) {
 		Extrema m = new Extrema();
 		int[] matchvnon = new int[2];
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			for (int y = 0; y < r1.getWidth(); ++y) {
-				if (isRed(r1,x,y) && r2.getSample(x, y, 0) != 255) {
+				if (isRed(r1,x,y) && isBlank(r2,x,y) &&
+					// cardinal
+					isRed(r1,x+1,y) && isBlank(r2,x+1,y) &&
+					isRed(r1,x-1,y) && isBlank(r2,x-1,y) &&
+					isRed(r1,x,y+1) && isBlank(r2,x,y+1) &&
+					isRed(r1,x,y-1) && isBlank(r2,x,y-1) &&
+					// diagonals
+					isRed(r1,x+1,y+1) && isBlank(r2,x+1,y+1) &&
+					isRed(r1,x+1,y-1) && isBlank(r2,x+1,y-1) &&
+					isRed(r1,x-1,y+1) && isBlank(r2,x-1,y+1) &&
+					isRed(r1,x-1,y-1) && isBlank(r2,x-1,y-1)
+					) {
 					m.initval(x, y);
 					r2.setSample(x, y, 2, 255);
 					setExtrema2(r1, r2, x, y, m);
@@ -263,9 +274,19 @@ public class Vision extends java.lang.Thread {
 						int lbrb = (m.lbx-m.rbx)*(m.lbx-m.rbx)+(m.lby-m.rby)*(m.lby-m.rby); // bot-left to bot-right distance squared
 						int lbrt = (m.lbx-m.rtx)*(m.lbx-m.rtx)+(m.lby-m.rty)*(m.lby-m.rty); // bot-left to top-right distance squared
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
-						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate
+						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
 							System.out.println("gate misdetected as ball");
 						}
+						// TODO radius (intersection) of ball
+						double radius = 0.0;
+						radius += Math.sqrt(((m.tx-m.bx)*(m.tx-m.bx))/4+((m.ty-m.by)*(m.ty-m.by))/4);
+						radius += Math.sqrt(((m.rx-m.lx)*(m.rx-m.lx))/4+((m.ry-m.ly)*(m.ry-m.ly))/4);
+						radius += Math.sqrt(((m.ltx-m.rbx)*(m.ltx-m.rbx))/4+((m.lty-m.rby)*(m.lty-m.rby))/4);
+						radius += Math.sqrt(((m.rtx-m.lbx)*(m.rtx-m.lbx))/4+((m.rty-m.lby)*(m.rty-m.lby))/4);
+						radius /= 4.0;
+						circleFound(r2, (m.rx+m.lx)/2, (m.ty+m.by)/2, (int)radius);
+						System.out.println("circle found at "+ (m.rx+m.lx)/2+" "+(m.ty+m.by)/2);
+						// TODO confirm detection via standard deviation of 8-cardinals
 					} else {
 						System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
 					}
@@ -341,8 +362,8 @@ public class Vision extends java.lang.Thread {
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
 			//if (b < 150 && r > 2*b && g > 2*b) return true;
-			//if (r > 90 && 2*(g+b) < 3*r) return true;
-			if (r > 110 && 3*(g+b) < 4*r) return true;
+			if (r > 90 && 2*(g+b) < 3*r) return true;
+			//if (r > 110 && 3*(g+b) < 4*r) return true;
 		} return false;
 	}
 

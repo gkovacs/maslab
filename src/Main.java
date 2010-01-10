@@ -282,7 +282,7 @@ public class Main {
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
 			//if (b < 150 && r > 2*b && g > 2*b) return true;
-			if (r > 90 && 3*(g+b) < 4*r) return true;
+			if (r > 90 && 2*(g+b) < 3*r) return true;
 			//if (r > 110 && 3*(g+b) < 4*r) return true;
 		} return false;
 	}
@@ -1096,6 +1096,22 @@ public class Main {
 			}
 		}
 	}
+
+	public static void testcamera2() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(1);
+		Vision v = new Vision();
+		v.setup(a, 0);
+		//a.start();
+		v.start();
+		java.lang.Thread.sleep(50000); // 50 seconds
+		v.bye();
+		//a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public static void testcamera() {
 		try {
@@ -1199,7 +1215,7 @@ public class Main {
 			else if (args[0].contentEquals("testir")) testir();
 			else if (args[0].contentEquals("testchannel")) testchannel();
 			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
-			else if (args[0].contentEquals("testcamera")) testcamera();
+			else if (args[0].contentEquals("testcamera")) testcamera2();
 			else if (args[0].contentEquals("fetchball")) fetchball();
 			else System.out.println("unknown option");
 		} else {

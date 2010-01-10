@@ -77,7 +77,8 @@ public class Vision extends java.lang.Thread {
 			ic2.setImage(im2);
 			jl2.setIcon(ic2);
 			jl2.repaint();
-			seekStart2(r,r3);
+			//seekStart2(r,r3);
+			findExtrema(r, r3);
 			ic3.setImage(im3);
 			jl3.setIcon(ic3);
 			jl3.repaint();
@@ -116,6 +117,161 @@ public class Vision extends java.lang.Thread {
 
 	public void bye() {
 		running = false;
+	}
+
+	public static void setExtrema(final WritableRaster r1, final WritableRaster r2, final int x, final int y, final Extrema m) {
+		m.update(x, y);
+		r2.setSample(x, y, 0, 255);
+		if (isRed(r1,x+1,y) && r2.getSample(x+1, y, 0) != 255) {
+			setExtrema(r1,r2,x+1,y,m);
+		} if (isRed(r1,x-1,y) && r2.getSample(x-1, y, 0) != 255) {
+			setExtrema(r1,r2,x-1,y,m);
+		} if (isRed(r1,x,y+1) && r2.getSample(x, y+1, 0) != 255) {
+			setExtrema(r1,r2,x,y+1,m);
+		} if (isRed(r1,x,y-1) && r2.getSample(x, y-1, 0) != 255) {
+			setExtrema(r1,r2,x,y-1,m);
+		}
+	}
+
+	public static boolean isBlank(WritableRaster r, int x, int y) {
+		return r.getSample(x, y, 0) != 255;
+	}
+
+	private static void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m) {
+			Rectangle bounds = raster.getBounds();
+			int fillL = x;
+			do {
+					m.update(fillL, y);
+					r2.setSample(fillL, y, 0, 255);
+					fillL--;
+			} while (fillL >= 0 && isRed(raster, fillL, y) && isBlank(r2, fillL, y));
+			fillL++;
+
+			// find the right right side, filling along the way
+			int fillR = x;
+			do {
+					m.update(fillR, y);
+					r2.setSample(fillR, y, 0, 255);
+					fillR++;
+			} while (fillR < bounds.width - 1 && isRed(raster, fillR, y) && isBlank(r2, fillR, y));
+			fillR--;
+
+			// checks if applicable up or down
+			for (int i = fillL; i <= fillR; i++) {
+					if (y > 0 && isRed(raster, i, y - 1) && isBlank(r2, i, y-1)) setExtrema2(raster, r2, i, y - 1, m);
+					if (y < bounds.height - 1 && isRed(raster, i, y + 1) && isBlank(r2, i, y+1)) setExtrema2(raster, r2, i, y + 1, m);
+			}
+	}
+
+	// Returns true if RGBA arrays are equivalent, false otherwise
+	// Could use Arrays.equals(int[], int[]), but this is probably a little faster...
+	private static boolean isEqualRgba(int[] pix1, int[] pix2) {
+			return pix1[0] == pix2[0] && pix1[1] == pix2[1] && pix1[2] == pix2[2] && pix1[3] == pix2[3];
+	}
+	
+
+	public static void drawline(final WritableRaster r, int x, int y, final int x2, final int y2) {
+		int w = x2 - x ;
+		int h = y2 - y ;
+		int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
+		if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
+		if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
+		if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
+		int longest = Math.abs(w) ;
+		int shortest = Math.abs(h) ;
+		if (!(longest>shortest)) {
+			longest = Math.abs(h) ;
+			shortest = Math.abs(w) ;
+			if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
+			dx2 = 0 ;
+		}
+		int numerator = longest >> 1 ;
+		for (int i=0;i<=longest;i++) {
+			r.setSample(x, y, 2, 255);
+			numerator += shortest ;
+		 if (!(numerator<longest)) {
+				numerator -= longest ;
+				x += dx1 ;
+			 y += dy1 ;
+			} else {
+				x += dx2 ;
+				y += dy2 ;
+			}
+		}
+	}
+
+	public static void countLine(final WritableRaster r, int x, int y, final int x2, final int y2, final int[] matchvnon) {
+		int w = x2 - x ;
+		int h = y2 - y ;
+		int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
+		if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
+		if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
+		if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
+		int longest = Math.abs(w) ;
+		int shortest = Math.abs(h) ;
+		if (!(longest>shortest)) {
+			longest = Math.abs(h) ;
+			shortest = Math.abs(w) ;
+			if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
+			dx2 = 0 ;
+		}
+		int numerator = longest >> 1 ;
+		for (int i=0;i<=longest;i++) {
+			//r.setSample(x, y, 2, 255);
+			if (isRed(r,x,y)) {
+				++matchvnon[0];
+			} else {
+				++matchvnon[1];
+			}
+			numerator += shortest ;
+		 if (!(numerator<longest)) {
+				numerator -= longest ;
+				x += dx1 ;
+			 y += dy1 ;
+			} else {
+				x += dx2 ;
+				y += dy2 ;
+			}
+		}
+	}
+
+	public static void findExtrema(final WritableRaster r1, final WritableRaster r2) {
+		Extrema m = new Extrema();
+		int[] matchvnon = new int[2];
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getWidth(); ++y) {
+				if (isRed(r1,x,y) && r2.getSample(x, y, 0) != 255) {
+					m.initval(x, y);
+					r2.setSample(x, y, 2, 255);
+					setExtrema2(r1, r2, x, y, m);
+					r2.setSample(m.lbx, m.lby, 1, 255);
+					r2.setSample(m.rbx, m.rby, 1, 255);
+					r2.setSample(m.ltx, m.lty, 1, 255);
+					r2.setSample(m.rtx, m.rty, 1, 255);
+					matchvnon[0] = matchvnon[1] = 0;
+					countLine(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, matchvnon);
+					 drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4);
+					//  drawline(r2, m.lbx, m.lby, m.rbx, m.rby);
+					countLine(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, matchvnon);
+					 drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3);
+					//  drawline(r2, m.ltx, m.lty, m.rbx, m.rby);
+					countLine(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, matchvnon);
+					 drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3);
+					//  drawline(r2, m.rtx, m.rty, m.lbx, m.lby);
+					if (matchvnon[0] > matchvnon[1]) {
+						System.out.println("ball"+matchvnon[0]+" vs "+matchvnon[1]);
+						int lbrb = (m.lbx-m.rbx)*(m.lbx-m.rbx)+(m.lby-m.rby)*(m.lby-m.rby); // bot-left to bot-right distance squared
+						int lbrt = (m.lbx-m.rtx)*(m.lbx-m.rtx)+(m.lby-m.rty)*(m.lby-m.rty); // bot-left to top-right distance squared
+						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
+						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate
+							System.out.println("gate misdetected as ball");
+						}
+					} else {
+						System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
+					}
+				}
+			}
+		}
 	}
 
 	public static int bound(int v, int max, int min) {
@@ -184,7 +340,9 @@ public class Vision extends java.lang.Thread {
 			int r = r1.getSample(x, y, 0);
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
-			if (r > 80 && g+b < r) return true;
+			//if (b < 150 && r > 2*b && g > 2*b) return true;
+			//if (r > 90 && 2*(g+b) < 3*r) return true;
+			if (r > 110 && 3*(g+b) < 4*r) return true;
 		} return false;
 	}
 

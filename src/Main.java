@@ -1207,6 +1207,22 @@ public class Main {
 		}
 	}
 
+	public static void wallfollow() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(1);
+		InfraR v = new InfraR();
+		v.setup(a, 0);
+		a.start();
+		v.start();
+		java.lang.Thread.sleep(50000); // 50 seconds
+		v.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args) {
 		try {
 		if (args.length > 0) {
@@ -1217,6 +1233,7 @@ public class Main {
 			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
 			else if (args[0].contentEquals("testcamera")) testcamera2();
 			else if (args[0].contentEquals("fetchball")) fetchball();
+			else if (args[0].contentEquals("wallfollow")) wallfollow();
 			else System.out.println("unknown option");
 		} else {
 			System.out.println("need argument");
@@ -1233,8 +1250,8 @@ public class Main {
 		tx.publish("connected\n");
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		Motor m0 = new Motor(o, 0, false);
-		Motor m1 = new Motor(o, 1, false);
+		Motor m0 = new Motor(o, 0, true);
+		Motor m1 = new Motor(o, 1, true);
 		AnalogInput a = new AnalogInput(o, 0);
 		double[] prevd = new double[10];
 		{
@@ -1243,10 +1260,12 @@ public class Main {
 				prevd[x] = d;
 			}
 		}
-		while (true) { // Vd = 62.5
+		while (true) { // Vd = 62.5, d in cm
 			//System.out.println(62.5/a.getVoltage());
 			double nd = 62.5/a.getVoltage();
+			//System.out.println(nd);
 			shiftleft(prevd, nd);
+			
 			if (Math.abs(sum5(prevd)-sum5l(prevd)) > 10.0) {
 				// if varies greater than 10 cm, wall has changed
 				tx.publish("wall changed\n");
@@ -1266,6 +1285,7 @@ public class Main {
 				m0.setPWM(0.5);
 				m1.setPWM(0.5);
 			}
+			 
 			//System.out.println(a.getVoltage());
 		}
 		//java.lang.Thread.sleep(10000);
@@ -1285,10 +1305,10 @@ public class Main {
 		
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		Motor m0 = new Motor(o, 0, false);
+		Motor m0 = new Motor(o, 0, true);
 		m0.setWatchDog(6000000);
 		m0.setPWM(0.5);
-		Motor m1 = new Motor(o, 1, false);
+		Motor m1 = new Motor(o, 1, true);
 		m1.setWatchDog(6000000);
 		m1.setPWM(0.5);
 		

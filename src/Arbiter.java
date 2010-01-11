@@ -33,8 +33,8 @@ public class Arbiter extends java.lang.Thread {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		Motor rightMotor = new Motor(o, 0, false);
-		Motor leftMotor = new Motor(o, 1, false);
+		Motor rightMotor = new Motor(o, 0, true);
+		Motor leftMotor = new Motor(o, 1, true);
 		while (running) {
 			float lma = maxVal(leftMotorAction, leftMotorWeight);
 			float rma = maxVal(rightMotorAction, rightMotorWeight);

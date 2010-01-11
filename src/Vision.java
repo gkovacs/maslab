@@ -66,6 +66,7 @@ public class Vision extends java.lang.Thread {
 		jf.setContentPane(cp);
 		jf.setSize(im.getWidth()*3, im.getHeight());
 		jf.setVisible(true);
+		final float k = 0.005f;
 		while (running) {
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;
@@ -86,20 +87,35 @@ public class Vision extends java.lang.Thread {
 			if (found > 0) { // moving towards goal
 				leftMotorWeight[idx] = 0.5f;
 				rightMotorWeight[idx] = 0.5f;
+				float rspeed = k*pxoffset;
+				float lspeed = -rspeed;
+				if (lspeed > rspeed) {
+					rspeed += 0.6f-Math.abs(lspeed);
+					lspeed = 0.6f;
+				} else {
+					lspeed += 0.6f-Math.abs(rspeed);
+					rspeed = 0.6f;
+				}
+				lspeed = bound(lspeed, 1.0f, -1.0f);
+				rspeed = bound(rspeed, 1.0f, -1.0f);
+				leftMotorAction[idx] = lspeed;
+				rightMotorAction[idx] = rspeed;
+				/*
 				if (pxoffset > 0) { // to the right
-					leftMotorAction[idx] = 0.3f;
+					leftMotorAction[idx] = 0.5f;
 					rightMotorAction[idx] = 0.0f;
 				} else {
 					leftMotorAction[idx] = 0.0f;
-					rightMotorAction[idx] = 0.3f;
+					rightMotorAction[idx] = 0.5f;
 				}
+				 */
 				//leftMotorAction[idx] = bound((float)distance*(1.0f+0.01f*(float)pxoffset)/100.0f, 0.5f, 0.1f);
 				//rightMotorAction[idx] = bound((float)distance*(1.0f-0.01f*(float)pxoffset)/100.0f, 0.5f, 0.1f);
 			} else { // idly searching, nothing interesting in sight, turn left
 				leftMotorWeight[idx] = 0.3f;
 				rightMotorWeight[idx] = 0.3f;
-				leftMotorAction[idx] = 0.0f;
-				rightMotorAction[idx] = 0.3f;
+				leftMotorAction[idx] = 0.5f;
+				rightMotorAction[idx] = -0.5f;
 			}
 		}
 		} catch (Exception e) {
@@ -239,7 +255,17 @@ public class Vision extends java.lang.Thread {
 		Extrema m = new Extrema();
 		int[] matchvnon = new int[2];
 		for (int x = 0; x < r1.getWidth(); ++x) {
-			for (int y = 0; y < r1.getWidth(); ++y) {
+			int y = 0;
+			int bld = 0;
+			for (; bld < 3 && y < r1.getWidth(); ++y) {
+				if (isBlue(r1,x,y)) {
+					++bld;
+					r2.setSample(x, y, 2, 255);
+				} else {
+					bld = 0;
+				}
+			}
+			for (; y < r1.getWidth(); ++y) {
 				if (isRed(r1,x,y) && isBlank(r2,x,y) &&
 					// cardinal
 					isRed(r1,x+1,y) && isBlank(r2,x+1,y) &&
@@ -362,8 +388,19 @@ public class Vision extends java.lang.Thread {
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
 			//if (b < 150 && r > 2*b && g > 2*b) return true;
-			if (r > 90 && 2*(g+b) < 3*r) return true;
-			//if (r > 110 && 3*(g+b) < 4*r) return true;
+			//if (r > 90 && 2*(g+b) < 3*r) return true;
+			if (r > 110 && 3*(g+b) < 4*r) return true;
+		} return false;
+	}
+
+	public static boolean isBlue(WritableRaster r1, int x, int y) {
+		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
+			int r = r1.getSample(x, y, 0);
+			int g = r1.getSample(x, y, 1);
+			int b = r1.getSample(x, y, 2);
+			//if (b < 150 && r > 2*b && g > 2*b) return true;
+			if (b > 110 && 2*(r+g) < 3*b) return true;
+			//if (b > 110 && 3*(r+g) < 4*b) return true;
 		} return false;
 	}
 

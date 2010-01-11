@@ -1199,7 +1199,7 @@ public class Main {
 		v.setup(a, 0);
 		a.start();
 		v.start();
-		java.lang.Thread.sleep(50000); // 50 seconds
+		java.lang.Thread.sleep(300000); // 300 seconds
 		v.bye();
 		a.bye();
 		} catch (Exception e) {
@@ -1234,6 +1234,7 @@ public class Main {
 			else if (args[0].contentEquals("testcamera")) testcamera2();
 			else if (args[0].contentEquals("fetchball")) fetchball();
 			else if (args[0].contentEquals("wallfollow")) wallfollow();
+			else if (args[0].contentEquals("saveimages")) saveimages();
 			else System.out.println("unknown option");
 		} else {
 			System.out.println("need argument");
@@ -1282,8 +1283,8 @@ public class Main {
 				//tx.publish(""+Math.abs(d-nd)+"\n");
 				//System.out.println(""+Math.abs(d-nd)+" nd is "+nd+"\n");
 				//d = nd;
-				m0.setPWM(0.5);
-				m1.setPWM(0.5);
+				m0.setPWM(0.7);
+				m1.setPWM(0.7);
 			}
 			 
 			//System.out.println(a.getVoltage());
@@ -1291,6 +1292,26 @@ public class Main {
 		//java.lang.Thread.sleep(10000);
 		} catch (Exception e) {
 
+		}
+	}
+
+	public static void saveimages() {
+		try {
+		orc.camera.Camera c;
+		c = new orc.camera.Camera("/dev/video0");
+		BufferedImage im = c.createImage();
+		int imgnum = 0;
+		File outfile = null;
+		while ((outfile = new File(imgnum+".png")).exists()) {
+			++imgnum;
+		}
+		while (true) {
+			c.capture(im);
+			javax.imageio.ImageIO.write(im, "png", outfile);
+			outfile = new File((++imgnum)+".png");
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -1307,10 +1328,10 @@ public class Main {
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		Motor m0 = new Motor(o, 0, true);
 		m0.setWatchDog(6000000);
-		m0.setPWM(0.5);
+		m0.setPWM(1.0);
 		Motor m1 = new Motor(o, 1, true);
 		m1.setWatchDog(6000000);
-		m1.setPWM(0.5);
+		m1.setPWM(1.0);
 		
 		//while (true) {
 		//m.setPWM(1.0);

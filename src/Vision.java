@@ -66,7 +66,7 @@ public class Vision extends java.lang.Thread {
 		jf.setContentPane(cp);
 		jf.setSize(im.getWidth()*3, im.getHeight());
 		jf.setVisible(true);
-		final float k = 0.005f;
+		final float k = 0.003f;
 		while (running) {
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;
@@ -90,11 +90,11 @@ public class Vision extends java.lang.Thread {
 				float rspeed = k*pxoffset;
 				float lspeed = -rspeed;
 				if (lspeed > rspeed) {
-					rspeed += 0.6f-Math.abs(lspeed);
-					lspeed = 0.6f;
+					rspeed += 0.5f-Math.abs(lspeed);
+					lspeed = 0.5f;
 				} else {
-					lspeed += 0.6f-Math.abs(rspeed);
-					rspeed = 0.6f;
+					lspeed += 0.5f-Math.abs(rspeed);
+					rspeed = 0.5f;
 				}
 				lspeed = bound(lspeed, 1.0f, -1.0f);
 				rspeed = bound(rspeed, 1.0f, -1.0f);
@@ -115,7 +115,8 @@ public class Vision extends java.lang.Thread {
 				leftMotorWeight[idx] = 0.3f;
 				rightMotorWeight[idx] = 0.3f;
 				leftMotorAction[idx] = 0.5f;
-				rightMotorAction[idx] = -0.5f;
+				rightMotorAction[idx] = 0.5f;
+
 			}
 		}
 		} catch (Exception e) {
@@ -256,8 +257,9 @@ public class Vision extends java.lang.Thread {
 		int[] matchvnon = new int[2];
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int y = 0;
+			/*
 			int bld = 0;
-			for (; bld < 3 && y < r1.getWidth(); ++y) {
+			for (; bld < 2 && y < r1.getWidth(); ++y) {
 				if (isBlue(r1,x,y)) {
 					++bld;
 					r2.setSample(x, y, 2, 255);
@@ -265,18 +267,23 @@ public class Vision extends java.lang.Thread {
 					bld = 0;
 				}
 			}
+			*/
 			for (; y < r1.getWidth(); ++y) {
 				if (isRed(r1,x,y) && isBlank(r2,x,y) &&
 					// cardinal
+				
 					isRed(r1,x+1,y) && isBlank(r2,x+1,y) &&
 					isRed(r1,x-1,y) && isBlank(r2,x-1,y) &&
 					isRed(r1,x,y+1) && isBlank(r2,x,y+1) &&
 					isRed(r1,x,y-1) && isBlank(r2,x,y-1) &&
+				
 					// diagonals
+					
 					isRed(r1,x+1,y+1) && isBlank(r2,x+1,y+1) &&
 					isRed(r1,x+1,y-1) && isBlank(r2,x+1,y-1) &&
 					isRed(r1,x-1,y+1) && isBlank(r2,x-1,y+1) &&
 					isRed(r1,x-1,y-1) && isBlank(r2,x-1,y-1)
+					
 					) {
 					m.initval(x, y);
 					r2.setSample(x, y, 2, 255);
@@ -387,9 +394,9 @@ public class Vision extends java.lang.Thread {
 			int r = r1.getSample(x, y, 0);
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
-			//if (b < 150 && r > 2*b && g > 2*b) return true;
+			//if (b < 150 && r > 2*b && g > 2*b) return true; // yellow
 			//if (r > 90 && 2*(g+b) < 3*r) return true;
-			if (r > 110 && 3*(g+b) < 4*r) return true;
+			if (r > 110 && 3*(g+b) < 4*r) return true; // 26-100
 		} return false;
 	}
 
@@ -565,6 +572,7 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public void circleFound(WritableRaster r1, int x, int y, int r) {
+		if (r == 0) r = 1; // ugly hack
 		if (x >= 0 && x < r1.getWidth() && y >= 0 && y < r1.getHeight()) {
 			filledCircle(r1,x,y,r);
 			r1.setSample(x, y, 2, 255);

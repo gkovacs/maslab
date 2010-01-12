@@ -25,6 +25,7 @@ public class Vision extends java.lang.Thread {
 	public int lifetime = 0;
 	public int distance = Integer.MAX_VALUE;
 	public int pxoffset = 0;
+	public byte color = 0; // 0 is red, 1 is yellow, 2 is blue
 
 	public void run() {
 		try {
@@ -136,7 +137,7 @@ public class Vision extends java.lang.Thread {
 		running = false;
 	}
 
-	public static void setExtrema(final WritableRaster r1, final WritableRaster r2, final int x, final int y, final Extrema m) {
+	public void setExtrema(final WritableRaster r1, final WritableRaster r2, final int x, final int y, final Extrema m) {
 		m.update(x, y);
 		r2.setSample(x, y, 0, 255);
 		if (isRed(r1,x+1,y) && r2.getSample(x+1, y, 0) != 255) {
@@ -154,7 +155,7 @@ public class Vision extends java.lang.Thread {
 		return r.getSample(x, y, 0) != 255;
 	}
 
-	private static void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m) {
+	private void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m) {
 			Rectangle bounds = raster.getBounds();
 			int fillL = x;
 			do {
@@ -217,7 +218,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void countLine(final WritableRaster r, int x, int y, final int x2, final int y2, final int[] matchvnon) {
+	public void countLine(final WritableRaster r, int x, int y, final int x2, final int y2, final int[] matchvnon) {
 		int w = x2 - x ;
 		int h = y2 - y ;
 		int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
@@ -350,7 +351,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void shadeRed(WritableRaster r1, WritableRaster r2) {
+	public void shadeRed(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			for (int y = 0; y < r1.getHeight(); ++y) {
 				if (isRed(r1,x,y)) {
@@ -389,14 +390,21 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static boolean isRed(WritableRaster r1, int x, int y) {
+	public boolean isRed(WritableRaster r1, int x, int y) {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
 			//if (b < 150 && r > 2*b && g > 2*b) return true; // yellow
 			//if (r > 90 && 2*(g+b) < 3*r) return true;
-			if (r > 110 && 3*(g+b) < 4*r) return true; // 26-100
+			//if (r > 110 && 3*(g+b) < 4*r) return true; // 26-100
+			if (color == 0) { // red
+				if (r > 110 && 5*(g+b) < 6*r) return true;
+			} else if (color == 1) { // yellow
+				if (b < 150 && r > 2*b && g > 2*b) return true; // yellow
+			} else if (color == 2) { // blue
+				
+			}
 		} return false;
 	}
 

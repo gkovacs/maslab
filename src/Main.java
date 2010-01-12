@@ -1235,12 +1235,26 @@ public class Main {
 			else if (args[0].contentEquals("fetchball")) fetchball();
 			else if (args[0].contentEquals("wallfollow")) wallfollow();
 			else if (args[0].contentEquals("saveimages")) saveimages();
+			else if (args[0].contentEquals("testencoder")) testencoder();
 			else System.out.println("unknown option");
 		} else {
 			System.out.println("need argument");
 		}
 		} catch (Exception e) {
 			
+		}
+	}
+
+	public static void testencoder() {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		QuadratureEncoder e0 = new QuadratureEncoder(o, 1, false);
+		while (true) {
+			System.out.println("position is "+e0.getPosition()+" ticks are "+e0.getVelocity());
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

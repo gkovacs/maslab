@@ -323,10 +323,27 @@ public class Vision extends java.lang.Thread {
 						// TODO confirm detection via standard deviation of 8-cardinals
 					} else {
 						System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
+						gateFound(r2, m);
 					}
 				}
 			}
 		}
+	}
+
+	public void gateFound(WritableRaster r, Extrema m) {
+		System.out.println();
+		/*
+		int top = (m.ltx < m.rtx) ? m.ltx : m.rtx;
+		int bottom = (m.lbx > m.rbx) ? m.lbx : m.rbx;
+		float slopel = (float)(m.lby-m.lty)/(float)(m.lbx-m.ltx);
+		float sloper = (float)(m.lby-m.lty)/(float)(m.lbx-m.ltx);
+		for (int y = top; y <= bottom; ++y) {
+			int startx;
+			
+			int stopx;
+
+		}
+		*/
 	}
 
 	public static int bound(int v, int max, int min) {

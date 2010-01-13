@@ -1103,6 +1103,40 @@ public class Main {
 		}
 	}
 
+	public static void testimage(String imgloc) {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(1);
+		Vision v = new Vision();
+		v.setup(a, 0);
+		//a.start();
+		//v.start();
+		File f = new File(imgloc);
+		if (!f.exists())
+		{
+			System.out.println("file "+imgloc+" does not exist");
+			return;
+		}
+		BufferedImage im = null;//new BufferedImage();
+		try {
+			//ImageIO.read
+			im = ImageIO.read(f);
+		} catch (IOException e) {
+			System.out.println("could not load image");
+			return;
+		}
+		v.origI = im;
+		v.allocImages();
+		v.setupImagePanels();
+		v.processImage();
+		java.lang.Thread.sleep(50000); // 50 seconds
+		v.bye();
+		//a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void testcamera2() {
 		try {
 		Arbiter a = new Arbiter();
@@ -1237,6 +1271,7 @@ public class Main {
 			else if (args[0].contentEquals("testir")) testir();
 			else if (args[0].contentEquals("testchannel")) testchannel();
 			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
+			else if (args[0].contentEquals("testimage")) testimage(args[1]);
 			else if (args[0].contentEquals("testcamera")) testcamera2();
 			else if (args[0].contentEquals("fetchball")) fetchball();
 			else if (args[0].contentEquals("wallfollow")) wallfollow();

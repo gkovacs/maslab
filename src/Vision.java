@@ -26,6 +26,20 @@ public class Vision extends java.lang.Thread {
 	public int distance = Integer.MAX_VALUE;
 	public int pxoffset = 0;
 	public byte color = 0; // 0 is red, 1 is yellow, 2 is blue
+	public BufferedImage origI = null;
+	public WritableRaster origR = null;
+	public ImageIcon origC = null;
+	public JLabel origL = null;
+	public BufferedImage colorI = null;
+	public WritableRaster colorR = null;
+	public ImageIcon colorC = null;
+	public JLabel colorL = null;
+	public BufferedImage dispI = null;
+	public WritableRaster dispR = null;
+	public ImageIcon dispC = null;
+	public JLabel dispL = null;
+	public JFrame jf = null;
+	public JPanel cp = null;
 
 	public void run() {
 		try {
@@ -38,53 +52,16 @@ public class Vision extends java.lang.Thread {
 		//c = orc.camera.Camera.makeCamera();
 		System.out.println("2");
 		//orc.camera.Camera c = new orc.camera.Camera("/dev/video0");
-		BufferedImage im = c.createImage();
-		c.capture(im);
-		WritableRaster r = im.getRaster();
-		BufferedImage im2 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
-		WritableRaster r2 = im2.getRaster();
-		shadeRed(r,r2);
-		BufferedImage im3 = new BufferedImage(im.getWidth(), im.getHeight(), BufferedImage.TYPE_INT_RGB);
-		WritableRaster r3 = im3.getRaster();
-		seekStart2(r,r3);
-		JFrame jf = new JFrame();
-		ImageIcon ic = new ImageIcon();
-		JLabel jl = new JLabel();
-		ic.setImage(im);
-		jl.setIcon(ic);
-		ImageIcon ic2 = new ImageIcon();
-		JLabel jl2 = new JLabel();
-		ic2.setImage(im2);
-		jl2.setIcon(ic2);
-		ImageIcon ic3 = new ImageIcon();
-		JLabel jl3 = new JLabel();
-		ic3.setImage(im3);
-		jl3.setIcon(ic3);
-		JPanel cp = new JPanel(new GridLayout(1,3));
-		cp.add(jl);
-		cp.add(jl2);
-		cp.add(jl3);
-		jf.setContentPane(cp);
-		jf.setSize(im.getWidth()*3, im.getHeight());
-		jf.setVisible(true);
+		origI = c.createImage();
+		c.capture(origI);
+		allocImages();
+		setupImagePanels();
 		final float k = 0.003f;
 		while (running) {
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;
-			c.capture(im);
-			ic.setImage(im);
-			jl.setIcon(ic);
-			jl.repaint();
-			shadeRed(r,r2);
-			ic2.setImage(im2);
-			jl2.setIcon(ic2);
-			jl2.repaint();
-			//seekStart2(r,r3);
-			findExtrema(r, r3);
-			ic3.setImage(im3);
-			jl3.setIcon(ic3);
-			jl3.repaint();
-			blankimg(r3);
+			c.capture(origI);
+			processImage();
 			if (found > 0) { // moving towards goal
 				leftMotorWeight[idx] = 0.5f;
 				rightMotorWeight[idx] = 0.5f;
@@ -135,6 +112,54 @@ public class Vision extends java.lang.Thread {
 
 	public void bye() {
 		running = false;
+	}
+
+	public void setupImagePanels() {
+		jf = new JFrame();
+		origC = new ImageIcon();
+		origL = new JLabel();
+		origC.setImage(origI);
+		origL.setIcon(origC);
+		colorC = new ImageIcon();
+		colorL = new JLabel();
+		colorC.setImage(colorI);
+		colorL.setIcon(colorC);
+		dispC = new ImageIcon();
+		dispL = new JLabel();
+		dispC.setImage(dispI);
+		dispL.setIcon(dispC);
+		cp = new JPanel(new GridLayout(2,2));
+		cp.add(origL);
+		cp.add(colorL);
+		cp.add(dispL);
+		jf.setContentPane(cp);
+		jf.setSize(origI.getWidth()*2, origI.getHeight()*2);
+		jf.setVisible(true);
+	}
+
+	public void processImage() {
+		origC.setImage(origI);
+		origL.setIcon(origC);
+		origL.repaint();
+		shadeColors(origR,colorR);
+		colorC.setImage(colorI);
+		colorL.setIcon(colorC);
+		colorL.repaint();
+		//seekStart2(r,r3);
+		blankimg(dispR);
+		findExtrema(origR, dispR);
+		dispC.setImage(dispI);
+		dispL.setIcon(dispC);
+		dispL.repaint();
+	}
+
+	public void allocImages() {
+		origR = origI.getRaster();
+		colorI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
+		colorR = colorI.getRaster();
+		//shadeRed(origR,colorR);
+		dispI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
+		dispR = dispI.getRaster();
 	}
 
 	public void setExtrema(final WritableRaster r1, final WritableRaster r2, final int x, final int y, final Extrema m) {
@@ -370,6 +395,32 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
+	public void colorPix(WritableRaster r1, int x, int y, Colors c) {
+		if (c == Colors.Red) {
+			r1.setSample(x, y, 0, 255);
+			r1.setSample(x, y, 1, 0);
+			r1.setSample(x, y, 2, 0);
+		} else if (c == Colors.Blue) {
+			r1.setSample(x, y, 0, 0);
+			r1.setSample(x, y, 1, 0);
+			r1.setSample(x, y, 2, 255);
+		} else if (c == Colors.Yellow) {
+			r1.setSample(x, y, 0, 255);
+			r1.setSample(x, y, 1, 255);
+			r1.setSample(x, y, 2, 0);
+		}
+	}
+
+	public void shadeColors(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				Colors curcolor = getColor(r1,x,y);
+				colorPix(r2,x,y,curcolor);
+			}
+		}
+	}
+
+	/*
 	public void shadeRed(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			for (int y = 0; y < r1.getHeight(); ++y) {
@@ -385,6 +436,7 @@ public class Vision extends java.lang.Thread {
 			}
 		}
 	}
+	*/
 
 	public void seekStart2(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
@@ -425,6 +477,17 @@ public class Vision extends java.lang.Thread {
 				
 			}
 		} return false;
+	}
+
+	public static Colors getColor(WritableRaster r1, int x, int y) {
+		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
+			int r = r1.getSample(x, y, 0);
+			int g = r1.getSample(x, y, 1);
+			int b = r1.getSample(x, y, 2);
+			if (r > 110 && 5*(g+b) < 6*r) return Colors.Red;
+			else if (b < 150 && r > 2*b && g > 2*b) return Colors.Yellow;
+			else if (b > 150 && 5*(g+r) < 6*b) return Colors.Blue;
+		} return Colors.None;
 	}
 
 	public static boolean isBlue(WritableRaster r1, int x, int y) {

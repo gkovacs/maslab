@@ -180,12 +180,13 @@ public class Vision extends java.lang.Thread {
 		return r.getSample(x, y, 0) != 255;
 	}
 
-	private void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m) {
+	private void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m, final Colors c) {
 			Rectangle bounds = raster.getBounds();
 			int fillL = x;
 			do {
 					m.update(fillL, y);
-					r2.setSample(fillL, y, 0, 255);
+					//r2.setSample(fillL, y, 0, 255);
+					colorPix(r2, fillL, y, c);
 					fillL--;
 			} while (fillL >= 0 && isRed(raster, fillL, y) && isBlank(r2, fillL, y));
 			fillL++;
@@ -194,15 +195,16 @@ public class Vision extends java.lang.Thread {
 			int fillR = x;
 			do {
 					m.update(fillR, y);
-					r2.setSample(fillR, y, 0, 255);
+					//r2.setSample(fillR, y, 0, 255);
+					colorPix(r2, fillL, y, c);
 					fillR++;
-			} while (fillR < bounds.width - 1 && isRed(raster, fillR, y) && isBlank(r2, fillR, y));
+			} while (fillR < bounds.width - 1 && getColor(raster, fillR, y) == c && isBlank(r2, fillR, y));
 			fillR--;
 
 			// checks if applicable up or down
 			for (int i = fillL; i <= fillR; i++) {
-					if (y > 0 && isRed(raster, i, y - 1) && isBlank(r2, i, y-1)) setExtrema2(raster, r2, i, y - 1, m);
-					if (y < bounds.height - 1 && isRed(raster, i, y + 1) && isBlank(r2, i, y+1)) setExtrema2(raster, r2, i, y + 1, m);
+					if (y > 0 && getColor(raster, i, y - 1) == c && isBlank(r2, i, y-1)) setExtrema2(raster, r2, i, y - 1, m, c);
+					if (y < bounds.height - 1 && getColor(raster, i, y + 1) == c && isBlank(r2, i, y+1)) setExtrema2(raster, r2, i, y + 1, m, c);
 			}
 	}
 
@@ -231,6 +233,37 @@ public class Vision extends java.lang.Thread {
 		int numerator = longest >> 1 ;
 		for (int i=0;i<=longest;i++) {
 			r.setSample(x, y, 2, 255);
+			numerator += shortest ;
+		 if (!(numerator<longest)) {
+				numerator -= longest ;
+				x += dx1 ;
+			 y += dy1 ;
+			} else {
+				x += dx2 ;
+				y += dy2 ;
+			}
+		}
+	}
+
+	public static void drawline(final WritableRaster r, int x, int y, final int x2, final int y2, Colors c) {
+		int w = x2 - x ;
+		int h = y2 - y ;
+		int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
+		if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
+		if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
+		if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
+		int longest = Math.abs(w) ;
+		int shortest = Math.abs(h) ;
+		if (!(longest>shortest)) {
+			longest = Math.abs(h) ;
+			shortest = Math.abs(w) ;
+			if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
+			dx2 = 0 ;
+		}
+		int numerator = longest >> 1 ;
+		for (int i=0;i<=longest;i++) {
+			colorPix(r,x,y,c);
+			//r.setSample(x, y, 2, 255);
 			numerator += shortest ;
 		 if (!(numerator<longest)) {
 				numerator -= longest ;
@@ -295,29 +328,29 @@ public class Vision extends java.lang.Thread {
 			}
 			*/
 			for (; y < r1.getWidth(); ++y) {
-				if (isRed(r1,x,y) && isBlank(r2,x,y) &&
-					// cardinal
-				
-					isRed(r1,x+1,y) && isBlank(r2,x+1,y) &&
-					isRed(r1,x-1,y) && isBlank(r2,x-1,y) &&
-					isRed(r1,x,y+1) && isBlank(r2,x,y+1) &&
-					isRed(r1,x,y-1) && isBlank(r2,x,y-1) &&
-				
+				Colors c = getColor(r1,x,y);
+				if (((c == Colors.Red) || (c == Colors.Yellow)) && isBlank(r2,x,y) &&
+					(getColor(r1,x+1,y) == c) && isBlank(r2,x+1,y) &&
+					(getColor(r1,x-1,y) == c) && isBlank(r2,x-1,y) &&
+					(getColor(r1,x,y+1) == c) && isBlank(r2,x,y+1) &&
+					(getColor(r1,x,y-1) == c) && isBlank(r2,x,y-1) &&
+
 					// diagonals
-					
-					isRed(r1,x+1,y+1) && isBlank(r2,x+1,y+1) &&
-					isRed(r1,x+1,y-1) && isBlank(r2,x+1,y-1) &&
-					isRed(r1,x-1,y+1) && isBlank(r2,x-1,y+1) &&
-					isRed(r1,x-1,y-1) && isBlank(r2,x-1,y-1)
-					
+
+					(getColor(r1,x+1,y+1) == c) && isBlank(r2,x+1,y+1) &&
+					(getColor(r1,x+1,y-1) == c) && isBlank(r2,x+1,y-1) &&
+					(getColor(r1,x-1,y+1) == c) && isBlank(r2,x-1,y+1) &&
+					(getColor(r1,x-1,y-1) == c) && isBlank(r2,x-1,y-1)
 					) {
 					m.initval(x, y);
-					r2.setSample(x, y, 2, 255);
-					setExtrema2(r1, r2, x, y, m);
+					//r2.setSample(x, y, 2, 255);
+					setExtrema2(r1, r2, x, y, m, c);
+					/*
 					r2.setSample(m.lbx, m.lby, 1, 255);
 					r2.setSample(m.rbx, m.rby, 1, 255);
 					r2.setSample(m.ltx, m.lty, 1, 255);
 					r2.setSample(m.rtx, m.rty, 1, 255);
+					*/
 					matchvnon[0] = matchvnon[1] = 0;
 					countLine(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, matchvnon);
 					 drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4);
@@ -395,7 +428,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public void colorPix(WritableRaster r1, int x, int y, Colors c) {
+	public static void colorPix(WritableRaster r1, int x, int y, Colors c) {
 		if (c == Colors.Red) {
 			r1.setSample(x, y, 0, 255);
 			r1.setSample(x, y, 1, 0);
@@ -407,6 +440,10 @@ public class Vision extends java.lang.Thread {
 		} else if (c == Colors.Yellow) {
 			r1.setSample(x, y, 0, 255);
 			r1.setSample(x, y, 1, 255);
+			r1.setSample(x, y, 2, 0);
+		} else {
+			r1.setSample(x, y, 0, 0);
+			r1.setSample(x, y, 1, 0);
 			r1.setSample(x, y, 2, 0);
 		}
 	}

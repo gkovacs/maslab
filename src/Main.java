@@ -1248,7 +1248,7 @@ public class Main {
 			System.out.println("need argument");
 		}
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		}
 	}
 
@@ -1274,7 +1274,7 @@ public class Main {
 		for (int i = a.length/2; )
 	}*/
 
-	public static void testpid(double velocity = 0.3, double kp = 0.1, double kd = 0.0, double ki = 0.0) {
+	public static void testpid(double velocity, double kp, double kd, double ki) {
 		try {
 		Arbiter a = new Arbiter();
 		a.setup(1);

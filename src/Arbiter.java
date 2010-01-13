@@ -48,8 +48,11 @@ public class Arbiter extends java.lang.Thread {
 			float rma = maxVal(rightMotorAction, rightMotorWeight);
 			c0.targetvelocity = lma;
 			c1.targetvelocity = rma;
-			rightMotor.setPWM(c0.getPWM((float)e0.getVelocity()*17.9f));
-			leftMotor.setPWM(c1.getPWM((float)e1.getVelocity()*17.9f));
+			float rightpwm = c0.getPWM((float)e0.getVelocity()*17.9f);
+			rightMotor.setPWM(rightpwm);
+			float leftpwm = c1.getPWM((float)e1.getVelocity()*17.9f);
+			leftMotor.setPWM(leftpwm);
+			System.out.println("rightpwm is "+rightpwm+"leftpwm is "+leftpwm);
 			java.lang.Thread.sleep(50);
 			/*
 			float lma = maxVal(leftMotorAction, leftMotorWeight);

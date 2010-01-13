@@ -1129,7 +1129,7 @@ public class Main {
 		v.allocImages();
 		v.setupImagePanels();
 		v.processImage();
-		java.lang.Thread.sleep(50000); // 50 seconds
+		java.lang.Thread.sleep(300000); // 300 seconds
 		v.bye();
 		//a.bye();
 		} catch (Exception e) {
@@ -1145,7 +1145,7 @@ public class Main {
 		v.setup(a, 0);
 		//a.start();
 		v.start();
-		java.lang.Thread.sleep(50000); // 50 seconds
+		java.lang.Thread.sleep(300000); // 300 seconds
 		v.bye();
 		//a.bye();
 		} catch (Exception e) {

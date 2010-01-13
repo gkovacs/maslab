@@ -162,6 +162,7 @@ public class Vision extends java.lang.Thread {
 		dispR = dispI.getRaster();
 	}
 
+	/*
 	public void setExtrema(final WritableRaster r1, final WritableRaster r2, final int x, final int y, final Extrema m) {
 		m.update(x, y);
 		r2.setSample(x, y, 0, 255);
@@ -175,6 +176,7 @@ public class Vision extends java.lang.Thread {
 			setExtrema(r1,r2,x,y-1,m);
 		}
 	}
+	*/
 
 	public static boolean isBlank(WritableRaster r, int x, int y) {
 		return r.getSample(x, y, 0) != 255;
@@ -188,7 +190,7 @@ public class Vision extends java.lang.Thread {
 					//r2.setSample(fillL, y, 0, 255);
 					colorPix(r2, fillL, y, c);
 					fillL--;
-			} while (fillL >= 0 && isRed(raster, fillL, y) && isBlank(r2, fillL, y));
+			} while (fillL >= 0 && getColor(raster, fillL, y) == c && isBlank(r2, fillL, y));
 			fillL++;
 
 			// find the right right side, filling along the way
@@ -276,7 +278,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public void countLine(final WritableRaster r, int x, int y, final int x2, final int y2, final int[] matchvnon) {
+	public void countLine(final WritableRaster r, int x, int y, final int x2, final int y2, final int[] matchvnon, Colors c) {
 		int w = x2 - x ;
 		int h = y2 - y ;
 		int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
@@ -294,7 +296,7 @@ public class Vision extends java.lang.Thread {
 		int numerator = longest >> 1 ;
 		for (int i=0;i<=longest;i++) {
 			//r.setSample(x, y, 2, 255);
-			if (isRed(r,x,y)) {
+			if (getColor(r,x,y) == c) {
 				++matchvnon[0];
 			} else {
 				++matchvnon[1];
@@ -352,35 +354,46 @@ public class Vision extends java.lang.Thread {
 					r2.setSample(m.rtx, m.rty, 1, 255);
 					*/
 					matchvnon[0] = matchvnon[1] = 0;
-					countLine(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, matchvnon);
-					 drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4);
+					countLine(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, matchvnon, c);
+					// drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4);
 					//  drawline(r2, m.lbx, m.lby, m.rbx, m.rby);
-					countLine(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, matchvnon);
-					 drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3);
+					countLine(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, matchvnon, c);
+					// drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3);
 					//  drawline(r2, m.ltx, m.lty, m.rbx, m.rby);
-					countLine(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, matchvnon);
-					 drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3);
+					countLine(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, matchvnon, c);
+					// drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3);
 					//  drawline(r2, m.rtx, m.rty, m.lbx, m.lby);
 					if (matchvnon[0] > matchvnon[1]) {
-						System.out.println("ball"+matchvnon[0]+" vs "+matchvnon[1]);
 						int lbrb = (m.lbx-m.rbx)*(m.lbx-m.rbx)+(m.lby-m.rby)*(m.lby-m.rby); // bot-left to bot-right distance squared
 						int lbrt = (m.lbx-m.rtx)*(m.lbx-m.rtx)+(m.lby-m.rty)*(m.lby-m.rty); // bot-left to top-right distance squared
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
 						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
-							System.out.println("gate misdetected as ball");
+							System.err.println("unknown");
+							//System.out.println("gate misdetected as ball");
+							drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Teal);
+							drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, Colors.Teal);
+							drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, Colors.Teal);
+						} else {
+							System.out.println("ball"+matchvnon[0]+" vs "+matchvnon[1]);
+							// TODO radius (intersection) of ball
+							double radius = 0.0;
+							radius += Math.sqrt(((m.tx-m.bx)*(m.tx-m.bx))/4+((m.ty-m.by)*(m.ty-m.by))/4);
+							radius += Math.sqrt(((m.rx-m.lx)*(m.rx-m.lx))/4+((m.ry-m.ly)*(m.ry-m.ly))/4);
+							radius += Math.sqrt(((m.ltx-m.rbx)*(m.ltx-m.rbx))/4+((m.lty-m.rby)*(m.lty-m.rby))/4);
+							radius += Math.sqrt(((m.rtx-m.lbx)*(m.rtx-m.lbx))/4+((m.rty-m.lby)*(m.rty-m.lby))/4);
+							radius /= 4.0;
+							circleFound(r2, (m.rx+m.lx)/2, (m.ty+m.by)/2, (int)radius, c);
+							System.out.println("circle found at "+ (m.rx+m.lx)/2+" "+(m.ty+m.by)/2);
+							// TODO confirm detection via standard deviation of 8-cardinals
+							drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Purple);
+							drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, Colors.Purple);
+							drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, Colors.Purple);
 						}
-						// TODO radius (intersection) of ball
-						double radius = 0.0;
-						radius += Math.sqrt(((m.tx-m.bx)*(m.tx-m.bx))/4+((m.ty-m.by)*(m.ty-m.by))/4);
-						radius += Math.sqrt(((m.rx-m.lx)*(m.rx-m.lx))/4+((m.ry-m.ly)*(m.ry-m.ly))/4);
-						radius += Math.sqrt(((m.ltx-m.rbx)*(m.ltx-m.rbx))/4+((m.lty-m.rby)*(m.lty-m.rby))/4);
-						radius += Math.sqrt(((m.rtx-m.lbx)*(m.rtx-m.lbx))/4+((m.rty-m.lby)*(m.rty-m.lby))/4);
-						radius /= 4.0;
-						circleFound(r2, (m.rx+m.lx)/2, (m.ty+m.by)/2, (int)radius);
-						System.out.println("circle found at "+ (m.rx+m.lx)/2+" "+(m.ty+m.by)/2);
-						// TODO confirm detection via standard deviation of 8-cardinals
 					} else {
 						System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
+						drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Green);
+						drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, Colors.Green);
+						drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, Colors.Green);
 						gateFound(r2, m);
 					}
 				}
@@ -441,6 +454,18 @@ public class Vision extends java.lang.Thread {
 			r1.setSample(x, y, 0, 255);
 			r1.setSample(x, y, 1, 255);
 			r1.setSample(x, y, 2, 0);
+		} else if (c == Colors.Green) {
+			r1.setSample(x, y, 0, 0);
+			r1.setSample(x, y, 1, 255);
+			r1.setSample(x, y, 2, 0);
+		} else if (c == Colors.Purple) {
+			r1.setSample(x, y, 0, 128);
+			r1.setSample(x, y, 1, 0);
+			r1.setSample(x, y, 2, 128);
+		} else if (c == Colors.Teal) {
+			r1.setSample(x, y, 0, 130);
+			r1.setSample(x, y, 1, 240);
+			r1.setSample(x, y, 2, 240);
 		} else {
 			r1.setSample(x, y, 0, 0);
 			r1.setSample(x, y, 1, 0);
@@ -475,6 +500,7 @@ public class Vision extends java.lang.Thread {
 	}
 	*/
 
+	/*
 	public void seekStart2(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int y = 0;
@@ -497,7 +523,9 @@ public class Vision extends java.lang.Thread {
 			}
 		}
 	}
+	 */
 
+	/*
 	public boolean isRed(WritableRaster r1, int x, int y) {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
@@ -515,13 +543,15 @@ public class Vision extends java.lang.Thread {
 			}
 		} return false;
 	}
+	*/
 
 	public static Colors getColor(WritableRaster r1, int x, int y) {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
-			if (r > 110 && 5*(g+b) < 6*r) return Colors.Red;
+			//if (r > 110 && 5*(g+b) < 6*r) return Colors.Red;
+			if (r > 110 && 2*r > 3*b && 2*r > 3*g) return Colors.Red;
 			else if (b < 150 && r > 2*b && g > 2*b) return Colors.Yellow;
 			else if (b > 150 && 5*(g+r) < 6*b) return Colors.Blue;
 		} return Colors.None;
@@ -538,6 +568,7 @@ public class Vision extends java.lang.Thread {
 		} return false;
 	}
 
+	/*
 	public void circleDetectRightFull(WritableRaster r1, WritableRaster r2, int startx, int starty) {
 		int diam = 0;
 		while (isRed(r1,startx+diam,starty)) ++diam;
@@ -697,11 +728,12 @@ public class Vision extends java.lang.Thread {
 			}
 		}
 	}
+	*/
 
-	public void circleFound(WritableRaster r1, int x, int y, int r) {
+	public void circleFound(WritableRaster r1, int x, int y, int r, Colors c) {
 		if (r == 0) r = 1; // ugly hack
 		if (x >= 0 && x < r1.getWidth() && y >= 0 && y < r1.getHeight()) {
-			filledCircle(r1,x,y,r);
+			filledCircle(r1,x,y,r, c);
 			r1.setSample(x, y, 2, 255);
 			//System.out.println(r);
 			int ndistance = 600/r;
@@ -716,14 +748,15 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void filledCircle(WritableRaster r1, int x0, int y0, int r) {
+	public static void filledCircle(WritableRaster r1, int x0, int y0, int r, Colors c) {
 		int xe = Math.min(r1.getWidth(), x0+r+1);
 		int ye = Math.min(r1.getHeight(), y0+r+1);
 		for (int x = Math.max(0, x0-r); x < xe; ++x) {
 			int xq = (x0-x)*(x0-x);
 			for (int y = Math.max(0, y0-r); y < ye; ++y) {
 				if (xq+(y0-y)*(y0-y) <= r*r)
-					r1.setSample(x, y, 0, 255);
+					colorPix(r1,x,y,c);
+					//r1.setSample(x, y, 0, 255);
 			}
 		}
 	}

@@ -34,12 +34,20 @@ public class Vision extends java.lang.Thread {
 	public WritableRaster colorR = null;
 	public ImageIcon colorC = null;
 	public JLabel colorL = null;
+	public BufferedImage wallI = null;
+	public WritableRaster wallR = null;
+	public ImageIcon wallC = null;
+	public JLabel wallL = null;
 	public BufferedImage dispI = null;
 	public WritableRaster dispR = null;
 	public ImageIcon dispC = null;
 	public JLabel dispL = null;
 	public JFrame jf = null;
 	public JPanel cp = null;
+	public int[] wallbot = null;
+	public int[] wallbotm = null;
+	public int[] walltop = null;
+	public int[] walltopm = null;
 
 	public void run() {
 		try {
@@ -124,6 +132,10 @@ public class Vision extends java.lang.Thread {
 		colorL = new JLabel();
 		colorC.setImage(colorI);
 		colorL.setIcon(colorC);
+		wallC = new ImageIcon();
+		wallL = new JLabel();
+		wallC.setImage(wallI);
+		wallL.setIcon(wallC);
 		dispC = new ImageIcon();
 		dispL = new JLabel();
 		dispC.setImage(dispI);
@@ -131,6 +143,7 @@ public class Vision extends java.lang.Thread {
 		cp = new JPanel(new GridLayout(2,2));
 		cp.add(origL);
 		cp.add(colorL);
+		cp.add(wallL);
 		cp.add(dispL);
 		jf.setContentPane(cp);
 		jf.setSize(origI.getWidth()*2, origI.getHeight()*2);
@@ -146,20 +159,75 @@ public class Vision extends java.lang.Thread {
 		colorL.setIcon(colorC);
 		colorL.repaint();
 		//seekStart2(r,r3);
+
+		findBlueLine(origR, walltop);
+		medianfilter(walltop, walltopm);
+		findWallBottom(origR, walltopm, wallbot);
+		medianfilter(wallbot, wallbotm);
+		//findWalls(origR, walltop, wallbot);
+		shadeWalls(wallR,walltopm,wallbot);
+
+		/*
+		int[][] m3 = {{1,2,1},{0,0,0},{-1,-2,-1}};
+		convolve(origR, wallR, m3, 8);
+		*/
+		wallC.setImage(wallI);
+		wallL.setIcon(wallC);
+		wallL.repaint();
 		blankimg(dispR);
 		findExtrema(origR, dispR);
 		dispC.setImage(dispI);
 		dispL.setIcon(dispC);
 		dispL.repaint();
+
 	}
 
 	public void allocImages() {
 		origR = origI.getRaster();
 		colorI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
 		colorR = colorI.getRaster();
+		wallI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
+		wallR = wallI.getRaster();
 		//shadeRed(origR,colorR);
 		dispI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
 		dispR = dispI.getRaster();
+		wallbot = new int[origI.getWidth()];
+		Arrays.fill(wallbot, origI.getHeight()-1);
+		wallbotm = new int[origI.getWidth()];
+		Arrays.fill(wallbotm, origI.getHeight()-1);
+		walltop = new int[origI.getWidth()];
+		walltopm = new int[origI.getWidth()];
+	}
+
+	public void medianfilter(int[] inp, int[] out) {
+		out[0] = (inp[0]+inp[1])/2;
+		out[out.length-1] = (out[out.length-1]+out[out.length-2])/2;
+		for (int x = 1; x < out.length-2; ++x) {
+			int a = inp[x];
+			int b = inp[x-1];
+			int c = inp[x+1];
+			if (a < b) {
+				if (c < b) { // a,c < b
+					if (a < c) { // a < c < b
+						out[x] = c;
+					} else { // c < a < b
+						out[x] = a;
+					}
+				} else { // a < b < c
+					out[x] = b;
+				}
+			} else { // b < a
+				if ( c < a) { // b,c < a
+					if (b < c) { // b < c < a
+						out[x] = c;
+					} else { // c < b < a
+						out[x] = b;
+					}
+				} else { // b < a < c
+					out[x] = a;
+				}
+			}
+		}
 	}
 
 	/*
@@ -182,7 +250,7 @@ public class Vision extends java.lang.Thread {
 		return r.getSample(x, y, 0) != 255;
 	}
 
-	private void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m, final Colors c) {
+	private static void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m, final Colors c) {
 			Rectangle bounds = raster.getBounds();
 			int fillL = x;
 			do {
@@ -278,7 +346,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public void countLine(final WritableRaster r, int x, int y, final int x2, final int y2, final int[] matchvnon, Colors c) {
+	public static void countLine(final WritableRaster r, int x, int y, final int x2, final int y2, final int[] matchvnon, Colors c) {
 		int w = x2 - x ;
 		int h = y2 - y ;
 		int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
@@ -313,11 +381,84 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
+	public static void shadeWalls(final WritableRaster r1, final int[] wtop, final int[] wbot) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = r1.getHeight()-1; y >= wbot[x]; --y) {
+				colorPix(r1,x,y,Colors.None);
+			} for (int y = wbot[x]-1; y >= wtop[x]; --y) {
+				colorPix(r1,x,y,Colors.White);
+			} for (int y = wtop[x]-1; y >= 0; --y) {
+				colorPix(r1,x,y,Colors.None);
+			}
+		}
+	}
+
+	public static void findWallBottom(final WritableRaster r1, final int[] wtop, final int[] wbot) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			boolean foundwhite = false;
+			for (int y = wtop[x]; y >= 0; --y) {
+				
+			}
+		}
+	}
+
+	public static void findBlueLine(final WritableRaster r1, final int[] wtop) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			int y = r1.getHeight()-1;
+			wtop[x] = y;
+			int maxblue = Integer.MIN_VALUE;
+			// first let's find some white
+			for (; y >= 0; --y) {
+				if (getColor(r1,x,y) == Colors.White && getColor(r1,x,y-1) == Colors.White) break;
+			}
+			//now let's find the lowest maximal blue
+			for (; y >= 0; --y) {
+				int blueness = y+3*r1.getSample(x, y, 2)-2*r1.getSample(x, y, 0)-2*r1.getSample(x, y, 1);
+				if (blueness > maxblue) {
+					maxblue = blueness;
+					wtop[x] = y;
+				}
+			}
+			System.out.println(wtop[x]);
+		}
+	}
+
+	public static void findWalls(final WritableRaster r1, final int[] wtop, final int[] wbot) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			int y = r1.getHeight()-1;
+			wbot[x] = 0;
+			wtop[x] = 0;
+			int wallseg = 0;
+			int endseg = 0;
+			for (; y >= 0; --y) {
+				Colors c = getColor(r1,x,y);
+				if (wallseg < 4) { // haven't found wall yet
+					if (c == Colors.White) {
+						if (++wallseg == 4) {
+							wbot[x] = y+3;
+						}
+					} else {
+						wallseg = 0;
+					}
+				} else if (endseg < 2) { // searching for wall end
+					if (c == Colors.Blue || c == Colors.None) {
+						if (++endseg == 2) {
+							wtop[x] = y;
+							break;
+						}
+					} else {
+						endseg = 0;
+					}
+				}
+			}
+		}
+	}
+
 	public void findExtrema(final WritableRaster r1, final WritableRaster r2) {
 		Extrema m = new Extrema();
 		int[] matchvnon = new int[2];
 		for (int x = 0; x < r1.getWidth(); ++x) {
-			int y = 0;
+			int y = r1.getHeight()-1;
 			/*
 			int bld = 0;
 			for (; bld < 2 && y < r1.getWidth(); ++y) {
@@ -329,7 +470,7 @@ public class Vision extends java.lang.Thread {
 				}
 			}
 			*/
-			for (; y < r1.getWidth(); ++y) {
+			for (; y >= 0; --y) {
 				Colors c = getColor(r1,x,y);
 				if (((c == Colors.Red) || (c == Colors.Yellow)) && isBlank(r2,x,y) &&
 					(getColor(r1,x+1,y) == c) && isBlank(r2,x+1,y) &&
@@ -549,6 +690,38 @@ public class Vision extends java.lang.Thread {
 	}
 	*/
 
+	public static void convolve(WritableRaster r1, WritableRaster r2, int[][] m, int w) {
+		//int[] rgbf = new int[r1.getNumBands()];
+		int rgbf = 0;
+		int[] rgbft = new int[r1.getNumBands()];
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				//for (int i = 0; i < rgbf.length; ++i)
+				//	rgbf[i] = 0;
+				rgbf = 0;
+				for (int my = 0; my < m.length; ++my) {
+					if (y+my-m.length/2 < 0 || y+my-m.length/2 >= r1.getHeight()) continue;
+					for (int mx = 0; mx < m[my].length; ++mx) {
+						if (x+mx-m[my].length/2 < 0 || x+mx-m[my].length/2 >= r1.getWidth()) continue;
+						r1.getPixel(x+mx-m[my].length/2, y+my-m.length/2, rgbft);
+						//System.out.println("("+rgbft[0]+","+rgbft[1]+","+rgbft[2]+")");
+						//for (int i = 0; i < rgbf.length; ++i)
+						//	rgbf[i] += rgbft[i]*m[my][mx];
+						rgbf += rgbft[0]*m[my][mx] + rgbft[1]*m[my][mx] + rgbft[2]*m[my][mx];
+					}
+				}
+				rgbf /= w;
+				//for (int i = 0; i < rgbf.length; ++i)
+				//	rgbf[i] /= w;
+				//System.out.println("("+rgbf[0]+","+rgbf[1]+","+rgbf[2]+")");
+				//r2.setPixel(x, y, rgbf);
+				r2.setSample(x, y, 0, rgbf);
+				r2.setSample(x, y, 1, rgbf);
+				r2.setSample(x, y, 2, rgbf);
+			}
+		}
+	}
+
 	public static Colors getColor(WritableRaster r1, int x, int y) {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
@@ -558,7 +731,8 @@ public class Vision extends java.lang.Thread {
 			if (r > 110 && 2*r > 3*b && 2*r > 3*g) return Colors.Red;
 			else if (b < 150 && 2*r > 3*b && 2*g > 3*b) return Colors.Yellow;
 			else if (b > 80 && 5*b > 6*r && 5*b > 6*g) return Colors.Blue;
-			else if (r > 150 && g > 150 && b > 150) return Colors.White;
+			//else if (r > 190 && g > 190 && b > 170) return Colors.White;
+			else if (r+g+b > 600) return Colors.White;
 		} return Colors.None;
 	}
 

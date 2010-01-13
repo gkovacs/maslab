@@ -466,6 +466,10 @@ public class Vision extends java.lang.Thread {
 			r1.setSample(x, y, 0, 130);
 			r1.setSample(x, y, 1, 240);
 			r1.setSample(x, y, 2, 240);
+		} else if (c == Colors.White) {
+			r1.setSample(x, y, 0, 255);
+			r1.setSample(x, y, 1, 255);
+			r1.setSample(x, y, 2, 255);
 		} else {
 			r1.setSample(x, y, 0, 0);
 			r1.setSample(x, y, 1, 0);
@@ -552,8 +556,9 @@ public class Vision extends java.lang.Thread {
 			int b = r1.getSample(x, y, 2);
 			//if (r > 110 && 5*(g+b) < 6*r) return Colors.Red;
 			if (r > 110 && 2*r > 3*b && 2*r > 3*g) return Colors.Red;
-			else if (b < 150 && r > 2*b && g > 2*b) return Colors.Yellow;
-			else if (b > 150 && 5*(g+r) < 6*b) return Colors.Blue;
+			else if (b < 150 && 2*r > 3*b && 2*g > 3*b) return Colors.Yellow;
+			else if (b > 80 && 5*b > 6*r && 5*b > 6*g) return Colors.Blue;
+			else if (r > 150 && g > 150 && b > 150) return Colors.White;
 		} return Colors.None;
 	}
 

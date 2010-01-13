@@ -143,6 +143,12 @@ public class Main {
 		else return v;
 	}
 
+	public static double bound(double v, double max, double min) {
+		if (v > max) return max;
+		else if (v < min) return min;
+		else return v;
+	}
+
 	public static void normImage(WritableRaster r1, WritableRaster r2) {
 		//int[] buf = new int[3];
 		for (int x = 0; x < r1.getWidth(); ++x) {
@@ -1037,7 +1043,7 @@ public class Main {
 		return a[5]+a[6]+a[7]+a[8]+a[9];
 	}
 
-	public static void shiftleft(double[] a, double nd) {
+	public static void shiftleft10(double[] a, double nd) {
 		a[0] = a[1];
 		a[1] = a[2];
 		a[2] = a[3];
@@ -1236,6 +1242,7 @@ public class Main {
 			else if (args[0].contentEquals("wallfollow")) wallfollow();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testencoder")) testencoder();
+			else if (args[0].contentEquals("testpid")) testpid(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 			else System.out.println("unknown option");
 		} else {
 			System.out.println("need argument");
@@ -1245,13 +1252,59 @@ public class Main {
 		}
 	}
 
+	public static void shiftleft(double[] a, double v) {
+		int i = 0;
+		for (; i < a.length-1; ++i) {
+			a[i] = a[i+1];
+		}
+		a[i] = v;
+	}
+
+	public static void shiftleft6(double[] a, double v) {
+		a[0] = a[1];
+		a[1] = a[2];
+		a[2] = a[3];
+		a[3] = a[4];
+		a[4] = a[5];
+		a[5] = v;
+	}
+
+/*	public static double avgtop(double[] a) {
+		double total = 0.0;
+		for (int i = a.length/2; )
+	}*/
+
+	public static void testpid(double velocity = 0.3, double kp = 0.1, double kd = 0.0, double ki = 0.0) {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(1);
+		a.kp = (float)kp;
+		a.kd = (float)kd;
+		a.ki= (float)ki;
+		//Vision v = new Vision();
+		//v.setup(a, 0);
+		//a.start();
+		//v.start();
+		a.leftMotorWeight[0] = 0.5f;
+		a.rightMotorWeight[0] = 0.5f;
+		a.leftMotorAction[0] = (float)velocity;
+		a.rightMotorAction[0] = (float)velocity;
+		a.start();
+		java.lang.Thread.sleep(50000); // 50 seconds
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void testencoder() {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		QuadratureEncoder e0 = new QuadratureEncoder(o, 1, false);
+		//Motor m0 = new Motor(o, 1, false);
+		QuadratureEncoder e0 = new QuadratureEncoder(o, 0, false);
 		while (true) {
-			System.out.println("position is "+e0.getPosition()+" ticks are "+e0.getVelocity());
+			System.out.println("position in ticks is "+e0.getPosition()+" velocity in ticks per second is "+e0.getVelocity());
 		}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1279,7 +1332,7 @@ public class Main {
 			//System.out.println(62.5/a.getVoltage());
 			double nd = 62.5/a.getVoltage();
 			//System.out.println(nd);
-			shiftleft(prevd, nd);
+			shiftleft10(prevd, nd);
 			
 			if (Math.abs(sum5(prevd)-sum5l(prevd)) > 10.0) {
 				// if varies greater than 10 cm, wall has changed

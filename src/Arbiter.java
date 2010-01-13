@@ -17,6 +17,10 @@ public class Arbiter extends java.lang.Thread {
 	public float[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
 
+	public float kp = 0.1f;
+	public float kd = 0.0f;
+	public float ki = 0.0f;
+
 	public float maxVal(float[] vals, float[] weights) {
 		float maxweight = 0.0f;
 		float maxval = 0.0f;
@@ -33,15 +37,28 @@ public class Arbiter extends java.lang.Thread {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		Motor rightMotor = new Motor(o, 0, true);
-		Motor leftMotor = new Motor(o, 1, true);
+		Motor rightMotor = new Motor(o, 0, false);
+		Motor leftMotor = new Motor(o, 1, false);
+		QuadratureEncoder e0 = new QuadratureEncoder(o, 0, false);
+		QuadratureEncoder e1 = new QuadratureEncoder(o, 1, false);
+		MotorController c0 = new MotorController(kp, kd, ki);
+		MotorController c1 = new MotorController(kp, kd, ki);
 		while (running) {
+			float lma = maxVal(leftMotorAction, leftMotorWeight);
+			float rma = maxVal(rightMotorAction, rightMotorWeight);
+			c0.targetvelocity = lma;
+			c1.targetvelocity = rma;
+			rightMotor.setPWM(c0.getPWM((float)e0.getVelocity()*17.9f));
+			leftMotor.setPWM(c1.getPWM((float)e1.getVelocity()*17.9f));
+			java.lang.Thread.sleep(50);
+			/*
 			float lma = maxVal(leftMotorAction, leftMotorWeight);
 			float rma = maxVal(rightMotorAction, rightMotorWeight);
 			System.out.println("left: "+lma+" right: "+rma);
 			leftMotor.setPWM((float)lma);
 			rightMotor.setPWM((float)rma);
 			java.lang.Thread.sleep(100);
+			*/
 		}
 		} catch (Exception e) {
 			e.printStackTrace();

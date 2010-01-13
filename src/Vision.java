@@ -331,7 +331,9 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public void gateFound(WritableRaster r, Extrema m) {
-		System.out.println();
+		double ld = Math.sqrt((m.lbx-m.ltx)*(m.lbx-m.ltx)+(m.lby-m.lty)*(m.lby-m.lty)); // left distance
+		double rd = Math.sqrt((m.rbx-m.rtx)*(m.rbx-m.rtx)+(m.rby-m.rty)*(m.rby-m.rty)); // right distance
+		System.out.println("average dist is "+(ld+rd)/2.0);
 		/*
 		int top = (m.ltx < m.rtx) ? m.ltx : m.rtx;
 		int bottom = (m.lbx > m.rbx) ? m.lbx : m.rbx;

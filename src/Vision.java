@@ -156,12 +156,14 @@ public class Vision extends java.lang.Thread {
 		origL.repaint();
 
 		findBlueLine(origR, walltop, wallbot);
-		medianfilter(walltop, walltopm);
+		meanpass(walltop);
+		meanpass(wallbot);
+		//medianfilter(walltop, walltopm);
 		//findWallBottom(origR, walltopm, wallbot);
-		medianfilter(wallbot, wallbotm);
+		//medianfilter(wallbot, wallbotm);
 		//findWalls(origR, walltop, wallbot);
-		shadeWalls(wallR,walltopm,wallbotm);
-		//blankTop(origR, walltopm);
+		blankTop(origR, walltop);
+		shadeWalls(wallR,walltop,wallbot);
 		/*
 		int[][] m3 = {{1,2,1},{0,0,0},{-1,-2,-1}};
 		convolve(origR, wallR, m3, 8);
@@ -199,7 +201,21 @@ public class Vision extends java.lang.Thread {
 		walltopm = new int[origI.getWidth()];
 	}
 
-	public void medianfilter(int[] inp, int[] out) {
+	public static void meanpass(int[] inp) {
+		int total = 0;
+		for (int x = 0; x < inp.length; ++x) {
+			total += inp[x];
+		}
+		total /= inp.length;
+		for (int x = 0; x < inp.length; ++x) {
+			if (4*inp[x] < 3*total)
+				inp[x] = total*3/4;
+			if (3*inp[x] > 4*total)
+				inp[x] = total*4/3;
+		}
+	}
+
+	public static void medianfilter(int[] inp, int[] out) {
 		out[0] = (inp[0]+inp[1])/2;
 		out[out.length-1] = (out[out.length-1]+out[out.length-2])/2;
 		for (int x = 1; x < out.length-2; ++x) {
@@ -232,7 +248,16 @@ public class Vision extends java.lang.Thread {
 
 	public static void blankTop(final WritableRaster r1, final int[] wtop) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
-			for (int y = wtop[x]-1; y >= 0; --y) {
+			int y = wtop[x]-1;
+			Colors c = Colors.None;
+			if (y >= 0 && (c = getColor(r1,x,y)) == Colors.Red || c == Colors.Yellow) {
+				--y;
+				while (y >= 0 && (c = getColor(r1,x,y)) == Colors.Red || c == Colors.Yellow) {
+					--y;
+				}
+				wtop[x] = y+1;
+			}
+			for (; y >= 0; --y) {
 				r1.setSample(x, y, 0, 0);
 				r1.setSample(x, y, 1, 0);
 				r1.setSample(x, y, 2, 0);
@@ -257,7 +282,7 @@ public class Vision extends java.lang.Thread {
 	*/
 
 	public static boolean isBlank(WritableRaster r, int x, int y) {
-		return r.getSample(x, y, 0) != 255;
+		return (r.getSample(x, y, 0) == 0 && r.getSample(x, y, 1) == 0 && r.getSample(x, y, 2) == 0);
 	}
 
 	private static void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m, final Colors c) {
@@ -393,11 +418,12 @@ public class Vision extends java.lang.Thread {
 
 	public static void shadeWalls(final WritableRaster r1, final int[] wtop, final int[] wbot) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
-			for (int y = r1.getHeight()-1; y >= wbot[x]; --y) {
+			int y = r1.getHeight()-1;
+			for (; y >= wbot[x]; --y) {
 				colorPix(r1,x,y,Colors.None);
-			} for (int y = wbot[x]-1; y >= wtop[x]; --y) {
+			} for (; y >= wtop[x]; --y) {
 				colorPix(r1,x,y,Colors.White);
-			} for (int y = wtop[x]-1; y >= 0; --y) {
+			} for (; y >= 0; --y) {
 				colorPix(r1,x,y,Colors.None);
 			}
 		}
@@ -530,42 +556,63 @@ public class Vision extends java.lang.Thread {
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
 						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
 							System.err.println("unknown");
+							unknownFound(r2, m, c);
 							//System.out.println("gate misdetected as ball");
+							/*
 							drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Teal);
 							drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, Colors.Teal);
 							drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, Colors.Teal);
+							*/
 						} else {
 							System.out.println("ball"+matchvnon[0]+" vs "+matchvnon[1]);
 							// TODO radius (intersection) of ball
+							/*
 							double radius = 0.0;
 							radius += Math.sqrt(((m.tx-m.bx)*(m.tx-m.bx))/4+((m.ty-m.by)*(m.ty-m.by))/4);
 							radius += Math.sqrt(((m.rx-m.lx)*(m.rx-m.lx))/4+((m.ry-m.ly)*(m.ry-m.ly))/4);
 							radius += Math.sqrt(((m.ltx-m.rbx)*(m.ltx-m.rbx))/4+((m.lty-m.rby)*(m.lty-m.rby))/4);
 							radius += Math.sqrt(((m.rtx-m.lbx)*(m.rtx-m.lbx))/4+((m.rty-m.lby)*(m.rty-m.lby))/4);
 							radius /= 4.0;
-							circleFound(r2, (m.rx+m.lx)/2, (m.ty+m.by)/2, (int)radius, c);
-							System.out.println("circle found at "+ (m.rx+m.lx)/2+" "+(m.ty+m.by)/2);
+							*/
+							circleFound(r2, m, c);
+							//circleFound(r2, (m.rx+m.lx)/2, (m.ty+m.by)/2, (int)radius, c);
+							//System.out.println("circle found at "+ (m.rx+m.lx)/2+" "+(m.ty+m.by)/2);
 							// TODO confirm detection via standard deviation of 8-cardinals
+							/*
 							drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Purple);
 							drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, Colors.Purple);
 							drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, Colors.Purple);
+							*/
 						}
 					} else {
 						System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
+						/*
 						drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Green);
 						drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, Colors.Green);
 						drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, Colors.Green);
-						gateFound(r2, m);
+						*/
+						gateFound(r2, m, c);
 					}
 				}
 			}
 		}
 	}
 
-	public void gateFound(WritableRaster r, Extrema m) {
+	public void unknownFound(WritableRaster r, Extrema m, Colors c) {
+		if (c == Colors.Red)
+			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Brown);
+		else
+			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Teal);
+	}
+
+	public void gateFound(WritableRaster r, Extrema m, Colors c) {
 		double ld = Math.sqrt((m.lbx-m.ltx)*(m.lbx-m.ltx)+(m.lby-m.lty)*(m.lby-m.lty)); // left distance
 		double rd = Math.sqrt((m.rbx-m.rtx)*(m.rbx-m.rtx)+(m.rby-m.rty)*(m.rby-m.rty)); // right distance
 		System.out.println("average dist is "+(ld+rd)/2.0);
+		if (c == Colors.Red)
+			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Purple);
+		else
+			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Green);
 		/*
 		int top = (m.ltx < m.rtx) ? m.ltx : m.rtx;
 		int bottom = (m.lbx > m.rbx) ? m.lbx : m.rbx;
@@ -752,7 +799,7 @@ public class Vision extends java.lang.Thread {
 			else if (b < 150 && 2*r > 3*b && 2*g > 3*b) return Colors.Yellow;
 			else if (b > 80 && 5*b > 6*r && 5*b > 6*g) return Colors.Blue;
 			//else if (r > 190 && g > 190 && b > 170) return Colors.White;
-			else if (r+g+b > 600) return Colors.White;
+			else if (r+g+b > 550) return Colors.White;
 		} return Colors.None;
 	}
 
@@ -929,6 +976,10 @@ public class Vision extends java.lang.Thread {
 	}
 	*/
 
+	public void circleFound(WritableRaster r1, Extrema m, Colors c) {
+		filledRectange(r1, m.ty, m.by, m.lx, m.rx, c);
+	}
+
 	public void circleFound(WritableRaster r1, int x, int y, int r, Colors c) {
 		if (r == 0) r = 1; // ugly hack
 		if (x >= 0 && x < r1.getWidth() && y >= 0 && y < r1.getHeight()) {
@@ -956,6 +1007,15 @@ public class Vision extends java.lang.Thread {
 				if (xq+(y0-y)*(y0-y) <= r*r)
 					colorPix(r1,x,y,c);
 					//r1.setSample(x, y, 0, 255);
+			}
+		}
+	}
+
+	public static void filledRectange(WritableRaster r1, int top, int bot, int left, int right, Colors c) {
+		
+		for (int x = left; x <= right; ++x) {
+			for (int y = top; y <= bot; ++y) {
+				colorPix(r1,x,y,c);
 			}
 		}
 	}

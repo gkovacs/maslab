@@ -151,10 +151,7 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public void processImage() {
-		origC.setImage(origI);
-		origL.setIcon(origC);
-		origL.repaint();
-
+		/*
 		findBlueLine(origR, walltop, wallbot);
 		meanpass(walltop);
 		meanpass(wallbot);
@@ -163,14 +160,17 @@ public class Vision extends java.lang.Thread {
 		//medianfilter(wallbot, wallbotm);
 		//findWalls(origR, walltop, wallbot);
 		blankTop(origR, walltop);
-		shadeWalls(wallR,walltop,wallbot);
-		/*
-		int[][] m3 = {{1,2,1},{0,0,0},{-1,-2,-1}};
-		convolve(origR, wallR, m3, 8);
 		*/
+		/*
+		shadeWalls(wallR,walltop,wallbot);
+		
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
+		*/
+		origC.setImage(origI);
+		origL.setIcon(origC);
+		origL.repaint();
 		shadeColors(origR,colorR);
 		colorC.setImage(colorI);
 		colorL.setIcon(colorC);
@@ -248,6 +248,7 @@ public class Vision extends java.lang.Thread {
 
 	public static void blankTop(final WritableRaster r1, final int[] wtop) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
+			//int y = wtop[x]-1 < r1.getHeight()-1 ? wtop[x]-1 : r1.getHeight()-1; // ugly hack
 			int y = wtop[x]-1;
 			Colors c = Colors.None;
 			if (y >= 0 && (c = getColor(r1,x,y)) == Colors.Red || c == Colors.Yellow) {
@@ -257,7 +258,8 @@ public class Vision extends java.lang.Thread {
 				}
 				wtop[x] = y+1;
 			}
-			for (; y >= 0; --y) {
+			for (; y >= 0 && y < r1.getHeight(); --y) {
+				//System.err.println(y);
 				r1.setSample(x, y, 0, 0);
 				r1.setSample(x, y, 1, 0);
 				r1.setSample(x, y, 2, 0);
@@ -283,6 +285,32 @@ public class Vision extends java.lang.Thread {
 
 	public static boolean isBlank(WritableRaster r, int x, int y) {
 		return (r.getSample(x, y, 0) == 0 && r.getSample(x, y, 1) == 0 && r.getSample(x, y, 2) == 0);
+	}
+
+	public static void setExtrema3(final WritableRaster r1, final WritableRaster r2, final int ox, final int oy, final Extrema m, final Colors c) {
+		java.util.LinkedList<Integer> qx = new java.util.LinkedList<Integer>();
+		java.util.LinkedList<Integer> qy = new java.util.LinkedList<Integer>();
+		qx.add(ox);
+		qy.add(oy);
+		while (!qx.isEmpty()) {
+			int x = qx.pop();
+			int y = qy.pop();
+			m.update(x, y);
+			colorPix(r2,x,y,c);
+			if (getColor(r1,x+1,y) == c && isBlank(r2,x+1,y)) {
+				qx.add(x+1);
+				qy.add(y);
+			} if (getColor(r1,x-1,y) == c && isBlank(r2,x-1,y)) {
+				qx.add(x-1);
+				qy.add(y);
+			} if (getColor(r1,x,y+1) == c && isBlank(r2,x+1,y+1)) {
+				qx.add(x);
+				qy.add(y+1);
+			} if (getColor(r1,x,y-1) == c && isBlank(r2,x,y-1)) {
+				qx.add(x);
+				qy.add(y-1);
+			}
+		}
 	}
 
 	private static void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m, final Colors c) {
@@ -555,7 +583,7 @@ public class Vision extends java.lang.Thread {
 						int lbrt = (m.lbx-m.rtx)*(m.lbx-m.rtx)+(m.lby-m.rty)*(m.lby-m.rty); // bot-left to top-right distance squared
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
 						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
-							System.err.println("unknown");
+							System.out.println("unknown at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							unknownFound(r2, m, c);
 							//System.out.println("gate misdetected as ball");
 							/*
@@ -799,7 +827,7 @@ public class Vision extends java.lang.Thread {
 			else if (b < 150 && 2*r > 3*b && 2*g > 3*b) return Colors.Yellow;
 			else if (b > 80 && 5*b > 6*r && 5*b > 6*g) return Colors.Blue;
 			//else if (r > 190 && g > 190 && b > 170) return Colors.White;
-			else if (r+g+b > 550) return Colors.White;
+			else if (r+g+b > 570) return Colors.White;
 		} return Colors.None;
 	}
 

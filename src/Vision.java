@@ -154,19 +154,14 @@ public class Vision extends java.lang.Thread {
 		origC.setImage(origI);
 		origL.setIcon(origC);
 		origL.repaint();
-		shadeColors(origR,colorR);
-		colorC.setImage(colorI);
-		colorL.setIcon(colorC);
-		colorL.repaint();
-		//seekStart2(r,r3);
 
-		findBlueLine(origR, walltop);
+		findBlueLine(origR, walltop, wallbot);
 		medianfilter(walltop, walltopm);
-		findWallBottom(origR, walltopm, wallbot);
+		//findWallBottom(origR, walltopm, wallbot);
 		medianfilter(wallbot, wallbotm);
 		//findWalls(origR, walltop, wallbot);
-		shadeWalls(wallR,walltopm,wallbot);
-
+		shadeWalls(wallR,walltopm,wallbotm);
+		//blankTop(origR, walltopm);
 		/*
 		int[][] m3 = {{1,2,1},{0,0,0},{-1,-2,-1}};
 		convolve(origR, wallR, m3, 8);
@@ -174,6 +169,11 @@ public class Vision extends java.lang.Thread {
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
+		shadeColors(origR,colorR);
+		colorC.setImage(colorI);
+		colorL.setIcon(colorC);
+		colorL.repaint();
+		//seekStart2(r,r3);
 		blankimg(dispR);
 		findExtrema(origR, dispR);
 		dispC.setImage(dispI);
@@ -226,6 +226,16 @@ public class Vision extends java.lang.Thread {
 				} else { // b < a < c
 					out[x] = a;
 				}
+			}
+		}
+	}
+
+	public static void blankTop(final WritableRaster r1, final int[] wtop) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = wtop[x]-1; y >= 0; --y) {
+				r1.setSample(x, y, 0, 0);
+				r1.setSample(x, y, 1, 0);
+				r1.setSample(x, y, 2, 0);
 			}
 		}
 	}
@@ -402,24 +412,34 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void findBlueLine(final WritableRaster r1, final int[] wtop) {
+	public static void findBlueLine(final WritableRaster r1, final int[] wtop, final int[] wbot) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int y = r1.getHeight()-1;
 			wtop[x] = y;
+			wbot[x] = y;
 			int maxblue = Integer.MIN_VALUE;
-			// first let's find some white
+			// first let's find some white (bottom of the wall)
 			for (; y >= 0; --y) {
-				if (getColor(r1,x,y) == Colors.White && getColor(r1,x,y-1) == Colors.White) break;
+				if (getColor(r1,x,y) == Colors.White && getColor(r1,x,y-1) == Colors.White) {
+					wbot[x] = y;
+					break;
+				}
 			}
-			//now let's find the lowest maximal blue
+			// now let's find the first blue
 			for (; y >= 0; --y) {
-				int blueness = y+3*r1.getSample(x, y, 2)-2*r1.getSample(x, y, 0)-2*r1.getSample(x, y, 1);
+				if (getColor(r1,x,y) == Colors.Blue) {
+					wtop[x] = y;
+					break;
+				}
+			}
+			// no blue found? return the lowest maximal blue
+			for (y = wbot[x]; y >= 0; --y) {
+				int blueness = (y/3)+3*r1.getSample(x, y, 2)-2*r1.getSample(x, y, 0)-2*r1.getSample(x, y, 1);
 				if (blueness > maxblue) {
 					maxblue = blueness;
 					wtop[x] = y;
 				}
 			}
-			System.out.println(wtop[x]);
 		}
 	}
 

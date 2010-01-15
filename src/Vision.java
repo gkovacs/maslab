@@ -60,7 +60,7 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 30};
+	public int[] timeouts = {130, 130, 15, 15, 80, 30};
 	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot"};
 	public int[] transitions = {-2, -1, -1, -1, 3, -1};
@@ -112,6 +112,9 @@ public class Vision extends java.lang.Thread {
 		if (testmode) {
 		setupImagePanels();
 		}
+		leftMotorWeight[idx] = 0.5f;
+		rightMotorWeight[idx] = 0.5f;
+		rollerWeight[idx] = 0.5f;
 		// 0 = rotating
 		// 1 = going forward to get seen ball
 		// 2 = capturing previously seen ball
@@ -121,7 +124,7 @@ public class Vision extends java.lang.Thread {
 			} else {
 				++statetimeout;
 			}
-			//System.out.println("state is "+state+" timeout is "+statetimeout);
+			System.out.println("state is "+state+" timeout is "+statetimeout);
 			/*
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;
@@ -138,9 +141,9 @@ public class Vision extends java.lang.Thread {
 			if (circleseen) {
 				setState(1);
 			}
-			if (gateseen) {
-				setState(4);
-			}
+			//if (gateseen) {
+			//	setState(4);
+			//}
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
 				if (turningright) {
@@ -694,7 +697,7 @@ public class Vision extends java.lang.Thread {
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
 						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
 							System.out.println("unknown at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							//unknownFound(r2, m, c);
+							unknownFound(r2, m, c);
 							//System.out.println("gate misdetected as ball");
 							/*
 							drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Teal);
@@ -711,7 +714,7 @@ public class Vision extends java.lang.Thread {
 							radius += Math.sqrt(((m.ltx-m.rbx)*(m.ltx-m.rbx))/4+((m.lty-m.rby)*(m.lty-m.rby))/4);
 							radius += Math.sqrt(((m.rtx-m.lbx)*(m.rtx-m.lbx))/4+((m.rty-m.lby)*(m.rty-m.lby))/4);
 							radius /= 4.0;
-							
+							//double b2rb = Math.sqrt();
 							//circleFound(r2, m, c);
 							circleFound(r2, m, (m.rx+m.lx)/2, (m.ty+m.by)/2, (int)radius, c);
 							//System.out.println("circle found at "+ (m.rx+m.lx)/2+" "+(m.ty+m.by)/2);
@@ -741,6 +744,7 @@ public class Vision extends java.lang.Thread {
 			filledRectange(r1, m.ty, m.by, m.lx, m.rx, Colors.Brown);
 		else
 			filledRectange(r1, m.ty, m.by, m.lx, m.rx, Colors.Teal);
+		/*
 		int r = (m.rx-m.lx)/2;
 		int ndistance = 600/r;
 		int npxoffset = (m.rx+m.lx)/2-r1.getWidth()/2;
@@ -751,6 +755,7 @@ public class Vision extends java.lang.Thread {
 			distance = ndistance;
 			pxoffset = npxoffset;
 		}
+		*/
 	}
 
 	public void gateFound(WritableRaster r, Extrema m, Colors c) {

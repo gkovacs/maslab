@@ -16,6 +16,8 @@ public class Arbiter extends java.lang.Thread {
 	public float[] leftMotorWeight = null;
 	public float[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
+	public float[] rollerAction = null;
+	public float[] rollerWeight = null;
 
 	public float kp = 0.1f;
 	public float kd = 0.0f;
@@ -61,10 +63,11 @@ public class Arbiter extends java.lang.Thread {
 			*/
 			float lma = maxVal(leftMotorAction, leftMotorWeight);
 			float rma = maxVal(rightMotorAction, rightMotorWeight);
+			float rla = maxVal(rightMotorAction, rightMotorWeight);
 			System.out.println("left: "+lma+" right: "+rma);
 			leftMotor.setPWM((float)lma*0.9f);
 			rightMotor.setPWM((float)rma);
-			rollers.setPWM(1.0);
+			rollers.setPWM((float)rla);
 			java.lang.Thread.sleep(100);
 		}
 		} catch (Exception e) {

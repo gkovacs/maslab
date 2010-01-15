@@ -20,6 +20,8 @@ public class Vision extends java.lang.Thread {
 	public float[] leftMotorWeight = null;
 	public float[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
+	public float[] rollerAction = null;
+	public float[] rollerWeight = null;
 	public int idx = 0;
 	public int found = 0;
 	public int lifetime = 0;
@@ -49,15 +51,18 @@ public class Vision extends java.lang.Thread {
 	public int[] walltop = null;
 	public int[] walltopm = null;
 	public boolean circleseen = false;
+	public boolean gateseen = false;
 	public int circlecentery;
 	public int circleradius;
+	public int gatewidth;
+	public int gatepxoffset;
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 10};
-	public float[] weights = {0.3f, 1.0f, 0.6f};
-	public String[] names = {"rotate", "fetchball", "forward"};
-	public int[] transitions = {2, 0, 0};
+	public int[] timeouts = {80, 80, 10, 10, 80, 30};
+	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.7f, 1.0f};
+	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot"};
+	public int[] transitions = {2, 0, 0, 0, 3, 0};
 	public int statetimeout = 0;
 	public boolean turningright = true;
 
@@ -67,8 +72,10 @@ public class Vision extends java.lang.Thread {
 		statetimeout = 0;
 		leftMotorAction[idx] = 0.0f;
 		rightMotorAction[idx] = 0.0f;
+		rollerAction[idx] = 1.0f;
 		leftMotorWeight[idx] = weights[newstate];
 		rightMotorWeight[idx] = weights[newstate];
+		rollerWeight[idx] = weights[newstate];
 	}
 
 	public void run() {
@@ -106,12 +113,20 @@ public class Vision extends java.lang.Thread {
 			//boolean circleseen = false;
 			circleseen = false;
 			circleradius = 0;
+			pxoffset = 0;
+			gateseen = false;
+			gatewidth = 0;
+			gatepxoffset = 0;
 			processImage();
+			if (circleseen) {
+				setState(1);
+			}
+			if (gateseen) {
+				setState(4);
+			}
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
-				if (circleseen) {
-					setState(1);
-				} else if (turningright) {
+				if (turningright) {
 					leftMotorAction[idx] = 0.6f;
 					rightMotorAction[idx] = -0.6f;
 				} else {
@@ -119,7 +134,7 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = 0.6f;
 				}
 			}
-			if (state == 1) {
+			if (state == 1) { // getball
 				if (!circleseen) { // ball out of sight, let's capture it
 					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
 						setState(2);
@@ -134,7 +149,7 @@ public class Vision extends java.lang.Thread {
 				} else { // we see a ball, go to it
 				float basevel = bound(1.0f-Math.abs(pxoffset)/0.1f, 1.0f, 0.7f);
 				float rspeed = -k*pxoffset; //+ 0.6f;
-				float lspeed = k*pxoffset; //+ 0.6f;				
+				float lspeed = k*pxoffset; //+ 0.6f;
 				if (lspeed > rspeed) {
 					rspeed += basevel-Math.abs(lspeed);
 					lspeed = basevel;
@@ -147,16 +162,39 @@ public class Vision extends java.lang.Thread {
 				leftMotorAction[idx] = lspeed;
 				rightMotorAction[idx] = rspeed;
 				}
-			} if (state == 2) {
-				if (circleseen) {
-					state = 1;
-					leftMotorAction[idx] = 0.0f;
-					rightMotorAction[idx] = 0.0f;
+			} if (state == 2) { // forwards
+				leftMotorAction[idx] = 0.6f;
+				rightMotorAction[idx] = 0.6f;
+			} if (state == 3) { // backwards
+				leftMotorAction[idx] = 0.6f;
+				rightMotorAction[idx] = 0.6f;
+			} if (state == 4) { // gate delivery approach
+				if (!gateseen) { // we missed the gate, back up
+					setState(3);
+				} else if (gatewidth > 40 ){ // shoot those balls
+					setState(5);
+				} else { // approach the gate
+				float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
+				float rspeed = -k*gatepxoffset; //+ 0.6f;
+				float lspeed = k*gatepxoffset; //+ 0.6f;
+				if (lspeed > rspeed) {
+					rspeed += basevel-Math.abs(lspeed);
+					lspeed = basevel;
 				} else {
-					leftMotorAction[idx] = 0.6f;
-					rightMotorAction[idx] = 0.6f;
+					lspeed += basevel-Math.abs(rspeed);
+					rspeed = basevel;
 				}
+				lspeed = bound(lspeed, 1.0f, -1.0f);
+				rspeed = bound(rspeed, 1.0f, -1.0f);
+				leftMotorAction[idx] = lspeed;
+				rightMotorAction[idx] = rspeed;
+				}
+			} if (state == 5) { // gate delivery shoot
+				rollerAction[idx] = -1.0f;
+				rightMotorAction[idx] = -1.0f;
+				leftMotorAction[idx] = -1.0f;
 			}
+
 			//java.lang.Thread.sleep(idx);
 		}
 		} catch (Exception e) {
@@ -170,6 +208,8 @@ public class Vision extends java.lang.Thread {
 		leftMotorWeight = a.leftMotorWeight;
 		rightMotorAction = a.rightMotorAction;
 		rightMotorWeight = a.rightMotorWeight;
+		rollerAction = a.rollerAction;
+		rollerWeight = a.rollerWeight;
 	}
 
 	public void bye() {
@@ -699,13 +739,20 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public void gateFound(WritableRaster r, Extrema m, Colors c) {
+		/*
 		double ld = Math.sqrt((m.lbx-m.ltx)*(m.lbx-m.ltx)+(m.lby-m.lty)*(m.lby-m.lty)); // left distance
 		double rd = Math.sqrt((m.rbx-m.rtx)*(m.rbx-m.rtx)+(m.rby-m.rty)*(m.rby-m.rty)); // right distance
-		System.out.println("average dist is "+(ld+rd)/2.0);
+		*/
+		//System.out.println("average dist is "+(ld+rd)/2.0);
+		int ngatewidth = (m.lbx - m.lby);
+		if (ngatewidth < 20) return;
 		if (c == Colors.Red)
 			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Purple);
 		else
 			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Green);
+		gatepxoffset = (m.lbx + m.lby)/2-r.getWidth()/2;
+		gatewidth = (m.lbx - m.lby);
+		gateseen = true;
 		/*
 		int top = (m.ltx < m.rtx) ? m.ltx : m.rtx;
 		int bottom = (m.lbx > m.rbx) ? m.lbx : m.rbx;

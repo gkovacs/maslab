@@ -58,17 +58,20 @@ public class Vision extends java.lang.Thread {
 	public int circlecentery;
 	public int circleradius;
 	public int gatewidth;
+	public int gateheight;
+	public int gatetimer = 501;
 	public int gatepxoffset;
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 30};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60};
 	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot"};
 	public int[] transitions = {-2, -1, -1, -1, 3, -1};
 	public int statetimeout = 0;
 	public boolean turningright = true;
 	public boolean goforward = false;
+	public int shoottimer = 0;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;
@@ -140,11 +143,19 @@ public class Vision extends java.lang.Thread {
 			gatewidth = 0;
 			gatepxoffset = 0;
 			processImage();
-			if (circleseen) {
+			++gatetimer;
+			System.out.println("gate timer is "+gatetimer);
+			if (circleseen && state != 4 && state != 5) {
 				setState(1);
 			}
-			if (gateseen) {
-				setState(4);
+			if (gateseen && state != 5) {
+				if (gatetimer > 500) {
+					System.out.println("approach gate");
+					setState(4);
+				} else if (gatewidth > 100 || gateheight > 100) {
+					System.out.println("backup from gate");
+					setState(3);
+				}
 			}
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
@@ -161,8 +172,8 @@ public class Vision extends java.lang.Thread {
 					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
 						setState(2);
 						statetimeout = 10;
-					} else { // we missed the ball, go back // search further
-						setState(3);
+					} else { // we missed the ball, search further //go back // search further
+						setState(-1);
 					}
 				} else { // we see a ball, go to it
 				float basevel = bound(1.0f-Math.abs(pxoffset)/0.1f, 1.0f, 0.7f);
@@ -185,10 +196,12 @@ public class Vision extends java.lang.Thread {
 				leftMotorAction[idx] = -0.6f;
 				rightMotorAction[idx] = -0.6f;
 			} if (state == 4) { // gate delivery approach
-				if (!gateseen) { // we missed the gate, back up
+				/*if (!gateseen) { // we missed the gate, back up
 					setState(3);
-				} else if (gatewidth > 60 ){ // shoot those balls
+				} else*/ if (gatewidth > 60 ){ // shoot those balls
 					setState(5);
+					gatetimer = 0;
+					shoottimer = 0;
 				} else { // approach the gate
 				float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
 				float rspeed = -k*gatepxoffset; //+ 0.6f;
@@ -205,8 +218,17 @@ public class Vision extends java.lang.Thread {
 				}
 			} if (state == 5) { // gate delivery shoot
 				rollerAction[idx] = -1.0f;
-				rightMotorAction[idx] = -1.0f;
-				leftMotorAction[idx] = -1.0f;
+				++shoottimer;
+				if (shoottimer < 8) { // go back
+					rightMotorAction[idx] = -1.0f;
+					leftMotorAction[idx] = -1.0f;
+				} else { // go forward
+					if (shoottimer == 15) {
+						shoottimer = 0;
+					}
+					rightMotorAction[idx] = 1.0f;
+					leftMotorAction[idx] = 1.0f;
+				}
 			}
 
 			//java.lang.Thread.sleep(idx);
@@ -840,7 +862,7 @@ public class Vision extends java.lang.Thread {
 							*/
 						}
 					} else {
-						System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
+						//System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
 						/*
 						drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Green);
 						drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, Colors.Green);
@@ -882,9 +904,11 @@ public class Vision extends java.lang.Thread {
 			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Purple);
 		else
 			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Green);
-		if (m.lbx - m.lby < 20) return;
-		gatepxoffset = (m.lbx + m.lby)/2-r.getWidth()/2;
-		gatewidth = (m.lbx - m.lby);
+		if (m.by-m.ty < 40 && m.rbx - m.lbx < 40) return;
+		gatepxoffset = (m.rbx + m.lbx)/2-r.getWidth()/2;
+		gatewidth = (m.rbx - m.lbx);
+		gateheight = (m.by-m.ty);
+		System.out.println("gate width is "+gatewidth);
 		gateseen = true;
 		/*
 		int top = (m.ltx < m.rtx) ? m.ltx : m.rtx;

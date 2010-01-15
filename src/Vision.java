@@ -48,6 +48,9 @@ public class Vision extends java.lang.Thread {
 	public int[] wallbotm = null;
 	public int[] walltop = null;
 	public int[] walltopm = null;
+	public boolean circleseen = false;
+	public int circlecentery;
+	public int circleradius;
 
 	public void run() {
 		try {
@@ -64,28 +67,89 @@ public class Vision extends java.lang.Thread {
 		c.capture(origI);
 		allocImages();
 		setupImagePanels();
-		final float k = 0.003f;
+		final float k = 0.005f;
+		int state = 0;
+		int capturecounter = 0;
+		int[] timeouts = {80, 80, 20};
+		float[] weights = {0.3f, 1.0f, 0.6f};
+		int statetimeout = 0;
+		boolean turningright = true;
+		// 0 = rotating
+		// 1 = going forward to get seen ball
+		// 2 = capturing previously seen ball
 		while (running) {
+			/*
+			if (statetimeout < timeouts[state]) { // state timed out, make transition
+				++statetimeout;
+			} else {
+				
+			}
+			 */
+			System.out.println("state is "+state+" timeout is "+statetimeout);
+			/*
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;
+			*/
 			c.capture(origI);
+			//boolean circleseen = false;
+			circleseen = false;
+			circleradius = 0;
 			processImage();
-			if (found > 0) { // moving towards goal
+			//if (found > 0) { // moving towards ball
+			if (state == 0) { // idly searching, nothing interesting in sight, turn left
+				if (circleseen) {
+					state = 1;
+					leftMotorAction[idx] = 0.0f;
+					rightMotorAction[idx] = 0.0f;
+				} else if (turningright) {
 				leftMotorWeight[idx] = 0.5f;
 				rightMotorWeight[idx] = 0.5f;
-				float rspeed = k*pxoffset;
-				float lspeed = -rspeed;
-				if (lspeed > rspeed) {
-					rspeed += 0.5f-Math.abs(lspeed);
-					lspeed = 0.5f;
+				leftMotorAction[idx] = 0.6f;
+				rightMotorAction[idx] = -0.6f;
 				} else {
-					lspeed += 0.5f-Math.abs(rspeed);
-					rspeed = 0.5f;
+				leftMotorWeight[idx] = 0.5f;
+				rightMotorWeight[idx] = 0.5f;
+				leftMotorAction[idx] = -0.6f;
+				rightMotorAction[idx] = 0.6f;
+
 				}
+			}
+			if (state == 1) {
+				if (!circleseen) { // ball out of sight, let's capture it
+					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
+						capturecounter = 10;
+						state = 2;
+						leftMotorAction[idx] = 0.0f;
+						rightMotorAction[idx] = 0.0f;
+					} else { // we missed the ball, search further
+						state = 0;
+						if (turningright) {
+							turningright = false;
+						} else {
+							turningright = true;
+						}
+						leftMotorAction[idx] = 0.0f;
+						rightMotorAction[idx] = 0.0f;
+					}
+				} else {
+				leftMotorWeight[idx] = 0.6f;
+				rightMotorWeight[idx] = 0.6f;
+				float rspeed = -k*pxoffset; //+ 0.6f;
+				float lspeed = k*pxoffset; //+ 0.6f;
+				
+				if (lspeed > rspeed) {
+					rspeed += 0.6f-Math.abs(lspeed);
+					lspeed = 0.6f;
+				} else {
+					lspeed += 0.6f-Math.abs(rspeed);
+					rspeed = 0.6f;
+				}
+				
 				lspeed = bound(lspeed, 1.0f, -1.0f);
 				rspeed = bound(rspeed, 1.0f, -1.0f);
 				leftMotorAction[idx] = lspeed;
 				rightMotorAction[idx] = rspeed;
+				}
 				/*
 				if (pxoffset > 0) { // to the right
 					leftMotorAction[idx] = 0.5f;
@@ -97,13 +161,25 @@ public class Vision extends java.lang.Thread {
 				 */
 				//leftMotorAction[idx] = bound((float)distance*(1.0f+0.01f*(float)pxoffset)/100.0f, 0.5f, 0.1f);
 				//rightMotorAction[idx] = bound((float)distance*(1.0f-0.01f*(float)pxoffset)/100.0f, 0.5f, 0.1f);
-			} else { // idly searching, nothing interesting in sight, turn left
-				leftMotorWeight[idx] = 0.3f;
-				rightMotorWeight[idx] = 0.3f;
-				leftMotorAction[idx] = 0.5f;
-				rightMotorAction[idx] = 0.5f;
+			} if (state == 2) {
+				if (circleseen) {
+					state = 1;
+					capturecounter = 0;
+					leftMotorAction[idx] = 0.0f;
+					rightMotorAction[idx] = 0.0f;
 
+				} else {
+					if (--capturecounter == 0) {
+						state = 0;
+						leftMotorAction[idx] = 0.0f;
+						rightMotorAction[idx] = 0.0f;
+					} else {
+						leftMotorAction[idx] = 0.6f;
+						rightMotorAction[idx] = 0.6f;
+					}
+				}
 			}
+			//java.lang.Thread.sleep(idx);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -546,6 +622,7 @@ public class Vision extends java.lang.Thread {
 			*/
 			for (; y >= 0; --y) {
 				Colors c = getColor(r1,x,y);
+				if (c == Colors.Blue) break;
 				if (((c == Colors.Red) || (c == Colors.Yellow)) && isBlank(r2,x,y) &&
 					(getColor(r1,x+1,y) == c) && isBlank(r2,x+1,y) &&
 					(getColor(r1,x-1,y) == c) && isBlank(r2,x-1,y) &&
@@ -584,7 +661,7 @@ public class Vision extends java.lang.Thread {
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
 						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
 							System.out.println("unknown at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							unknownFound(r2, m, c);
+							//unknownFound(r2, m, c);
 							//System.out.println("gate misdetected as ball");
 							/*
 							drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Teal);
@@ -594,16 +671,16 @@ public class Vision extends java.lang.Thread {
 						} else {
 							System.out.println("ball"+matchvnon[0]+" vs "+matchvnon[1]);
 							// TODO radius (intersection) of ball
-							/*
+							
 							double radius = 0.0;
 							radius += Math.sqrt(((m.tx-m.bx)*(m.tx-m.bx))/4+((m.ty-m.by)*(m.ty-m.by))/4);
 							radius += Math.sqrt(((m.rx-m.lx)*(m.rx-m.lx))/4+((m.ry-m.ly)*(m.ry-m.ly))/4);
 							radius += Math.sqrt(((m.ltx-m.rbx)*(m.ltx-m.rbx))/4+((m.lty-m.rby)*(m.lty-m.rby))/4);
 							radius += Math.sqrt(((m.rtx-m.lbx)*(m.rtx-m.lbx))/4+((m.rty-m.lby)*(m.rty-m.lby))/4);
 							radius /= 4.0;
-							*/
-							circleFound(r2, m, c);
-							//circleFound(r2, (m.rx+m.lx)/2, (m.ty+m.by)/2, (int)radius, c);
+							
+							//circleFound(r2, m, c);
+							circleFound(r2, m, (m.rx+m.lx)/2, (m.ty+m.by)/2, (int)radius, c);
 							//System.out.println("circle found at "+ (m.rx+m.lx)/2+" "+(m.ty+m.by)/2);
 							// TODO confirm detection via standard deviation of 8-cardinals
 							/*
@@ -626,11 +703,21 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public void unknownFound(WritableRaster r, Extrema m, Colors c) {
+	public void unknownFound(WritableRaster r1, Extrema m, Colors c) {
 		if (c == Colors.Red)
-			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Brown);
+			filledRectange(r1, m.ty, m.by, m.lx, m.rx, Colors.Brown);
 		else
-			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Teal);
+			filledRectange(r1, m.ty, m.by, m.lx, m.rx, Colors.Teal);
+		int r = (m.rx-m.lx)/2;
+		int ndistance = 600/r;
+		int npxoffset = (m.rx+m.lx)/2-r1.getWidth()/2;
+		System.out.println("distance is "+ndistance+"cm offcenter is "+npxoffset+"px");
+		found = 3;
+		if (distance > ndistance || lifetime == 0) {
+			lifetime = 1;
+			distance = ndistance;
+			pxoffset = npxoffset;
+		}
 	}
 
 	public void gateFound(WritableRaster r, Extrema m, Colors c) {
@@ -715,9 +802,15 @@ public class Vision extends java.lang.Thread {
 
 	public void shadeColors(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
-			for (int y = 0; y < r1.getHeight(); ++y) {
-				Colors curcolor = getColor(r1,x,y);
-				colorPix(r2,x,y,curcolor);
+			boolean foundblue = false;
+			for (int y = r1.getHeight()-1; y >= 0; --y) {
+				if (foundblue) {
+					colorPix(r2,x,y,Colors.None);
+				} else {
+					Colors curcolor = getColor(r1,x,y);
+					colorPix(r2,x,y,curcolor);
+				if (curcolor == Colors.Blue) foundblue = true;
+				}
 			}
 		}
 	}
@@ -1008,20 +1101,26 @@ public class Vision extends java.lang.Thread {
 		filledRectange(r1, m.ty, m.by, m.lx, m.rx, c);
 	}
 
-	public void circleFound(WritableRaster r1, int x, int y, int r, Colors c) {
+	public void circleFound(WritableRaster r1, Extrema m, int x, int y, int r, Colors c) {
 		if (r == 0) r = 1; // ugly hack
 		if (x >= 0 && x < r1.getWidth() && y >= 0 && y < r1.getHeight()) {
-			filledCircle(r1,x,y,r, c);
-			r1.setSample(x, y, 2, 255);
+			//filledCircle(r1,x,y,r, c);
+			//filledRectange(r1, y-r, y+r, x-r, x+r, c);
+			filledRectange(r1, m.ty, m.by, m.lx, m.rx, c);
+			//r1.setSample(x, y, 2, 255);
 			//System.out.println(r);
 			int ndistance = 600/r;
 			int npxoffset = x-r1.getWidth()/2;
 			System.out.println("distance is "+ndistance+"cm offcenter is "+npxoffset+"px");
-			found = 10;
-			if (distance > ndistance || lifetime == 0) {
-				lifetime = 3;
+			found = 3;
+			//if (distance > ndistance || lifetime == 0) {
+			if (r > circleradius) {
+				circleradius = r;
+				lifetime = 1;
 				distance = ndistance;
 				pxoffset = npxoffset;
+				circleseen = true;
+				circlecentery = y;
 			}
 		}
 	}

@@ -1429,12 +1429,14 @@ public class Main {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		Motor m0 = new Motor(o, 0, true);
-		m0.setWatchDog(6000000);
-		m0.setPWM(1.0);
-		Motor m1 = new Motor(o, 1, true);
-		m1.setWatchDog(6000000);
-		m1.setPWM(1.0);
-		
+		m0.setWatchDog(4000000);
+		m0.setPWM(0.5);
+		Motor m1 = new Motor(o, 1, false);
+		m1.setWatchDog(4000000);
+		m1.setPWM(0.5);
+		Motor m2 = new Motor(o, 2, false);
+		m2.setWatchDog(4000000);
+		m2.setPWM(0.5);
 		//while (true) {
 		//m.setPWM(1.0);
 		//}

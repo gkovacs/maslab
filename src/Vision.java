@@ -65,7 +65,7 @@ public class Vision extends java.lang.Thread {
 	public int[] timeouts = {80, 80, 15, 15, 80, 30};
 	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot"};
-	public int[] transitions = {-2, 3, -1, -1, 3, -1};
+	public int[] transitions = {-2, -1, -1, -1, 3, -1};
 	public int statetimeout = 0;
 	public boolean turningright = true;
 	public boolean goforward = false;
@@ -143,9 +143,9 @@ public class Vision extends java.lang.Thread {
 			if (circleseen) {
 				setState(1);
 			}
-			//if (gateseen) {
-			//	setState(4);
-			//}
+			if (gateseen) {
+				setState(4);
+			}
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
 				if (turningright) {
@@ -792,7 +792,7 @@ public class Vision extends java.lang.Thread {
 					countLine(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, matchvnon, c);
 					// drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3);
 					//  drawline(r2, m.rtx, m.rty, m.lbx, m.lby);
-					if (matchvnon[0] > matchvnon[1]) {
+					if (matchvnon[0] > matchvnon[1] && m.ty != 0) {
 						int lbrb = (m.lbx-m.rbx)*(m.lbx-m.rbx)+(m.lby-m.rby)*(m.lby-m.rby); // bot-left to bot-right distance squared
 						int lbrt = (m.lbx-m.rtx)*(m.lbx-m.rtx)+(m.lby-m.rty)*(m.lby-m.rty); // bot-left to top-right distance squared
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
@@ -812,7 +812,10 @@ public class Vision extends java.lang.Thread {
 						} if (m.lbx == 0 || m.ltx == 0 || m.rtx == r2.getWidth()-1 || m.rbx == r2.getWidth()-1) { // don't classify if the corner is off the page; likely gate
 							System.out.println("fails corner-edge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
-						} if (heufail >= 1) {
+						} /*if (m.ty == 0) {
+							System.out.println("fails top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							++heufail;
+						}*/ if (heufail >= 1) {
 							System.out.println("unknown at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							unknownFound(r2,m,c);
 						} else {

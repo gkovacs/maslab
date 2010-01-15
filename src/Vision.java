@@ -50,6 +50,8 @@ public class Vision extends java.lang.Thread {
 	public int[] wallbotm = null;
 	public int[] walltop = null;
 	public int[] walltopm = null;
+	public int[] queuex = null;
+	public int[] queuey = null;
 	public boolean circleseen = false;
 	public boolean gateseen = false;
 	public boolean testmode = true;
@@ -308,6 +310,8 @@ public class Vision extends java.lang.Thread {
 		Arrays.fill(wallbotm, origI.getHeight()-1);
 		walltop = new int[origI.getWidth()];
 		walltopm = new int[origI.getWidth()];
+		queuex = new int[origI.getWidth()*origI.getHeight()];
+		queuey = new int[origI.getWidth()*origI.getHeight()];
 	}
 
 	public static void meanpass(int[] inp) {
@@ -394,6 +398,45 @@ public class Vision extends java.lang.Thread {
 
 	public static boolean isBlank(WritableRaster r, int x, int y) {
 		return (r.getSample(x, y, 0) == 0 && r.getSample(x, y, 1) == 0 && r.getSample(x, y, 2) == 0);
+	}
+
+	public static void setExtrema4(final WritableRaster r1, final WritableRaster r2, final int ox, final int oy, final Extrema m, final Colors c, final int[] qx, final int[] qy) {
+		int s = 0;
+		int e = 1;
+		qx[0] = ox;
+		qy[0] = oy;
+		m.update(ox, oy);
+		colorPix(r2,ox,oy,c);
+		while (e != s) {
+			int x = qx[s];
+			int y = qy[s];
+			++s;
+			if (getColor(r1,x+1,y) == c && isBlank(r2,x+1,y)) {
+				m.update(x+1, y);
+				colorPix(r2,x+1,y,c);
+				qx[e] = x+1;
+				qy[e] = y;
+				++e;
+			} if (getColor(r1,x-1,y) == c && isBlank(r2,x-1,y)) {
+				m.update(x-1, y);
+				colorPix(r2,x-1,y,c);
+				qx[e] = x-1;
+				qy[e] = y;
+				++e;
+			} if (getColor(r1,x,y+1) == c && isBlank(r2,x,y+1)) {
+				m.update(x, y+1);
+				colorPix(r2,x,y+1,c);
+				qx[e] = x;
+				qy[e] = y+1;
+				++e;
+			} if (getColor(r1,x,y-1) == c && isBlank(r2,x,y-1)) {
+				m.update(x, y-1);
+				colorPix(r2,x,y-1,c);
+				qx[e] = x;
+				qy[e] = y-1;
+				++e;
+			}
+		}
 	}
 
 	public static void setExtrema3(final WritableRaster r1, final WritableRaster r2, final int ox, final int oy, final Extrema m, final Colors c) {
@@ -682,7 +725,8 @@ public class Vision extends java.lang.Thread {
 					) {
 					m.initval(x, y);
 					//r2.setSample(x, y, 2, 255);
-					setExtrema3(r1, r2, x, y, m, c);
+					//setExtrema3(r1, r2, x, y, m, c);
+					setExtrema4(r1, r2, x, y, m, c, queuex, queuey);
 					/*
 					r2.setSample(m.lbx, m.lby, 1, 255);
 					r2.setSample(m.rbx, m.rby, 1, 255);

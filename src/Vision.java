@@ -401,21 +401,29 @@ public class Vision extends java.lang.Thread {
 		java.util.LinkedList<Integer> qy = new java.util.LinkedList<Integer>();
 		qx.add(ox);
 		qy.add(oy);
+		m.update(ox, oy);
+		colorPix(r2,ox,oy,c);
 		while (!qx.isEmpty()) {
 			int x = qx.pop();
 			int y = qy.pop();
-			m.update(x, y);
-			colorPix(r2,x,y,c);
 			if (getColor(r1,x+1,y) == c && isBlank(r2,x+1,y)) {
+				m.update(x+1, y);
+				colorPix(r2,x+1,y,c);
 				qx.add(x+1);
 				qy.add(y);
 			} if (getColor(r1,x-1,y) == c && isBlank(r2,x-1,y)) {
+				m.update(x-1, y);
+				colorPix(r2,x-1,y,c);
 				qx.add(x-1);
 				qy.add(y);
-			} if (getColor(r1,x,y+1) == c && isBlank(r2,x+1,y+1)) {
+			} if (getColor(r1,x,y+1) == c && isBlank(r2,x,y+1)) {
+				m.update(x, y+1);
+				colorPix(r2,x,y+1,c);
 				qx.add(x);
 				qy.add(y+1);
 			} if (getColor(r1,x,y-1) == c && isBlank(r2,x,y-1)) {
+				m.update(x, y-1);
+				colorPix(r2,x,y-1,c);
 				qx.add(x);
 				qy.add(y-1);
 			}
@@ -674,7 +682,7 @@ public class Vision extends java.lang.Thread {
 					) {
 					m.initval(x, y);
 					//r2.setSample(x, y, 2, 255);
-					setExtrema2(r1, r2, x, y, m, c);
+					setExtrema3(r1, r2, x, y, m, c);
 					/*
 					r2.setSample(m.lbx, m.lby, 1, 255);
 					r2.setSample(m.rbx, m.rby, 1, 255);

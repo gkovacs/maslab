@@ -797,14 +797,20 @@ public class Vision extends java.lang.Thread {
 						int lbrt = (m.lbx-m.rtx)*(m.lbx-m.rtx)+(m.lby-m.rty)*(m.lby-m.rty); // bot-left to top-right distance squared
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
 						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
-							System.out.println("unknown at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							System.out.println("unknown by diagonal-bottom heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							unknownFound(r2, m, c);
-							//System.out.println("gate misdetected as ball");
-							/*
-							drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Teal);
-							drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, Colors.Teal);
-							drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3, Colors.Teal);
-							*/
+						} else if (m.lbx > m.tx || m.tx > m.rbx) {
+							System.out.println("unknown by central-top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							unknownFound(r2, m, c);
+						} else if (m.lbx-m.tx > 3*(m.tx-m.rbx) || 3*(m.lbx-m.tx) < m.tx-m.rbx) {
+							System.out.println("unknown by centered-center heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							unknownFound(r2, m, c);
+						} else if (m.tx == 0 || m.tx == r2.getWidth()-1 || m.bx == 0 || m.bx == r2.getWidth()-1) {
+							System.out.println("unknown by top-bottom-xedge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							unknownFound(r2, m, c);
+						} else if (m.lbx == 0 || m.ltx == 0 || m.rtx == r2.getWidth()-1 || m.rbx == r2.getWidth()-1) { // don't classify if the corner is off the page; likely gate
+							System.out.println("unknown by corner-edge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							unknownFound(r2, m, c);
 						} else {
 							System.out.println("ball"+matchvnon[0]+" vs "+matchvnon[1]);
 							// TODO radius (intersection) of ball

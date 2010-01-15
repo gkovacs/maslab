@@ -412,27 +412,35 @@ public class Vision extends java.lang.Thread {
 				int x = qx[s];
 				int y = qy[s];
 				++s;
-				if (x+1 < r1.getWidth() && isRed(r1,x+1,y) && isBlank(r2,x+1,y)) {
+				if (x+1 < r1.getWidth() && isBlank(r2,x+1,y) && isRed(r1,x+1,y)) {
 					m.update(x+1, y);
-					colorPix(r2,x+1,y,c);
+					r2.setSample(x+1, y, 0, 255);
+					r2.setSample(x+1, y, 1, 0);
+					r2.setSample(x+1, y, 2, 0);
 					qx[e] = x+1;
 					qy[e] = y;
 					++e;
-				} if (x-1 >= 0 && isRed(r1,x-1,y) && isBlank(r2,x-1,y)) {
+				} if (x-1 >= 0 && isBlank(r2,x-1,y) && isRed(r1,x-1,y)) {
 					m.update(x-1, y);
-					colorPix(r2,x-1,y,c);
+					r2.setSample(x-1, y, 0, 255);
+					r2.setSample(x-1, y, 1, 0);
+					r2.setSample(x-1, y, 2, 0);
 					qx[e] = x-1;
 					qy[e] = y;
 					++e;
-				} if (y+1 < r1.getHeight() && isRed(r1,x,y+1) && isBlank(r2,x,y+1)) {
+				} if (y+1 < r1.getHeight() && isBlank(r2,x,y+1) && isRed(r1,x,y+1)) {
 					m.update(x, y+1);
-					colorPix(r2,x,y+1,c);
+					r2.setSample(x, y+1, 0, 255);
+					r2.setSample(x, y+1, 1, 0);
+					r2.setSample(x, y+1, 2, 0);
 					qx[e] = x;
 					qy[e] = y+1;
 					++e;
-				} if (y-1 >= 0 && isRed(r1,x,y-1) && isBlank(r2,x,y-1)) {
+				} if (y-1 >= 0 && isBlank(r2,x,y-1) && isRed(r1,x,y-1)) {
 					m.update(x, y-1);
-					colorPix(r2,x,y-1,c);
+					r2.setSample(x, y-1, 0, 255);
+					r2.setSample(x, y-1, 1, 0);
+					r2.setSample(x, y-1, 2, 0);
 					qx[e] = x;
 					qy[e] = y-1;
 					++e;
@@ -443,27 +451,35 @@ public class Vision extends java.lang.Thread {
 				int x = qx[s];
 				int y = qy[s];
 				++s;
-				if (x+1 < r1.getWidth() && isYellow(r1,x+1,y) && isBlank(r2,x+1,y)) {
+				if (x+1 < r1.getWidth() && isBlank(r2,x+1,y) && isYellow(r1,x+1,y)) {
 					m.update(x+1, y);
-					colorPix(r2,x+1,y,c);
+					r2.setSample(x+1, y, 0, 255);
+					r2.setSample(x+1, y, 1, 255);
+					r2.setSample(x+1, y, 2, 0);
 					qx[e] = x+1;
 					qy[e] = y;
 					++e;
-				} if (x-1 >= 0 && isYellow(r1,x-1,y) && isBlank(r2,x-1,y)) {
+				} if (x-1 >= 0 && isBlank(r2,x-1,y) && isYellow(r1,x-1,y)) {
 					m.update(x-1, y);
-					colorPix(r2,x-1,y,c);
+					r2.setSample(x-1, y, 0, 255);
+					r2.setSample(x-1, y, 1, 255);
+					r2.setSample(x-1, y, 2, 0);
 					qx[e] = x-1;
 					qy[e] = y;
 					++e;
-				} if (y+1 < r1.getHeight() && isYellow(r1,x,y+1) && isBlank(r2,x,y+1)) {
+				} if (y+1 < r1.getHeight() && isBlank(r2,x,y+1) && isYellow(r1,x,y+1)) {
 					m.update(x, y+1);
-					colorPix(r2,x,y+1,c);
+					r2.setSample(x, y+1, 0, 255);
+					r2.setSample(x, y+1, 1, 255);
+					r2.setSample(x, y+1, 2, 0);
 					qx[e] = x;
 					qy[e] = y+1;
 					++e;
-				} if (y-1 >= 0 && isYellow(r1,x,y-1) && isBlank(r2,x,y-1)) {
+				} if (y-1 >= 0 && isBlank(r2,x,y-1) && isYellow(r1,x,y-1)) {
 					m.update(x, y-1);
-					colorPix(r2,x,y-1,c);
+					r2.setSample(x, y-1, 0, 255);
+					r2.setSample(x, y-1, 1, 255);
+					r2.setSample(x, y-1, 2, 0);
 					qx[e] = x;
 					qy[e] = y-1;
 					++e;

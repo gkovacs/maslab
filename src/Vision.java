@@ -51,6 +51,25 @@ public class Vision extends java.lang.Thread {
 	public boolean circleseen = false;
 	public int circlecentery;
 	public int circleradius;
+	public final float k = 0.005f;
+	public int state = 0;
+	public int capturecounter = 0;
+	public int[] timeouts = {80, 80, 10};
+	public float[] weights = {0.3f, 1.0f, 0.6f};
+	public String[] names = {"rotate", "fetchball", "forward"};
+	public int[] transitions = {2, 0, 0};
+	public int statetimeout = 0;
+	public boolean turningright = true;
+
+	public void setState(int newstate) {
+		System.err.println("transition to "+names[newstate]);
+		state = newstate;
+		statetimeout = 0;
+		leftMotorAction[idx] = 0.0f;
+		rightMotorAction[idx] = 0.0f;
+		leftMotorWeight[idx] = weights[newstate];
+		rightMotorWeight[idx] = weights[newstate];
+	}
 
 	public void run() {
 		try {
@@ -67,25 +86,18 @@ public class Vision extends java.lang.Thread {
 		c.capture(origI);
 		allocImages();
 		setupImagePanels();
-		final float k = 0.005f;
-		int state = 0;
-		int capturecounter = 0;
-		int[] timeouts = {80, 80, 20};
-		float[] weights = {0.3f, 1.0f, 0.6f};
-		int statetimeout = 0;
-		boolean turningright = true;
 		// 0 = rotating
 		// 1 = going forward to get seen ball
 		// 2 = capturing previously seen ball
 		while (running) {
-			/*
-			if (statetimeout < timeouts[state]) { // state timed out, make transition
-				++statetimeout;
+			if (statetimeout >= timeouts[state]) { // state timed out, make transition
+				setState(transitions[state]);
 			} else {
-				
+				++statetimeout;
 			}
-			 */
-			System.out.println("state is "+state+" timeout is "+statetimeout);
+
+
+			//System.out.println("state is "+state+" timeout is "+statetimeout);
 			/*
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;
@@ -98,45 +110,30 @@ public class Vision extends java.lang.Thread {
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
 				if (circleseen) {
-					state = 1;
-					leftMotorAction[idx] = 0.0f;
-					rightMotorAction[idx] = 0.0f;
+					setState(1);
 				} else if (turningright) {
-				leftMotorWeight[idx] = 0.5f;
-				rightMotorWeight[idx] = 0.5f;
-				leftMotorAction[idx] = 0.6f;
-				rightMotorAction[idx] = -0.6f;
+					leftMotorAction[idx] = 0.6f;
+					rightMotorAction[idx] = -0.6f;
 				} else {
-				leftMotorWeight[idx] = 0.5f;
-				rightMotorWeight[idx] = 0.5f;
-				leftMotorAction[idx] = -0.6f;
-				rightMotorAction[idx] = 0.6f;
-
+					leftMotorAction[idx] = -0.6f;
+					rightMotorAction[idx] = 0.6f;
 				}
 			}
 			if (state == 1) {
 				if (!circleseen) { // ball out of sight, let's capture it
 					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
-						capturecounter = 10;
-						state = 2;
-						leftMotorAction[idx] = 0.0f;
-						rightMotorAction[idx] = 0.0f;
+						setState(2);
 					} else { // we missed the ball, search further
-						state = 0;
+						setState(0);
 						if (turningright) {
 							turningright = false;
 						} else {
 							turningright = true;
 						}
-						leftMotorAction[idx] = 0.0f;
-						rightMotorAction[idx] = 0.0f;
 					}
 				} else {
-				leftMotorWeight[idx] = 0.6f;
-				rightMotorWeight[idx] = 0.6f;
 				float rspeed = -k*pxoffset; //+ 0.6f;
-				float lspeed = k*pxoffset; //+ 0.6f;
-				
+				float lspeed = k*pxoffset; //+ 0.6f;				
 				if (lspeed > rspeed) {
 					rspeed += 0.6f-Math.abs(lspeed);
 					lspeed = 0.6f;
@@ -144,39 +141,19 @@ public class Vision extends java.lang.Thread {
 					lspeed += 0.6f-Math.abs(rspeed);
 					rspeed = 0.6f;
 				}
-				
 				lspeed = bound(lspeed, 1.0f, -1.0f);
 				rspeed = bound(rspeed, 1.0f, -1.0f);
 				leftMotorAction[idx] = lspeed;
 				rightMotorAction[idx] = rspeed;
 				}
-				/*
-				if (pxoffset > 0) { // to the right
-					leftMotorAction[idx] = 0.5f;
-					rightMotorAction[idx] = 0.0f;
-				} else {
-					leftMotorAction[idx] = 0.0f;
-					rightMotorAction[idx] = 0.5f;
-				}
-				 */
-				//leftMotorAction[idx] = bound((float)distance*(1.0f+0.01f*(float)pxoffset)/100.0f, 0.5f, 0.1f);
-				//rightMotorAction[idx] = bound((float)distance*(1.0f-0.01f*(float)pxoffset)/100.0f, 0.5f, 0.1f);
 			} if (state == 2) {
 				if (circleseen) {
 					state = 1;
-					capturecounter = 0;
 					leftMotorAction[idx] = 0.0f;
 					rightMotorAction[idx] = 0.0f;
-
 				} else {
-					if (--capturecounter == 0) {
-						state = 0;
-						leftMotorAction[idx] = 0.0f;
-						rightMotorAction[idx] = 0.0f;
-					} else {
-						leftMotorAction[idx] = 0.6f;
-						rightMotorAction[idx] = 0.6f;
-					}
+					leftMotorAction[idx] = 0.6f;
+					rightMotorAction[idx] = 0.6f;
 				}
 			}
 			//java.lang.Thread.sleep(idx);

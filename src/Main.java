@@ -1354,10 +1354,13 @@ public class Main {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		//Motor m0 = new Motor(o, 1, false);
+		Motor m0 = new Motor(o, 2, false);
 		QuadratureEncoder e0 = new QuadratureEncoder(o, 0, false);
 		while (true) {
-			System.out.println("position in ticks is "+e0.getPosition()+" velocity in ticks per second is "+e0.getVelocity());
+			m0.setPWM(0.3);
+			double v = e0.getVelocity();
+			if (v != 0.0) System.out.println(v);
+			//System.out.println("position in ticks is "+e0.getPosition()+" velocity in ticks per second is "+e0.getVelocity());
 		}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -198,7 +198,7 @@ public class Vision extends java.lang.Thread {
 			} if (state == 4) { // gate delivery approach
 				/*if (!gateseen) { // we missed the gate, back up
 					setState(3);
-				} else*/ if (gatewidth > 60 ){ // shoot those balls
+				} else*/ if (gatewidth > 150 ){ // shoot those balls
 					setState(5);
 					gatetimer = 0;
 					shoottimer = 0;
@@ -307,6 +307,10 @@ public class Vision extends java.lang.Thread {
 		colorL.setIcon(colorC);
 		colorL.repaint();
 		//seekStart2(r,r3);
+		rgb2hsv(origR, wallR);
+		wallC.setImage(wallI);
+		wallL.setIcon(wallC);
+		wallL.repaint();
 		}
 		blankimg(dispR);
 		findExtrema(origR, dispR);
@@ -377,6 +381,39 @@ public class Vision extends java.lang.Thread {
 				} else { // b < a < c
 					out[x] = a;
 				}
+			}
+		}
+	}
+
+	public static void rgb2hsv(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				int r = r1.getSample(x, y, 0);
+				int g = r1.getSample(x, y, 1);
+				int b = r1.getSample(x, y, 2);
+				int max = Math.max(Math.max(r, g), b);
+				int min = Math.min(Math.min(r, g), b);
+				int h = 0;
+				int s = 0;
+				int delta = max-min;
+				if (delta == 0) delta = 1;
+				if (max != 0) {
+					s = 255*delta/max;
+					if (max == r) {
+						h = (g-b)*85/(2*delta);
+						if (h < 0)
+							h += 255;
+					} else if (max == g) {
+						h = 85 + (b-r)*85/(2*delta);
+					} else { // max == b
+						h = 170 + (r-g)*85/(2*delta);
+					}
+				}
+				r2.setSample(x, y, 0, h); // h
+				//r2.setSample(x, y, 1, h);
+				//r2.setSample(x, y, 2, h);
+				r2.setSample(x, y, 1, s); // s
+				r2.setSample(x, y, 2, max); // v
 			}
 		}
 	}

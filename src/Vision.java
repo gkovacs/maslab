@@ -52,6 +52,7 @@ public class Vision extends java.lang.Thread {
 	public int[] walltopm = null;
 	public boolean circleseen = false;
 	public boolean gateseen = false;
+	public boolean testmode = true;
 	public int circlecentery;
 	public int circleradius;
 	public int gatewidth;
@@ -108,7 +109,9 @@ public class Vision extends java.lang.Thread {
 		origI = c.createImage();
 		c.capture(origI);
 		allocImages();
+		if (testmode) {
 		setupImagePanels();
+		}
 		// 0 = rotating
 		// 1 = going forward to get seen ball
 		// 2 = capturing previously seen ball
@@ -268,6 +271,7 @@ public class Vision extends java.lang.Thread {
 		wallL.setIcon(wallC);
 		wallL.repaint();
 		*/
+		if (testmode) {
 		origC.setImage(origI);
 		origL.setIcon(origC);
 		origL.repaint();
@@ -276,12 +280,14 @@ public class Vision extends java.lang.Thread {
 		colorL.setIcon(colorC);
 		colorL.repaint();
 		//seekStart2(r,r3);
+		}
 		blankimg(dispR);
 		findExtrema(origR, dispR);
+		if (testmode) {
 		dispC.setImage(dispI);
 		dispL.setIcon(dispC);
 		dispL.repaint();
-
+		}
 	}
 
 	public void allocImages() {

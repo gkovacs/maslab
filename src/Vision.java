@@ -60,7 +60,7 @@ public class Vision extends java.lang.Thread {
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 10, 10, 80, 30};
-	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.7f, 1.0f};
+	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot"};
 	public int[] transitions = {2, 0, 0, 0, 3, 0};
 	public int statetimeout = 0;
@@ -102,8 +102,6 @@ public class Vision extends java.lang.Thread {
 			} else {
 				++statetimeout;
 			}
-
-
 			//System.out.println("state is "+state+" timeout is "+statetimeout);
 			/*
 			if (found > 0) --found;
@@ -157,8 +155,6 @@ public class Vision extends java.lang.Thread {
 					lspeed += basevel-Math.abs(rspeed);
 					rspeed = basevel;
 				}
-				lspeed = bound(lspeed, 1.0f, -1.0f);
-				rspeed = bound(rspeed, 1.0f, -1.0f);
 				leftMotorAction[idx] = lspeed;
 				rightMotorAction[idx] = rspeed;
 				}
@@ -171,7 +167,7 @@ public class Vision extends java.lang.Thread {
 			} if (state == 4) { // gate delivery approach
 				if (!gateseen) { // we missed the gate, back up
 					setState(3);
-				} else if (gatewidth > 40 ){ // shoot those balls
+				} else if (gatewidth > 60 ){ // shoot those balls
 					setState(5);
 				} else { // approach the gate
 				float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
@@ -184,8 +180,6 @@ public class Vision extends java.lang.Thread {
 					lspeed += basevel-Math.abs(rspeed);
 					rspeed = basevel;
 				}
-				lspeed = bound(lspeed, 1.0f, -1.0f);
-				rspeed = bound(rspeed, 1.0f, -1.0f);
 				leftMotorAction[idx] = lspeed;
 				rightMotorAction[idx] = rspeed;
 				}
@@ -642,17 +636,20 @@ public class Vision extends java.lang.Thread {
 				Colors c = getColor(r1,x,y);
 				if (c == Colors.Blue) break;
 				if (((c == Colors.Red) || (c == Colors.Yellow)) && isBlank(r2,x,y) &&
+					/*
 					(getColor(r1,x+1,y) == c) && isBlank(r2,x+1,y) &&
 					(getColor(r1,x-1,y) == c) && isBlank(r2,x-1,y) &&
 					(getColor(r1,x,y+1) == c) && isBlank(r2,x,y+1) &&
 					(getColor(r1,x,y-1) == c) && isBlank(r2,x,y-1) &&
+					*/
 
 					// diagonals
-
+					/*
 					(getColor(r1,x+1,y+1) == c) && isBlank(r2,x+1,y+1) &&
 					(getColor(r1,x+1,y-1) == c) && isBlank(r2,x+1,y-1) &&
 					(getColor(r1,x-1,y+1) == c) && isBlank(r2,x-1,y+1) &&
 					(getColor(r1,x-1,y-1) == c) && isBlank(r2,x-1,y-1)
+					*/
 					) {
 					m.initval(x, y);
 					//r2.setSample(x, y, 2, 255);
@@ -744,8 +741,7 @@ public class Vision extends java.lang.Thread {
 		double rd = Math.sqrt((m.rbx-m.rtx)*(m.rbx-m.rtx)+(m.rby-m.rty)*(m.rby-m.rty)); // right distance
 		*/
 		//System.out.println("average dist is "+(ld+rd)/2.0);
-		int ngatewidth = (m.lbx - m.lby);
-		if (ngatewidth < 20) return;
+		if (m.lbx - m.lby < 20) return;
 		if (c == Colors.Red)
 			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Purple);
 		else

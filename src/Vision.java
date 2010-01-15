@@ -62,10 +62,10 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {130, 130, 15, 15, 80, 30};
+	public int[] timeouts = {80, 80, 15, 15, 80, 30};
 	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot"};
-	public int[] transitions = {-2, -1, -1, -1, 3, -1};
+	public int[] transitions = {-2, 3, -1, -1, 3, -1};
 	public int statetimeout = 0;
 	public boolean turningright = true;
 	public boolean goforward = false;
@@ -160,9 +160,9 @@ public class Vision extends java.lang.Thread {
 				if (!circleseen) { // ball out of sight, let's capture it
 					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
 						setState(2);
-						statetimeout = 5;
-					} else { // we missed the ball, search further
-						setState(-1);
+						statetimeout = 10;
+					} else { // we missed the ball, go back // search further
+						setState(3);
 					}
 				} else { // we see a ball, go to it
 				float basevel = bound(1.0f-Math.abs(pxoffset)/0.1f, 1.0f, 0.7f);
@@ -182,8 +182,8 @@ public class Vision extends java.lang.Thread {
 				leftMotorAction[idx] = 0.6f;
 				rightMotorAction[idx] = 0.6f;
 			} if (state == 3) { // backwards
-				leftMotorAction[idx] = 0.6f;
-				rightMotorAction[idx] = 0.6f;
+				leftMotorAction[idx] = -0.6f;
+				rightMotorAction[idx] = -0.6f;
 			} if (state == 4) { // gate delivery approach
 				if (!gateseen) { // we missed the gate, back up
 					setState(3);
@@ -756,13 +756,13 @@ public class Vision extends java.lang.Thread {
 			for (; y >= 0; --y) {
 				Colors c = getColor(r1,x,y);
 				if (c == Colors.Blue) break;
-				if (((c == Colors.Red) || (c == Colors.Yellow)) && isBlank(r2,x,y) // &&
-					/*
+				if (((c == Colors.Red) || (c == Colors.Yellow)) && isBlank(r2,x,y) &&
+					
 					(getColor(r1,x+1,y) == c) && isBlank(r2,x+1,y) &&
 					(getColor(r1,x-1,y) == c) && isBlank(r2,x-1,y) &&
 					(getColor(r1,x,y+1) == c) && isBlank(r2,x,y+1) &&
-					(getColor(r1,x,y-1) == c) && isBlank(r2,x,y-1) &&
-					*/
+					(getColor(r1,x,y-1) == c) && isBlank(r2,x,y-1) // &&
+					
 
 					// diagonals
 					/*
@@ -799,7 +799,7 @@ public class Vision extends java.lang.Thread {
 						int heufail = 0;
 						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
 							System.out.println("fails diagonal-bottom heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							heufail += 2;
+							++heufail;
 						} if (m.lbx > m.tx || m.tx > m.rbx) {
 							System.out.println("fails central-top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
@@ -812,7 +812,7 @@ public class Vision extends java.lang.Thread {
 						} if (m.lbx == 0 || m.ltx == 0 || m.rtx == r2.getWidth()-1 || m.rbx == r2.getWidth()-1) { // don't classify if the corner is off the page; likely gate
 							System.out.println("fails corner-edge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
-						} if (heufail >= 2) {
+						} if (heufail >= 1) {
 							System.out.println("unknown at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							unknownFound(r2,m,c);
 						} else {
@@ -1104,7 +1104,8 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public static boolean isYellow(final int r, final int g, final int b) {
-		return (b < 150 && 2*r > 3*b && 2*g > 3*b);
+		//return (b < 150 && 2*r > 3*b && 2*g > 3*b);
+		return (b < 190 && 2*r > 3*b && 2*g > 3*b);
 	}
 
 	public static boolean isBlue(final int r, final int g, final int b) {
@@ -1112,7 +1113,8 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public static boolean isWhite(final int r, final int g, final int b) {
-		return (r+g+b > 570);
+		//return (r+g+b > 570);
+		return (r+g+b > 650); // 26-100
 	}
 
 	/*

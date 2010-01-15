@@ -796,21 +796,25 @@ public class Vision extends java.lang.Thread {
 						int lbrb = (m.lbx-m.rbx)*(m.lbx-m.rbx)+(m.lby-m.rby)*(m.lby-m.rby); // bot-left to bot-right distance squared
 						int lbrt = (m.lbx-m.rtx)*(m.lbx-m.rtx)+(m.lby-m.rty)*(m.lby-m.rty); // bot-left to top-right distance squared
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
+						int heufail = 0;
 						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
-							System.out.println("unknown by diagonal-bottom heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							unknownFound(r2, m, c);
-						} else if (m.lbx > m.tx || m.tx > m.rbx) {
-							System.out.println("unknown by central-top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							unknownFound(r2, m, c);
-						} else if (m.lbx-m.tx > 3*(m.tx-m.rbx) || 3*(m.lbx-m.tx) < m.tx-m.rbx) {
+							System.out.println("fails diagonal-bottom heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							++heufail;
+						} if (m.lbx > m.tx || m.tx > m.rbx) {
+							System.out.println("fails central-top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							++heufail;
+						} if (Math.abs(m.tx-m.lbx) > 3*(Math.abs(m.rbx-m.tx)) || 3*(Math.abs(m.tx-m.lbx)) < Math.abs(m.rbx-m.tx)) {
 							System.out.println("unknown by centered-center heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							unknownFound(r2, m, c);
-						} else if (m.tx == 0 || m.tx == r2.getWidth()-1 || m.bx == 0 || m.bx == r2.getWidth()-1) {
-							System.out.println("unknown by top-bottom-xedge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							unknownFound(r2, m, c);
-						} else if (m.lbx == 0 || m.ltx == 0 || m.rtx == r2.getWidth()-1 || m.rbx == r2.getWidth()-1) { // don't classify if the corner is off the page; likely gate
-							System.out.println("unknown by corner-edge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							unknownFound(r2, m, c);
+							++heufail;
+						} if (m.tx == 0 || m.tx == r2.getWidth()-1 || m.bx == 0 || m.bx == r2.getWidth()-1) {
+							System.out.println("fails top-bottom-xedge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							++heufail;
+						} if (m.lbx == 0 || m.ltx == 0 || m.rtx == r2.getWidth()-1 || m.rbx == r2.getWidth()-1) { // don't classify if the corner is off the page; likely gate
+							System.out.println("fails corner-edge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							++heufail;
+						} if (heufail >= 2) {
+							System.out.println("unknown at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+							unknownFound(r2,m,c);
 						} else {
 							System.out.println("ball"+matchvnon[0]+" vs "+matchvnon[1]);
 							// TODO radius (intersection) of ball

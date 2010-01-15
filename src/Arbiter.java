@@ -80,6 +80,8 @@ public class Arbiter extends java.lang.Thread {
 		leftMotorWeight = new float[numComrades];
 		rightMotorAction = new float[numComrades];
 		rightMotorWeight = new float[numComrades];
+		rollerAction = new float[numComrades];
+		rollerWeight = new float[numComrades];
 	}
 
 	public void bye() {

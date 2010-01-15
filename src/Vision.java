@@ -753,11 +753,11 @@ public class Vision extends java.lang.Thread {
 		double rd = Math.sqrt((m.rbx-m.rtx)*(m.rbx-m.rtx)+(m.rby-m.rty)*(m.rby-m.rty)); // right distance
 		*/
 		//System.out.println("average dist is "+(ld+rd)/2.0);
-		if (m.lbx - m.lby < 20) return;
 		if (c == Colors.Red)
 			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Purple);
 		else
 			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Green);
+		if (m.lbx - m.lby < 20) return;
 		gatepxoffset = (m.lbx + m.lby)/2-r.getWidth()/2;
 		gatewidth = (m.lbx - m.lby);
 		gateseen = true;

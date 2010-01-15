@@ -131,15 +131,16 @@ public class Vision extends java.lang.Thread {
 							turningright = true;
 						}
 					}
-				} else {
+				} else { // we see a ball, go to it
+				float basevel = bound(1.0f-Math.abs(pxoffset)/0.1f, 1.0f, 0.7f);
 				float rspeed = -k*pxoffset; //+ 0.6f;
 				float lspeed = k*pxoffset; //+ 0.6f;				
 				if (lspeed > rspeed) {
-					rspeed += 0.6f-Math.abs(lspeed);
-					lspeed = 0.6f;
+					rspeed += basevel-Math.abs(lspeed);
+					lspeed = basevel;
 				} else {
-					lspeed += 0.6f-Math.abs(rspeed);
-					rspeed = 0.6f;
+					lspeed += basevel-Math.abs(rspeed);
+					rspeed = basevel;
 				}
 				lspeed = bound(lspeed, 1.0f, -1.0f);
 				rspeed = bound(rspeed, 1.0f, -1.0f);

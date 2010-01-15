@@ -799,14 +799,14 @@ public class Vision extends java.lang.Thread {
 						int heufail = 0;
 						if (3*lbrb < lbrt || 3*lbrb < ltrb) { // likely actually a gate // doesn't seem to exactly work
 							System.out.println("fails diagonal-bottom heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							++heufail;
+							heufail += 2;
 						} if (m.lbx > m.tx || m.tx > m.rbx) {
 							System.out.println("fails central-top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
-						} if (Math.abs(m.tx-m.lbx) > 3*(Math.abs(m.rbx-m.tx)) || 3*(Math.abs(m.tx-m.lbx)) < Math.abs(m.rbx-m.tx)) {
-							System.out.println("unknown by centered-center heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
+						} /*if (Math.abs(m.tx-m.lbx) > 3*(Math.abs(m.rbx-m.tx)) || 3*(Math.abs(m.tx-m.lbx)) < Math.abs(m.rbx-m.tx)) {
+							System.out.println("fails centered-center heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
-						} if (m.tx == 0 || m.tx == r2.getWidth()-1 || m.bx == 0 || m.bx == r2.getWidth()-1) {
+						}*/ if (m.tx == 0 || m.tx == r2.getWidth()-1 || m.bx == 0 || m.bx == r2.getWidth()-1) {
 							System.out.println("fails top-bottom-xedge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
 						} if (m.lbx == 0 || m.ltx == 0 || m.rtx == r2.getWidth()-1 || m.rbx == r2.getWidth()-1) { // don't classify if the corner is off the page; likely gate

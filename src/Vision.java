@@ -934,6 +934,10 @@ public class Vision extends java.lang.Thread {
 			r1.setSample(x, y, 0, 130);
 			r1.setSample(x, y, 1, 240);
 			r1.setSample(x, y, 2, 240);
+		} else if (c == Colors.Brown) {
+			r1.setSample(x, y, 0, 160);
+			r1.setSample(x, y, 1, 100);
+			r1.setSample(x, y, 2, 0);
 		} else if (c == Colors.White) {
 			r1.setSample(x, y, 0, 255);
 			r1.setSample(x, y, 1, 255);

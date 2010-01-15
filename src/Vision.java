@@ -59,14 +59,30 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 10, 10, 80, 30};
+	public int[] timeouts = {80, 80, 15, 15, 80, 30};
 	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot"};
-	public int[] transitions = {2, 0, 0, 0, 3, 0};
+	public int[] transitions = {-2, -1, -1, -1, 3, -1};
 	public int statetimeout = 0;
 	public boolean turningright = true;
+	public boolean goforward = false;
+
+	public static boolean reverseb(boolean b) {
+		if (b) return false;
+		else return true;
+	}
 
 	public void setState(int newstate) {
+		if (newstate == -1) {
+			turningright = reverseb(turningright);
+			newstate = 0;
+		} if (newstate == -2) {
+			if (goforward = reverseb(goforward)) {
+				newstate = 2;
+			} else {
+				newstate = 3;
+			}
+		}
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
 		statetimeout = 0;
@@ -136,13 +152,9 @@ public class Vision extends java.lang.Thread {
 				if (!circleseen) { // ball out of sight, let's capture it
 					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
 						setState(2);
+						statetimeout = 10;
 					} else { // we missed the ball, search further
-						setState(0);
-						if (turningright) {
-							turningright = false;
-						} else {
-							turningright = true;
-						}
+						setState(-1);
 					}
 				} else { // we see a ball, go to it
 				float basevel = bound(1.0f-Math.abs(pxoffset)/0.1f, 1.0f, 0.7f);
@@ -635,7 +647,7 @@ public class Vision extends java.lang.Thread {
 			for (; y >= 0; --y) {
 				Colors c = getColor(r1,x,y);
 				if (c == Colors.Blue) break;
-				if (((c == Colors.Red) || (c == Colors.Yellow)) && isBlank(r2,x,y) &&
+				if (((c == Colors.Red) || (c == Colors.Yellow)) && isBlank(r2,x,y) // &&
 					/*
 					(getColor(r1,x+1,y) == c) && isBlank(r2,x+1,y) &&
 					(getColor(r1,x-1,y) == c) && isBlank(r2,x-1,y) &&

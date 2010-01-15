@@ -407,34 +407,67 @@ public class Vision extends java.lang.Thread {
 		qy[0] = oy;
 		m.update(ox, oy);
 		colorPix(r2,ox,oy,c);
-		while (e != s) {
-			int x = qx[s];
-			int y = qy[s];
-			++s;
-			if (getColor(r1,x+1,y) == c && isBlank(r2,x+1,y)) {
-				m.update(x+1, y);
-				colorPix(r2,x+1,y,c);
-				qx[e] = x+1;
-				qy[e] = y;
-				++e;
-			} if (getColor(r1,x-1,y) == c && isBlank(r2,x-1,y)) {
-				m.update(x-1, y);
-				colorPix(r2,x-1,y,c);
-				qx[e] = x-1;
-				qy[e] = y;
-				++e;
-			} if (getColor(r1,x,y+1) == c && isBlank(r2,x,y+1)) {
-				m.update(x, y+1);
-				colorPix(r2,x,y+1,c);
-				qx[e] = x;
-				qy[e] = y+1;
-				++e;
-			} if (getColor(r1,x,y-1) == c && isBlank(r2,x,y-1)) {
-				m.update(x, y-1);
-				colorPix(r2,x,y-1,c);
-				qx[e] = x;
-				qy[e] = y-1;
-				++e;
+		if (c == Colors.Red) {
+			while (e != s) {
+				int x = qx[s];
+				int y = qy[s];
+				++s;
+				if (x+1 < r1.getWidth() && isRed(r1,x+1,y) && isBlank(r2,x+1,y)) {
+					m.update(x+1, y);
+					colorPix(r2,x+1,y,c);
+					qx[e] = x+1;
+					qy[e] = y;
+					++e;
+				} if (x-1 >= 0 && isRed(r1,x-1,y) && isBlank(r2,x-1,y)) {
+					m.update(x-1, y);
+					colorPix(r2,x-1,y,c);
+					qx[e] = x-1;
+					qy[e] = y;
+					++e;
+				} if (y+1 < r1.getHeight() && isRed(r1,x,y+1) && isBlank(r2,x,y+1)) {
+					m.update(x, y+1);
+					colorPix(r2,x,y+1,c);
+					qx[e] = x;
+					qy[e] = y+1;
+					++e;
+				} if (y-1 >= 0 && isRed(r1,x,y-1) && isBlank(r2,x,y-1)) {
+					m.update(x, y-1);
+					colorPix(r2,x,y-1,c);
+					qx[e] = x;
+					qy[e] = y-1;
+					++e;
+				}
+			}
+		} else {
+			while (e != s) {
+				int x = qx[s];
+				int y = qy[s];
+				++s;
+				if (x+1 < r1.getWidth() && isYellow(r1,x+1,y) && isBlank(r2,x+1,y)) {
+					m.update(x+1, y);
+					colorPix(r2,x+1,y,c);
+					qx[e] = x+1;
+					qy[e] = y;
+					++e;
+				} if (x-1 >= 0 && isYellow(r1,x-1,y) && isBlank(r2,x-1,y)) {
+					m.update(x-1, y);
+					colorPix(r2,x-1,y,c);
+					qx[e] = x-1;
+					qy[e] = y;
+					++e;
+				} if (y+1 < r1.getHeight() && isYellow(r1,x,y+1) && isBlank(r2,x,y+1)) {
+					m.update(x, y+1);
+					colorPix(r2,x,y+1,c);
+					qx[e] = x;
+					qy[e] = y+1;
+					++e;
+				} if (y-1 >= 0 && isYellow(r1,x,y-1) && isBlank(r2,x,y-1)) {
+					m.update(x, y-1);
+					colorPix(r2,x,y-1,c);
+					qx[e] = x;
+					qy[e] = y-1;
+					++e;
+				}
 			}
 		}
 	}
@@ -1012,14 +1045,47 @@ public class Vision extends java.lang.Thread {
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
 			//if (r > 110 && 5*(g+b) < 6*r) return Colors.Red;
-			if (r > 110 && 2*r > 3*b && 2*r > 3*g) return Colors.Red;
-			else if (b < 150 && 2*r > 3*b && 2*g > 3*b) return Colors.Yellow;
-			else if (b > 80 && 5*b > 6*r && 5*b > 6*g) return Colors.Blue;
+			if (isRed(r,g,b)) return Colors.Red;
+			else if (isYellow(r,g,b)) return Colors.Yellow;
+			else if (isBlue(r,g,b)) return Colors.Blue;
 			//else if (r > 190 && g > 190 && b > 170) return Colors.White;
-			else if (r+g+b > 570) return Colors.White;
+			else if (isWhite(r,g,b)) return Colors.White;
 		} return Colors.None;
 	}
 
+	public static boolean isRed(final WritableRaster r1, final int x, final int y) {
+		return isRed(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
+	}
+
+	public static boolean isYellow(final WritableRaster r1, final int x, final int y) {
+		return isYellow(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
+	}
+
+	public static boolean isBlue(final WritableRaster r1, final int x, final int y) {
+		return isBlue(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
+	}
+
+	public static boolean isWhite(final WritableRaster r1, final int x, final int y) {
+		return isWhite(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
+	}
+
+	public static boolean isRed(final int r, final int g, final int b) {
+		return (r > 110 && 2*r > 3*b && 2*r > 3*g);
+	}
+
+	public static boolean isYellow(final int r, final int g, final int b) {
+		return (b < 150 && 2*r > 3*b && 2*g > 3*b);
+	}
+
+	public static boolean isBlue(final int r, final int g, final int b) {
+		return (b > 80 && 5*b > 6*r && 5*b > 6*g);
+	}
+
+	public static boolean isWhite(final int r, final int g, final int b) {
+		return (r+g+b > 570);
+	}
+
+	/*
 	public static boolean isBlue(WritableRaster r1, int x, int y) {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
@@ -1030,6 +1096,7 @@ public class Vision extends java.lang.Thread {
 			//if (b > 110 && 3*(r+g) < 4*b) return true;
 		} return false;
 	}
+	*/
 
 	/*
 	public void circleDetectRightFull(WritableRaster r1, WritableRaster r2, int startx, int starty) {

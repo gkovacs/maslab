@@ -1319,6 +1319,7 @@ public class Main {
 			else if (args[0].contentEquals("competition")) competition();
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("saveimages")) saveimages();
+			else if (args[0].contentEquals("testmouse")) testmouse();
 			else if (args[0].contentEquals("testencoder")) testencoder();
 			else if (args[0].contentEquals("testgyro")) testgyro();
 			else if (args[0].contentEquals("gyrodrive")) gyrodrive();
@@ -1503,7 +1504,23 @@ public class Main {
 	}
 
 	public static void testmouse() {
-		
+		try {
+			java.io.FileInputStream mouse = new java.io.FileInputStream("/dev/input/mice");
+			byte[] output = new byte[3];
+			int totalx = 0;
+			int totaly = 0;
+			while (true) {
+				//while (mouse.available() > 0) {
+					mouse.read(output);
+					//System.out.println("dx: "+output[1]+" dy: "+output[2]);
+					totalx += output[1];
+					totaly += output[2];
+					System.out.println("totalx: "+totalx+" totaly: "+totaly);
+				//}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void testir() {

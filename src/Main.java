@@ -1152,6 +1152,22 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
+
+	public static void wallfollow2() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(1);
+		InfraR v = new InfraR();
+		v.setup(a, 0);
+		a.start();
+		v.start();
+		java.lang.Thread.sleep(300000); // 300 seconds
+		v.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public static void testcamera() {
 		try {
@@ -1292,7 +1308,7 @@ public class Main {
 			else if (args[0].contentEquals("testcamera")) testcamera2();
 			else if (args[0].contentEquals("fetchball")) fetchball();
 			else if (args[0].contentEquals("competition")) competition();
-			else if (args[0].contentEquals("wallfollow")) wallfollow();
+			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testencoder")) testencoder();
 			else if (args[0].contentEquals("testpid")) testpid(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]));
@@ -1368,6 +1384,19 @@ public class Main {
 	}
 
 	public static void testir() {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		AnalogInput a = new AnalogInput(o, 0);
+		while (true) {
+			System.out.println(a.getVoltage());
+		}
+		} catch (Exception e) {
+		
+		}
+	}
+
+	public static void testir2() {
 		try {
 		TextChannel tx = new TextChannel("team6");
 		java.lang.Thread.sleep(3000);

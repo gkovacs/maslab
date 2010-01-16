@@ -18,13 +18,64 @@ public class InfraR extends java.lang.Thread {
 	public float[] rightMotorWeight = null;
 	public int idx = 0;
 
+	public static double bound(double v, double max, double min) {
+		if (v > max) return max;
+		else if (v < min) return min;
+		else return v;
+	}
+
+	public static void shiftleft(double[] a, double v) {
+		int i = 0;
+		for (; i < a.length-1; ++i) {
+			a[i] = a[i+1];
+		}
+		a[i] = v;
+	}
+
+	public static double averageArray(double[] a) {
+		double total = 0.0;
+		for (int i = 0; i < a.length; ++i) {
+			total += a[i];
+		}
+		return total / (double)a.length;
+	}
+
 	public void run() {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		leftMotorWeight[idx] = 0.5f;
 		rightMotorWeight[idx] = 0.5f;
-		AnalogInput a = new AnalogInput(o, 0);
+		AnalogInput a = new AnalogInput(o, 7);
+		final double desv = 0.4;
+		final double kp = 0.1;
+		final double kd = 0.05;
+		double prevd = a.getVoltage();
+		double[] velreadings = new double[3];
+		java.util.Arrays.fill(velreadings, a.getVoltage());
+		while (running) {
+			shiftleft(velreadings, a.getVoltage());
+			double d = averageArray(velreadings);//a.getVoltage();
+			System.out.println(d);
+			double error = d-desv;
+			double basevel = bound(1.0-error, 0.6, 0.5);
+			double lspeed = (kp*error-kd*(d-prevd))+basevel;
+			double rspeed = -(kp*error-kd*(d-prevd))+basevel;
+			prevd = d;
+			/*
+			if (lspeed > rspeed) {
+				rspeed += basevel-Math.abs(lspeed);
+				lspeed = basevel;
+			} else {
+				lspeed += basevel-Math.abs(rspeed);
+				rspeed = basevel;
+			}
+			*/
+			leftMotorAction[idx] = (float)lspeed;
+			rightMotorAction[idx] = (float)rspeed;
+			java.lang.Thread.sleep(20);
+		}
+		/* log distance ir
 		final float dd = 30.0f; // desired distance
 		final float k = 0.05f; // proportionality constant
 		while (running) {
@@ -42,6 +93,7 @@ public class InfraR extends java.lang.Thread {
 			rightMotorAction[idx] = rspeed;
 			System.out.println(d);
 		}
+		*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

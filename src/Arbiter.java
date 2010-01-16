@@ -65,14 +65,26 @@ public class Arbiter extends java.lang.Thread {
 			float rma = maxVal(rightMotorAction, rightMotorWeight);
 			float rla = maxVal(rollerAction, rollerWeight);
 			System.out.println("left: "+lma+" right: "+rma);
-			leftMotor.setPWM((float)lma*0.9f);
-			rightMotor.setPWM((float)rma);
-			rollers.setPWM((float)rla);
+			leftMotor.setPWM((float)bound(lma*0.9f, 1.0f, -1.0f));
+			rightMotor.setPWM((float)bound(rma, 1.0f, -1.0f));
+			rollers.setPWM((float)bound(rla, 1.0f, -1.0f));
 			java.lang.Thread.sleep(100);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static float bound(float v, float max, float min) {
+		if (v > max) return max;
+		else if (v < min) return min;
+		else return v;
+	}
+
+	public static double bound(double v, double max, double min) {
+		if (v > max) return max;
+		else if (v < min) return min;
+		else return v;
 	}
 
 	public void setup(int numComrades) {

@@ -1311,6 +1311,9 @@ public class Main {
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testencoder")) testencoder();
+			else if (args[0].contentEquals("testgyro")) testgyro();
+			else if (args[0].contentEquals("gyrodrive")) gyrodrive();
+			else if (args[0].contentEquals("gyroturn")) gyroturn(Dobule.parseDouble(args[1]));
 			else if (args[0].contentEquals("testpid")) testpid(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 			else System.out.println("unknown option");
 		} else {
@@ -1377,6 +1380,85 @@ public class Main {
 			double v = e0.getVelocity();
 			if (v != 0.0) System.out.println(v);
 			//System.out.println("position in ticks is "+e0.getPosition()+" velocity in ticks per second is "+e0.getVelocity());
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static double averageArray(double[] a) {
+		double total = 0.0;
+		for (int i = 0; i < a.length; ++i) {
+			total += a[i];
+		}
+		return total / (double)a.length;
+	}
+
+
+	public static void testgyro() {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		Gyro g = new Gyro(o, 0, 0.005); // 0.005 V/(degree/sec)
+		g.reset();
+		while (true) {
+			double degrees = g.getTheta()/0.005;
+			System.out.println(degrees);
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void gyrodrive() {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		Gyro g = new Gyro(o, 0, 0.005); // 0.005 V/(degree/sec)
+		g.reset();
+		Motor m0 = new Motor(o, 0, true);
+		Motor m1 = new Motor(o, 1, false);
+		double preverror = 0.0;
+		double kp = 0.1;
+		double kd = 0.0;
+		double[] greadings = new double[1];
+		while (true) {
+			shiftleft(greadings, g.getTheta()/0.005);
+			double error = averageArray(greadings);
+			System.out.println(error);
+			double basevel = 0.5;
+			double lspeed = (kp*error-kd*(error-preverror))+basevel;
+			double rspeed = -(kp*error-kd*(error-preverror))+basevel;
+			preverror = error;
+			m0.setPWM(bound(rspeed, 1.0, -1.0));
+			m1.setPWM(bound(lspeed, 1.0, -1.0));
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+		public static void gyroturn(double numdegrees) {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		Gyro g = new Gyro(o, 0, 0.005); // 0.005 V/(degree/sec)
+		g.reset();
+		Motor m0 = new Motor(o, 0, true);
+		Motor m1 = new Motor(o, 1, false);
+		double preverror = numdegrees;
+		double kp = 0.1;
+		double kd = 0.0;
+		double[] greadings = new double[1];
+		while (true) {
+			shiftleft(greadings, g.getTheta()/0.005);
+			double error = numdegrees - averageArray(greadings);
+			System.out.println(numdegrees+error);
+			double lspeed = kp*error-kd*(error-preverror);
+			double rspeed = -(kp*error-kd*(error-preverror));
+			preverror = error;
+			m0.setPWM(bound(rspeed, 1.0, -1.0));
+			m1.setPWM(bound(lspeed, 1.0, -1.0));
 		}
 		} catch (Exception e) {
 			e.printStackTrace();

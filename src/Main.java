@@ -1319,7 +1319,7 @@ public class Main {
 			else if (args[0].contentEquals("competition")) competition();
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("saveimages")) saveimages();
-			else if (args[0].contentEquals("testmouse")) testmouse();
+			else if (args[0].contentEquals("testmouse")) testmouse2();
 			else if (args[0].contentEquals("testencoder")) testencoder();
 			else if (args[0].contentEquals("testgyro")) testgyro();
 			else if (args[0].contentEquals("gyrodrive")) gyrodrive();
@@ -1503,19 +1503,64 @@ public class Main {
 		}
 	}
 
+	public static void getVelocity(byte[] xreadbuf, byte[] yreadbuf, long[] readtimes, double[] outv, int bufend) {
+		long ct = System.nanoTime();
+		int i = bufend;
+		//System.out.println("bufend is "+i+"timedelta is "+(ct-readtimes[i]));
+		int velx = 0;
+		int vely = 0;
+		int numread = 0;
+		while (ct-readtimes[i] < 10000000) { // get readings within the past 100 milliseconds
+			//System.out.println(ct-readtimes[i]);
+			velx += xreadbuf[i];
+			vely += yreadbuf[i];
+			if (--i < 0) {
+				i = 1023;
+			}
+			if (++numread > 200) break;
+		}
+		System.out.println("velx is "+velx+" vely is "+vely);
+	}
+
+	public static void testmouse2() {
+		try {
+		Mouse m = new Mouse();
+		//java.lang.Thread.sleep(296000); // 296 seconds
+		double[] outv = new double[2];
+		int buflen = 1024;
+		byte[] xreadbuf = new byte[buflen];
+		byte[] yreadbuf = new byte[buflen];
+		long[] readtimes = new long[buflen];
+		m.xreadbuf = xreadbuf;
+		m.yreadbuf = yreadbuf;
+		m.readtimes = readtimes;
+		m.buflen = 1024;
+		m.start();
+		while (true) {
+			//synchronized(m) {
+			getVelocity(xreadbuf, yreadbuf, readtimes, outv, m.bufend);
+			//}
+			java.lang.Thread.sleep(100);
+		}
+		//m.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void testmouse() {
 		try {
 			java.io.FileInputStream mouse = new java.io.FileInputStream("/dev/input/mice");
 			byte[] output = new byte[3];
-			int totalx = 0;
-			int totaly = 0;
+			long totalx = 0;
+			long totaly = 0;
 			while (true) {
 				//while (mouse.available() > 0) {
 					mouse.read(output);
 					//System.out.println("dx: "+output[1]+" dy: "+output[2]);
 					totalx += output[1];
 					totaly += output[2];
-					System.out.println("totalx: "+totalx+" totaly: "+totaly);
+					System.out.println("totalx: "+(totalx/333.0)+" totaly: "+(totaly/333.0));
 				//}
 			}
 		} catch (Exception e) {

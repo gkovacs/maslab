@@ -374,6 +374,15 @@ public class Main {
 		System.out.println(c[c.length-1]+" ]");
 	}
 
+	public static void printList(long[] c) {
+		if (c.length == 0) return;
+		System.out.print("[ ");
+		for (int x = 0; x < c.length-1; ++x) {
+			System.out.print(c[x]+", ");
+		}
+		System.out.println(c[c.length-1]+" ]");
+	}
+
 	public static void printList(float[] c) {
 		if (c.length == 0) return;
 		System.out.print("[ ");
@@ -1313,7 +1322,7 @@ public class Main {
 			else if (args[0].contentEquals("testencoder")) testencoder();
 			else if (args[0].contentEquals("testgyro")) testgyro();
 			else if (args[0].contentEquals("gyrodrive")) gyrodrive();
-			else if (args[0].contentEquals("gyroturn")) gyroturn(Dobule.parseDouble(args[1]));
+			else if (args[0].contentEquals("gyroturn")) gyroturn(Double.parseDouble(args[1]));
 			else if (args[0].contentEquals("testpid")) testpid(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 			else System.out.println("unknown option");
 		} else {
@@ -1399,11 +1408,39 @@ public class Main {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		Gyro g = new Gyro(o, 0, 0.005); // 0.005 V/(degree/sec)
-		g.reset();
+		//Gyro g = new Gyro(o, 0); // 0.005 V/(degree/sec)
+		WiiMotionPlus g = new WiiMotionPlus(o);
+		long[] angles = new long[3];
+		long[] baseang = new long[3];
+		int numsamples = 300;
+		while (numsamples > 0) {
+			int[] angvel = g.readAxes();
+			baseang[0] += angvel[0];
+			baseang[1] += angvel[1];
+			baseang[2] += angvel[2];
+			--numsamples;
+		}
+		baseang[0] /= 300;
+		baseang[1] /= 300;
+		baseang[2] /= 300;
+		long prevtime = System.nanoTime();
 		while (true) {
-			double degrees = g.getTheta()/0.005;
-			System.out.println(degrees);
+			//double degrees = g.getTheta()/0.005;
+			//System.out.println(degrees);
+			//System.out.println(g.getTheta());
+			//printList(g.readAxes());
+			int[] angvel = g.readAxes();
+			angvel[0] -= baseang[0];
+			angvel[1] -= baseang[1];
+			angvel[2] -= baseang[2];
+			//printList(angvel);
+			long deltatime = System.nanoTime()-prevtime;
+			//System.out.println(deltatime);
+			angles[0] += (angvel[0]*deltatime)/100000;
+			angles[1] += (angvel[1]*deltatime)/100000;
+			angles[2] += (angvel[2]*deltatime)/100000;
+			printList(angles);
+			prevtime += deltatime;
 		}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1438,7 +1475,7 @@ public class Main {
 		}
 	}
 
-		public static void gyroturn(double numdegrees) {
+	public static void gyroturn(double numdegrees) {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
@@ -1463,6 +1500,10 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void testmouse() {
+		
 	}
 
 	public static void testir() {

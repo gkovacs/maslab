@@ -1319,7 +1319,7 @@ public class Main {
 			else if (args[0].contentEquals("competition")) competition();
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("saveimages")) saveimages();
-			else if (args[0].contentEquals("testmouse")) testmouse2();
+			else if (args[0].contentEquals("testmouse")) testmouse3();
 			else if (args[0].contentEquals("testencoder")) testencoder();
 			else if (args[0].contentEquals("testgyro")) testgyro();
 			else if (args[0].contentEquals("gyrodrive")) gyrodrive();
@@ -1520,6 +1520,23 @@ public class Main {
 			if (++numread > 200) break;
 		}
 		System.out.println("velx is "+velx+" vely is "+vely);
+	}
+
+	public static void testmouse3() {
+		try {
+		Mouse m = new Mouse();
+		m.start();
+		while (true) {
+			if (System.currentTimeMillis() - m.readtime < 100) {
+				System.out.println(m.output[1]+","+m.output[2]);
+			} else {
+				System.out.println("0,0");
+			}
+			java.lang.Thread.sleep(50);
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void testmouse2() {

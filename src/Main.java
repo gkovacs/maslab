@@ -1320,6 +1320,8 @@ public class Main {
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testmouse")) testmouse3();
+			else if (args[0].contentEquals("testforward")) testforward();
+			else if (args[0].contentEquals("testspin")) testspin();
 			else if (args[0].contentEquals("testencoder")) testencoder();
 			else if (args[0].contentEquals("testgyro")) testgyro();
 			else if (args[0].contentEquals("gyrodrive")) gyrodrive();
@@ -1335,6 +1337,14 @@ public class Main {
 	}
 
 	public static void shiftleft(double[] a, double v) {
+		int i = 0;
+		for (; i < a.length-1; ++i) {
+			a[i] = a[i+1];
+		}
+		a[i] = v;
+	}
+
+	public static void shiftleft(int[] a, int v) {
 		int i = 0;
 		for (; i < a.length-1; ++i) {
 			a[i] = a[i+1];
@@ -1404,6 +1414,13 @@ public class Main {
 		return total / (double)a.length;
 	}
 
+	public static double averageArray(int[] a) {
+		double total = 0.0;
+		for (int i = 0; i < a.length; ++i) {
+			total += a[i];
+		}
+		return total / (double)a.length;
+	}
 
 	public static void testgyro() {
 		try {
@@ -1520,6 +1537,119 @@ public class Main {
 			if (++numread > 200) break;
 		}
 		System.out.println("velx is "+velx+" vely is "+vely);
+	}
+
+	public static void testspin() {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		Motor rightMotor = new Motor(o, 0, true);
+		rightMotor.setWatchDog(1000000);
+		Motor leftMotor = new Motor(o, 1, false);
+		rightMotor.setWatchDog(1000000);
+		Motor rollerMotor = new Motor(o, 2, false);
+		rollerMotor.setPWM(0.0);
+		Mouse m = new Mouse();
+		m.start();
+		double basevel = 0.0;
+		final double desv = 0.0;
+		final double dess = 10.0;
+		final double kp = 0.0003;
+		final double kps = 0.0002;
+		final double kd = 0.0002;
+		final double kds = 0.00001;
+		double preverror = 0.0;
+		double preverrors = 0.0;
+		int[] prevx = new int[5];
+		int[] prevy = new int[5];
+		while (m.totalx < 1820) { // 300 cm
+			int vely = 0;
+			int velx = 0;
+			if (System.currentTimeMillis() - m.readtime < 500) {
+				velx = -m.output[1];
+				vely = m.output[2];
+			}
+			shiftleft(prevx, velx);
+			shiftleft(prevy, vely);
+			System.out.println(averageArray(prevx));
+			double error = desv - averageArray(prevy);
+			//if (error < 0) error = 0;
+			double errors = dess - averageArray(prevx);
+			//System.out.println(m.totaly);
+			//System.out.println(kp*error);
+			double rvel = bound(kp*error-kd*(error-preverror)-(kps*errors-kds*(errors-preverrors))+basevel, 1.0, -1.0);
+			double lvel = bound(kp*error-kd*(error-preverror)+(kps*errors-kds*(errors-preverrors))+basevel, 1.0, -1.0);
+			preverror = error;
+			preverrors = errors;
+			rightMotor.setPWM(rvel);
+			leftMotor.setPWM(lvel);
+			java.lang.Thread.sleep(100);
+		}
+		m.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void testforward() {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		Motor rightMotor = new Motor(o, 0, true);
+		rightMotor.setWatchDog(1000000);
+		rightMotor.setPWM(0.0);
+		Motor leftMotor = new Motor(o, 1, false);
+		leftMotor.setPWM(0.0);
+		rightMotor.setWatchDog(1000000);
+		Motor rollerMotor = new Motor(o, 2, false);
+		rollerMotor.setWatchDog(1000000);
+		rollerMotor.setPWM(0.0);
+		Mouse m = new Mouse();
+		m.start();
+		double basevel = 0.8;
+		final double desv = 40.0;
+		final double dess = 0.0;
+		//final double kp = 0.007;
+		//final double kps = 0.03;
+		final double kp = 0.000;
+		final double kps = 0.01;
+		//final double kd = 0.003;
+		final double kd = 0.000;
+		final double kds = 0.005;
+		final double ki = 0.001;
+		final double kis = 0.0001;
+		double preverror = 0.0;
+		double preverrors = 0.0;
+		int[] prevx = new int[3];
+		int[] prevy = new int[3];
+		while (m.totaly < 300000) { // 300 cm
+			int vely = 0;
+			int velx = 0;
+			if (System.currentTimeMillis() - m.readtime < 500) {
+				velx = -m.output[2];
+				vely = m.output[1];
+			}
+			shiftleft(prevx, velx);
+			shiftleft(prevy, vely);
+			System.out.println(averageArray(prevx));
+			double error = desv - averageArray(prevy);
+			//if (error < 0) error = 0;
+			double errors = dess - averageArray(prevx);
+			//System.out.println(m.totaly);
+			//System.out.println(kp*error);
+			double rvel = bound(kp*error-kd*(error-preverror)-(kps*errors-kds*(errors-preverrors)+kis*m.totaly)+basevel, 1.0, -1.0);
+			double lvel = bound(kp*error-kd*(error-preverror)+(kps*errors-kds*(errors-preverrors)+kis*m.totaly)+basevel, 1.0, -1.0);
+			System.out.append("rvel is "+rvel+" lvel is "+lvel);
+			preverror = error;
+			preverrors = errors;
+			rightMotor.setPWM(rvel);
+			leftMotor.setPWM(lvel);
+			java.lang.Thread.sleep(100);
+		}
+		m.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void testmouse3() {

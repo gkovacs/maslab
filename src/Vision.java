@@ -352,8 +352,8 @@ public class Vision extends java.lang.Thread {
 		vC.setImage(vI);
 		vL.setIcon(vC);
 		vL.repaint();
-		findWallBottom(hsvR, wallR);
-		//mostcarpet(hsvR, wallR);
+		//findWallBottom(hsvR, wallR);
+		mostcarpet(hsvR, wallR);
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
@@ -457,6 +457,7 @@ public class Vision extends java.lang.Thread {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int numcarpet = 0;
 			int numwall = 0;
+			int endcarpet = 0;
 			for (int y = r1.getHeight()-1; y >= 0; --y) {
 				int h = r1.getSample(x, y, 0);
 				int s = r1.getSample(x, y, 1);
@@ -465,10 +466,14 @@ public class Vision extends java.lang.Thread {
 					break;
 				}
 				if (isWhite(h,s,v)) {
-					if (++numwall >= 5) break;
+					endcarpet += 2;
+					if (++numwall > 8) break;
 				} else {
 					numwall = 0;
 					if (isCarpet(h,s,v)) {
+						++numcarpet;
+						endcarpet = 0;
+					} else if (++endcarpet < 15) {
 						++numcarpet;
 					}
 				}

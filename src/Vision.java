@@ -353,7 +353,8 @@ public class Vision extends java.lang.Thread {
 		vL.setIcon(vC);
 		vL.repaint();
 		//findWallBottom(hsvR, wallR);
-		mostcarpet(hsvR, wallR);
+		//mostcarpet(hsvR, wallR);
+		paintwalls(hsvR, wallR);
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
@@ -450,6 +451,65 @@ public class Vision extends java.lang.Thread {
 			r2.setSample(x, maxidx, 0, 255);
 			r2.setSample(x, maxidx, 1, 255);
 			r2.setSample(x, maxidx, 2, 255);
+		}
+	}
+
+	public static void paintwalls(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			int numcarpet = 0;
+			int numwall = 0;
+			int endcarpet = 0;
+			for (int y = r1.getHeight()-1; y >= 0; --y) {
+				int h = r1.getSample(x, y, 0);
+				int s = r1.getSample(x, y, 1);
+				int v = r1.getSample(x, y, 2);
+				if (isBlue(h,s,v)) {
+					break;
+				}
+				if (isWhite(h,s,v)) {
+					endcarpet += 2;
+					if (++numwall > 8) break;
+				} else {
+					numwall = 0;
+					if (isCarpet(h,s,v)) {
+						++numcarpet;
+						endcarpet = 0;
+					} else if (++endcarpet < 15) {
+						++numcarpet;
+					}
+				}
+			}
+			//int walltop = endcarpet;
+			endcarpet = 0; // endcarpet used as endwall
+			for (int y = r1.getHeight()-1-(numcarpet); y >= 0; --y) {
+				int h = r1.getSample(x, y, 0);
+				int s = r1.getSample(x, y, 1);
+				int v = r1.getSample(x, y, 2);
+				if (isBlue(h,s,v)) {
+					//walltop = y;
+					numcarpet = r1.getHeight()-1-(y+numwall);
+					//System.out.println(numcarpet);
+					break;
+				}
+				if (isWhite(h,s,v)) {
+					++numwall;
+					endcarpet = 0;
+				} else {
+					Colors c = getColor(h,s,v);
+					if (c != Colors.Red && c != Colors.Yellow) {
+						if (++endcarpet > 2) break;
+					}
+				}
+			}
+			if (numwall < 20) continue;
+			//r2.setSample(x, r1.getHeight()-1-(numcarpet), 0, 255);
+			//r2.setSample(x, r1.getHeight()-1-(numcarpet), 1, 255);
+			//r2.setSample(x, r1.getHeight()-1-(numcarpet), 2, 255);
+			for (int y = r1.getHeight()-1-(numcarpet); y >= r1.getHeight()-1-(numcarpet)-(numwall) && y >= 0; --y) {
+				r2.setSample(x, y, 0, 255);
+				r2.setSample(x, y, 1, 255);
+				r2.setSample(x, y, 2, 255);
+			}
 		}
 	}
 
@@ -1417,6 +1477,16 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
+	public static Colors getColor(int r, int g, int b) {
+		if (isRed(r,g,b)) return Colors.Red;
+		else if (isYellow(r,g,b)) return Colors.Yellow;
+		else if (isBlue(r,g,b)) return Colors.Blue;
+		//else if (r > 190 && g > 190 && b > 170) return Colors.White;
+		else if (isWhite(r,g,b)) return Colors.White;
+		else if (isCarpet(r,g,b)) return Colors.Carpet;
+		else return Colors.None;
+	}
+
 	public static Colors getColor(WritableRaster r1, int x, int y) {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
@@ -1473,7 +1543,7 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public static boolean isWhite(final int h, final int s, final int v) {
-		return (h <= 60 || 220 <= h) && (s <= 80) && (140 <= v);
+		return (h <= 60 || 240 <= h) && (s <= 80) && (140 <= v);
 	}
 
 	/* RGB

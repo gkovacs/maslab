@@ -417,7 +417,7 @@ public class Vision extends java.lang.Thread {
 					break;
 				}
 				if (isWhite(h,s,v)) {
-					if (++numwall >= 3) break;
+					if (++numwall >= 5) break;
 				} else {
 					numwall = 0;
 					if (isCarpet(h,s,v)) {
@@ -1410,7 +1410,7 @@ public class Vision extends java.lang.Thread {
 
 	public static boolean isCarpet(final int h, final int s, final int v) {
 		//return false;
-		return (50 <= h) && (s <= 50) && (v <= 220);
+		return (50 <= h && h <= 200) && (s <= 50) && (v <= 220);
 	}
 
 	public static boolean isRed(final int h, final int s, final int v) {
@@ -1429,7 +1429,7 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public static boolean isWhite(final int h, final int s, final int v) {
-		return (h <= 80) && (s <= 80) && (130 <= v);
+		return (h <= 40 || 220 <= h) && (s <= 80) && (140 <= v);
 	}
 
 	/* RGB

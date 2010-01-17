@@ -352,6 +352,10 @@ public class Vision extends java.lang.Thread {
 		vC.setImage(vI);
 		vL.setIcon(vC);
 		vL.repaint();
+		mostcarpet(hsvR, wallR);
+		wallC.setImage(wallI);
+		wallL.setIcon(wallC);
+		wallL.repaint();
 		shadeColors(hsvR,colorR);
 		//shadeColors(origR,colorR);
 		colorC.setImage(colorI);
@@ -399,6 +403,119 @@ public class Vision extends java.lang.Thread {
 		walltopm = new int[origI.getWidth()];
 		queuex = new int[origI.getWidth()*origI.getHeight()];
 		queuey = new int[origI.getWidth()*origI.getHeight()];
+	}
+
+	public static void mostcarpet(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			int numcarpet = 0;
+			int numwall = 0;
+			for (int y = r1.getHeight()-1; y >= 0; --y) {
+				int h = r1.getSample(x, y, 0);
+				int s = r1.getSample(x, y, 1);
+				int v = r1.getSample(x, y, 2);
+				if (isBlue(h,s,v)) {
+					break;
+				}
+				if (isWhite(h,s,v)) {
+					if (++numwall >= 3) break;
+				} else {
+					numwall = 0;
+					if (isCarpet(h,s,v)) {
+						++numcarpet;
+					}
+				}
+			}
+			r2.setSample(x, r1.getHeight()-1-(numcarpet), 0, 255);
+			r2.setSample(x, r1.getHeight()-1-(numcarpet), 1, 255);
+			r2.setSample(x, r1.getHeight()-1-(numcarpet), 2, 255);
+		}
+	}
+
+	public static void walldist2(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			int numcarpet = 0;
+			int numwall = 0;
+			int endcarpet = 0;
+			int endwall = 0;
+			for (int y = r1.getHeight()-1; y >= 0; --y) {
+				int h = r1.getSample(x, y, 0);
+				int s = r1.getSample(x, y, 1);
+				int v = r1.getSample(x, y, 2);
+				if (isBlue(h,s,v)) {
+					numwall += 10;
+					break;
+				}
+				if (endcarpet < 5) { // seeking end of carpet
+					if (isWhite(h,s,v)) {
+						++endcarpet;
+						++numwall;
+					} else {
+						endcarpet = 0;
+						numwall = 0;
+						if (isCarpet(h,s,v)) {
+							++numcarpet;
+						} else {
+							++numcarpet;
+						}
+					}
+				} else { // seeking end of wall
+					if (isWhite(h,s,v)) {
+						++numwall;
+					} else {
+						if (++endwall >= 5) break;
+					}
+				}
+			}
+			for (int y = Math.min(r1.getHeight()-1, r1.getHeight()-1-(numcarpet)); y >= Math.max(0, r1.getHeight()-1-(numcarpet)-numwall); --y) {
+				r2.setSample(x, y, 0, 255);
+				r2.setSample(x, y, 1, 255);
+				r2.setSample(x, y, 2, 255);
+			}
+		}
+	}
+
+	public static void walldist(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			int numcarpet = 0;
+			int numwall = 0;
+			int endcarpet = 0;
+			int endwall = 0;
+			for (int y = r1.getHeight()-1; y >= 0; --y) {
+				int h = r1.getSample(x, y, 0);
+				int s = r1.getSample(x, y, 1);
+				int v = r1.getSample(x, y, 2);
+				if (isBlue(h,s,v)) {
+					numwall += 10;
+					break;
+				}
+				if (endcarpet < 5) { // seeking end of carpet
+					if (isWhite(h,s,v)) {
+						++endcarpet;
+						++numwall;
+					} else {
+						endcarpet = 0;
+						numwall = 0;
+						if (isCarpet(h,s,v)) {
+							++numcarpet;
+						} else {
+							++numcarpet;
+						}
+					}
+				} else { // seeking end of wall
+					if (isWhite(h,s,v)) {
+						++numwall;
+					} else {
+						if (++endwall >= 5) break;
+					}
+				}
+			}
+			if (numwall == 0) continue;
+			for (int y = Math.min(r1.getHeight()-1, r1.getHeight()-1-(3000/numwall)); y >= Math.max(0, r1.getHeight()-1-(3000/numwall)-numwall/10); --y) {
+				r2.setSample(x, y, 0, 255);
+				r2.setSample(x, y, 1, 255);
+				r2.setSample(x, y, 2, 255);
+			}
+		}
 	}
 
 	public static void meanpass(int[] inp) {
@@ -1312,7 +1429,7 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public static boolean isWhite(final int h, final int s, final int v) {
-		return (h <= 50) && (s <= 80) && (130 <= v);
+		return (h <= 80) && (s <= 80) && (130 <= v);
 	}
 
 	/* RGB

@@ -32,6 +32,22 @@ public class Vision extends java.lang.Thread {
 	public WritableRaster origR = null;
 	public ImageIcon origC = null;
 	public JLabel origL = null;
+	public BufferedImage hsvI = null;
+	public WritableRaster hsvR = null;
+	public ImageIcon hsvC = null;
+	public JLabel hsvL = null;
+	public BufferedImage hI = null;
+	public WritableRaster hR = null;
+	public ImageIcon hC = null;
+	public JLabel hL = null;
+	public BufferedImage sI = null;
+	public WritableRaster sR = null;
+	public ImageIcon sC = null;
+	public JLabel sL = null;
+	public BufferedImage vI = null;
+	public WritableRaster vR = null;
+	public ImageIcon vC = null;
+	public JLabel vL = null;
 	public BufferedImage colorI = null;
 	public WritableRaster colorR = null;
 	public ImageIcon colorC = null;
@@ -258,6 +274,22 @@ public class Vision extends java.lang.Thread {
 		origL = new JLabel();
 		origC.setImage(origI);
 		origL.setIcon(origC);
+		hsvC = new ImageIcon();
+		hsvL = new JLabel();
+		hsvC.setImage(hsvI);
+		hsvL.setIcon(hsvC);
+		hC = new ImageIcon();
+		hL = new JLabel();
+		hC.setImage(hI);
+		hL.setIcon(hC);
+		sC = new ImageIcon();
+		sL = new JLabel();
+		sC.setImage(sI);
+		sL.setIcon(sC);
+		vC = new ImageIcon();
+		vL = new JLabel();
+		vC.setImage(vI);
+		vL.setIcon(vC);
 		colorC = new ImageIcon();
 		colorL = new JLabel();
 		colorC.setImage(colorI);
@@ -270,13 +302,17 @@ public class Vision extends java.lang.Thread {
 		dispL = new JLabel();
 		dispC.setImage(dispI);
 		dispL.setIcon(dispC);
-		cp = new JPanel(new GridLayout(2,2));
+		cp = new JPanel(new GridLayout(3,3));
 		cp.add(origL);
+		cp.add(hsvL);
+		cp.add(hL);
+		cp.add(sL);
+		cp.add(vL);
 		cp.add(colorL);
 		cp.add(wallL);
 		cp.add(dispL);
 		jf.setContentPane(cp);
-		jf.setSize(origI.getWidth()*2, origI.getHeight()*2);
+		jf.setSize(origI.getWidth()*3, origI.getHeight()*3);
 		jf.setVisible(true);
 	}
 
@@ -302,18 +338,35 @@ public class Vision extends java.lang.Thread {
 		origC.setImage(origI);
 		origL.setIcon(origC);
 		origL.repaint();
-		shadeColors(origR,colorR);
+		rgb2hsv(origR, hsvR);
+		hsvC.setImage(hsvI);
+		hsvL.setIcon(hsvC);
+		hsvL.repaint();
+		breakcomponents(hsvR, hR, sR, vR);
+		hC.setImage(hI);
+		hL.setIcon(hC);
+		hL.repaint();
+		sC.setImage(sI);
+		sL.setIcon(sC);
+		sL.repaint();
+		vC.setImage(vI);
+		vL.setIcon(vC);
+		vL.repaint();
+		shadeColors(hsvR,colorR);
+		//shadeColors(origR,colorR);
 		colorC.setImage(colorI);
 		colorL.setIcon(colorC);
 		colorL.repaint();
 		//seekStart2(r,r3);
+		/*
 		rgb2hsv(origR, wallR);
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
+		*/
 		}
 		blankimg(dispR);
-		findExtrema(origR, dispR);
+		findExtrema(hsvR, dispR);
 		if (testmode) {
 		dispC.setImage(dispI);
 		dispL.setIcon(dispC);
@@ -323,6 +376,14 @@ public class Vision extends java.lang.Thread {
 
 	public void allocImages() {
 		origR = origI.getRaster();
+		hsvI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
+		hsvR = hsvI.getRaster();
+		hI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
+		hR = hI.getRaster();
+		sI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
+		sR = sI.getRaster();
+		vI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
+		vR = vI.getRaster();
 		colorI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
 		colorR = colorI.getRaster();
 		wallI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -381,6 +442,25 @@ public class Vision extends java.lang.Thread {
 				} else { // b < a < c
 					out[x] = a;
 				}
+			}
+		}
+	}
+
+	public static void breakcomponents(WritableRaster rhsv, WritableRaster rh, WritableRaster rs, WritableRaster rv) {
+		for (int x = 0; x < rhsv.getWidth(); ++x) {
+			for (int y = 0; y < rhsv.getHeight(); ++y) {
+				int h = rhsv.getSample(x, y, 0);
+				int s = rhsv.getSample(x, y, 1);
+				int v = rhsv.getSample(x, y, 2);
+				rh.setSample(x, y, 0, h);
+				rh.setSample(x, y, 1, h);
+				rh.setSample(x, y, 2, h);
+				rs.setSample(x, y, 0, s);
+				rs.setSample(x, y, 1, s);
+				rs.setSample(x, y, 2, s);
+				rv.setSample(x, y, 0, v);
+				rv.setSample(x, y, 1, v);
+				rv.setSample(x, y, 2, v);
 			}
 		}
 	}
@@ -1027,13 +1107,13 @@ public class Vision extends java.lang.Thread {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			boolean foundblue = false;
 			for (int y = r1.getHeight()-1; y >= 0; --y) {
-				if (foundblue) {
+				//if (foundblue) {
 					colorPix(r2,x,y,Colors.None);
-				} else {
+				//} else {
 					Colors curcolor = getColor(r1,x,y);
 					colorPix(r2,x,y,curcolor);
-				if (curcolor == Colors.Blue) foundblue = true;
-				}
+					if (curcolor == Colors.Blue) foundblue = true;
+				//}
 			}
 		}
 	}
@@ -1163,6 +1243,27 @@ public class Vision extends java.lang.Thread {
 		return isWhite(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
+	public static boolean isRed(final int h, final int s, final int v) {
+		// 0
+		return (220 <= h || h <= 7) && (77 <= s && s <= 170) && (64 <= v && v <= 220);
+	}
+
+	public static boolean isYellow(final int h, final int s, final int v) {
+		// 43
+		return (8 <= h && h <= 90) && (100 <= s) & (170 <= v);
+	}
+
+	public static boolean isBlue(final int h, final int s, final int v) {
+		// 170
+		return (91 <= h && h <= 219) && (90 <= s) && (100 <= v);
+	}
+
+	public static boolean isWhite(final int h, final int s, final int v) {
+		return (h <= 50) && (s <= 80) && (130 <= v);
+	}
+
+	/* RGB
+
 	public static boolean isRed(final int r, final int g, final int b) {
 		return (r > 110 && 2*r > 3*b && 2*r > 3*g);
 	}
@@ -1180,6 +1281,7 @@ public class Vision extends java.lang.Thread {
 		//return (r+g+b > 570);
 		return (r+g+b > 650); // 26-100
 	}
+	*/
 
 	/*
 	public static boolean isBlue(WritableRaster r1, int x, int y) {

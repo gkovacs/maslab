@@ -352,7 +352,8 @@ public class Vision extends java.lang.Thread {
 		vC.setImage(vI);
 		vL.setIcon(vC);
 		vL.repaint();
-		mostcarpet(hsvR, wallR);
+		findWallBottom(hsvR, wallR);
+		//mostcarpet(hsvR, wallR);
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
@@ -403,6 +404,53 @@ public class Vision extends java.lang.Thread {
 		walltopm = new int[origI.getWidth()];
 		queuex = new int[origI.getWidth()*origI.getHeight()];
 		queuey = new int[origI.getWidth()*origI.getHeight()];
+	}
+
+	public static void findWallBottom(WritableRaster r1, WritableRaster r2) {
+		for (int x = 0; x < r1.getWidth(); ++x) {
+			int lls = 0;
+			int llv = 0;
+			int lms = r1.getSample(x, r1.getHeight()-1, 1);
+			int lmv = r1.getSample(x, r1.getHeight()-1, 2);
+			int mms = r1.getSample(x, r1.getHeight()-2, 1);
+			int mmv = r1.getSample(x, r1.getHeight()-2, 2);
+			int tms = r1.getSample(x, r1.getHeight()-3, 1);
+			int tmv = r1.getSample(x, r1.getHeight()-3, 2);
+			int tts = r1.getSample(x, r1.getHeight()-4, 1);
+			int ttv = r1.getSample(x, r1.getHeight()-4, 2);
+			int maxidx = r1.getHeight()-1;
+			int maxval = Integer.MIN_VALUE;
+			for (int y = r1.getHeight()-5; y >= 0; --y) {
+				lls = lms;
+				lms = mms;
+				mms = tms;
+				tms = tts;
+				llv = lmv;
+				lmv = mmv;
+				mmv = tmv;
+				tmv = ttv;
+				tts = r1.getSample(x, y, 1);
+				ttv = r1.getSample(x, y, 2);
+				if (lls > 60) continue;
+				if (lms > 60) continue;
+				if (mms > 60) continue;
+				if (tms > 60) continue;
+				if (tts > 60) continue;
+				int changes = Math.abs(-3*lls-lms+tms+3*tts);
+				int changev = Math.abs(-3*llv-lmv+tmv+3*ttv);
+				int changet = changev/8; //(changes+changev)/16;
+				r2.setSample(x, y, 0, changet);
+				r2.setSample(x, y, 1, changet);
+				r2.setSample(x, y, 2, changet);
+				if (changet > maxval) {
+					maxidx = y;
+					maxval = changet;
+				}
+			}
+			r2.setSample(x, maxidx, 0, 255);
+			r2.setSample(x, maxidx, 1, 255);
+			r2.setSample(x, maxidx, 2, 255);
+		}
 	}
 
 	public static void mostcarpet(WritableRaster r1, WritableRaster r2) {
@@ -961,15 +1009,6 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void findWallBottom(final WritableRaster r1, final int[] wtop, final int[] wbot) {
-		for (int x = 0; x < r1.getWidth(); ++x) {
-			boolean foundwhite = false;
-			for (int y = wtop[x]; y >= 0; --y) {
-				
-			}
-		}
-	}
-
 	public static void findBlueLine(final WritableRaster r1, final int[] wtop, final int[] wbot) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int y = r1.getHeight()-1;
@@ -1429,7 +1468,7 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public static boolean isWhite(final int h, final int s, final int v) {
-		return (h <= 40 || 220 <= h) && (s <= 80) && (140 <= v);
+		return (h <= 60 || 220 <= h) && (s <= 80) && (140 <= v);
 	}
 
 	/* RGB

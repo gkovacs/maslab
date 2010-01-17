@@ -482,7 +482,7 @@ public class Vision extends java.lang.Thread {
 					if (max == r) {
 						h = (g-b)*85/(2*delta);
 						if (h < 0)
-							h += 255;
+							h += 256;
 					} else if (max == g) {
 						h = 85 + (b-r)*85/(2*delta);
 					} else { // max == b
@@ -1106,7 +1106,7 @@ public class Vision extends java.lang.Thread {
 		if (c == Colors.Carpet) {
 			r1.setSample(x, y, 0, 100);
 			r1.setSample(x, y, 1, 150);
-			r1.setSample(x, y, 2, 100);
+			r1.setSample(x, y, 2, 150);
 		} else if (c == Colors.Red) {
 			r1.setSample(x, y, 0, 255);
 			r1.setSample(x, y, 1, 0);
@@ -1293,7 +1293,7 @@ public class Vision extends java.lang.Thread {
 
 	public static boolean isCarpet(final int h, final int s, final int v) {
 		//return false;
-		return (50 <= h && h <= 200) && (s <= 50) && (v <= 220);
+		return (50 <= h) && (s <= 50) && (v <= 220);
 	}
 
 	public static boolean isRed(final int h, final int s, final int v) {

@@ -8,5 +8,5 @@
  * @author maslab-9
  */
 public enum Colors {
-	Red, Blue, Yellow, Green, Purple, Teal, Brown, White, None
+	Red, Blue, Yellow, Green, Purple, Teal, Brown, White, Carpet, None
 }

@@ -773,6 +773,44 @@ public class Vision extends java.lang.Thread {
 			dx2 = 0 ;
 		}
 		int numerator = longest >> 1 ;
+		if (c == Colors.Red) {
+		for (int i=0;i<=longest;i++) {
+			//r.setSample(x, y, 2, 255);
+			if (r.getSample(x, y, 0) == 255 && r.getSample(x, y, 1) == 0 && r.getSample(x, y, 2) == 0) {
+				++matchvnon[0];
+			} else {
+				++matchvnon[1];
+			}
+			numerator += shortest ;
+		 if (!(numerator<longest)) {
+				numerator -= longest ;
+				x += dx1 ;
+			 y += dy1 ;
+			} else {
+				x += dx2 ;
+				y += dy2 ;
+			}
+		}
+		} else {
+		for (int i=0;i<=longest;i++) {
+			//r.setSample(x, y, 2, 255);
+			if (r.getSample(x, y, 0) == 255 && r.getSample(x, y, 1) == 255 && r.getSample(x, y, 2) == 0) {
+				++matchvnon[0];
+			} else {
+				++matchvnon[1];
+			}
+			numerator += shortest ;
+		 if (!(numerator<longest)) {
+				numerator -= longest ;
+				x += dx1 ;
+			 y += dy1 ;
+			} else {
+				x += dx2 ;
+				y += dy2 ;
+			}
+		}
+		}
+		/*
 		for (int i=0;i<=longest;i++) {
 			//r.setSample(x, y, 2, 255);
 			if (getColor(r,x,y) == c) {
@@ -790,6 +828,7 @@ public class Vision extends java.lang.Thread {
 				y += dy2 ;
 			}
 		}
+		*/
 	}
 
 	public static void shadeWalls(final WritableRaster r1, final int[] wtop, final int[] wbot) {
@@ -979,7 +1018,7 @@ public class Vision extends java.lang.Thread {
 							*/
 						}
 					} else {
-						//System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
+						System.out.println("gate"+matchvnon[0]+" vs "+matchvnon[1]);
 						/*
 						drawline(r2, m.lbx+(m.rbx-m.lbx)/4, m.lby+(m.rby-m.lby)/4, m.rbx-(m.rbx-m.lbx)/4, m.rby-(m.rby-m.lby)/4, Colors.Green);
 						drawline(r2, m.ltx+(m.rbx-m.ltx)/3, m.lty+(m.rby-m.lty)/3, m.rbx-(m.rbx-m.ltx)/3, m.rby-(m.rby-m.lty)/3, Colors.Green);
@@ -1064,7 +1103,11 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public static void colorPix(WritableRaster r1, int x, int y, Colors c) {
-		if (c == Colors.Red) {
+		if (c == Colors.Carpet) {
+			r1.setSample(x, y, 0, 100);
+			r1.setSample(x, y, 1, 150);
+			r1.setSample(x, y, 2, 100);
+		} else if (c == Colors.Red) {
 			r1.setSample(x, y, 0, 255);
 			r1.setSample(x, y, 1, 0);
 			r1.setSample(x, y, 2, 0);
@@ -1224,7 +1267,12 @@ public class Vision extends java.lang.Thread {
 			else if (isBlue(r,g,b)) return Colors.Blue;
 			//else if (r > 190 && g > 190 && b > 170) return Colors.White;
 			else if (isWhite(r,g,b)) return Colors.White;
+			else if (isCarpet(r,g,b)) return Colors.Carpet;
 		} return Colors.None;
+	}
+
+	public static boolean isCarpet(final WritableRaster r1, final int x, final int y) {
+		return isCarpet(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
 	public static boolean isRed(final WritableRaster r1, final int x, final int y) {
@@ -1241,6 +1289,11 @@ public class Vision extends java.lang.Thread {
 
 	public static boolean isWhite(final WritableRaster r1, final int x, final int y) {
 		return isWhite(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
+	}
+
+	public static boolean isCarpet(final int h, final int s, final int v) {
+		//return false;
+		return (50 <= h && h <= 200) && (s <= 50) && (v <= 220);
 	}
 
 	public static boolean isRed(final int h, final int s, final int v) {

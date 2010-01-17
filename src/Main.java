@@ -1616,8 +1616,8 @@ public class Main {
 		//final double kd = 0.003;
 		final double kd = 0.000;
 		final double kds = 0.005;
-		final double ki = 0.001;
-		final double kis = 0.0001;
+		final double ki = 0.000;
+		final double kis = 0.00005;
 		double preverror = 0.0;
 		double preverrors = 0.0;
 		int[] prevx = new int[3];

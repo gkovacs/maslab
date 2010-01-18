@@ -1259,10 +1259,13 @@ public class Main {
 	public static void fetchball() {
 		try {
 		Arbiter a = new Arbiter();
-		a.setup(1);
+		a.setup(2);
 		Vision v = new Vision();
 		v.setup(a, 0);
+		v.mc = new MouseController();
+		v.mc.setup(a, 1);
 		a.start();
+		v.mc.start();
 		v.start();
 		java.lang.Thread.sleep(296000); // 296 seconds
 		v.bye();
@@ -1320,7 +1323,7 @@ public class Main {
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testmouse")) testmouse3();
-			else if (args[0].contentEquals("teststuck")) teststuck();
+			//else if (args[0].contentEquals("teststuck")) teststuck();
 			else if (args[0].contentEquals("testforward")) testforward();
 			else if (args[0].contentEquals("testspin")) testspin();
 			else if (args[0].contentEquals("testencoder")) testencoder();
@@ -1650,16 +1653,6 @@ public class Main {
 		m.bye();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-
-	public static void teststuck() {
-		try {
-		MouseController m = new MouseController();
-		m.start();
-		java.lang.Thread.sleep(296000);
-		} catch (Exception e) {
-
 		}
 	}
 

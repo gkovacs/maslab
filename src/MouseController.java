@@ -16,10 +16,15 @@ public class MouseController extends java.lang.Thread {
 	public float[] rightMotorWeight = null;
 	public float[] rollerAction = null;
 	public float[] rollerWeight = null;
+	public int idx = 0;
 	public int xvel = 0;
 	public int yvel = 0;
 	public long[] xdisp = null;
 	public long[] ydisp = null;
+	public long totaldispx = 0;
+	public long totaldispy = 0;
+	public int state = 0;
+	public int unstuckmotion = 0;
 
 	public static void shiftleft(double[] a, double v) {
 		int i = 0;
@@ -39,16 +44,23 @@ public class MouseController extends java.lang.Thread {
 
 	public void run() {
 		try {
+		rollerWeight[idx] = 0.0f;
+		leftMotorWeight[idx] = 0.0f;
+		rightMotorWeight[idx] = 0.0f;
 		xdisp = new long[10];
 		ydisp = new long[10];
 		m = new Mouse();
 		m.start();
 		while (running) {
+			totaldispx -= xdisp[0];
+			totaldispy -= ydisp[0];
 			if (System.currentTimeMillis() - m.readtime < 100) {
-				long nxdisp = m.totalx-xdisp[xdisp.length-1];
-				long nydisp = m.totaly-ydisp[ydisp.length-1];
-				shiftleft(xdisp, nxdisp);
-				shiftleft(ydisp, nydisp);
+				long ndisp = m.totalx-xdisp[xdisp.length-1];
+				totaldispx += ndisp;
+				shiftleft(xdisp, ndisp);
+				ndisp = m.totaly-ydisp[ydisp.length-1];
+				totaldispy += ndisp;
+				shiftleft(ydisp, ndisp);
 				//xvel = m.output[1];
 				//yvel = m.output[2];
 				//System.out.println(m.output[1]+","+m.output[2]);
@@ -59,22 +71,68 @@ public class MouseController extends java.lang.Thread {
 				//yvel = 0;
 				//System.out.println("0,0");
 			}
-			long totaldisp = 0;
-			for (int x = 0; x < xdisp.length; ++x) {
-				//totaldisp += Math.abs(xdisp[x]);
-				totaldisp += Math.abs(ydisp[x]);
+			if (totaldispy < 500 && state == 2) { // failing to go forward, we're stuck
+				unstuckmotion = 300;
 			}
-			//System.out.println("total displacement is "+totaldisp);
-			if (totaldisp < 500) {
-				System.out.println("stuck");
+			if ((totaldispx > -500 || totaldispx < 500) && state == 0) { // failing to rotate, we're stuck
+				unstuckmotion = 300;
+			}
+			if (unstuckmotion > 0) {
+				leftMotorWeight[idx] = 1.0f;
+				rightMotorWeight[idx] = 1.0f;
+				if (unstuckmotion < 50) { // go back
+					leftMotorAction[idx] = -1.0f;
+					rightMotorAction[idx] = -1.0f;
+				} else if (unstuckmotion < 100) { // go left
+					leftMotorAction[idx] = 1.0f;
+					rightMotorAction[idx] = -1.0f;
+				} else if (unstuckmotion < 150) { // go back again
+					leftMotorAction[idx] = -1.0f;
+					rightMotorAction[idx] = -1.0f;
+				} else if (unstuckmotion < 200) { // go right
+					leftMotorAction[idx] = -1.0f;
+					rightMotorAction[idx] = 1.0f;
+				}
+				++unstuckmotion;
 			} else {
-				System.out.println("not stuck");
+				leftMotorWeight[idx] = 0.0f;
+				rightMotorWeight[idx] = 0.0f;
 			}
+			
+			//long totaldisp = 0;
+			//for (int x = 0; x < xdisp.length; ++x) {
+				//totaldisp += Math.abs(xdisp[x]);
+			//	totaldisp += Math.abs(ydisp[x]);
+			//}
+			/*
+			System.out.println("total displacement x is "+totaldispx);
+			System.out.println("total displacement y is "+totaldispy);
+			if (totaldispx < 500) {
+				System.out.println("stuck x");
+			} else {
+				//System.out.println("not stuck");
+			}
+			if (totaldispy < 500) {
+				System.out.println("stuck y");
+			} else {
+				//System.out.println("not stuck");
+			}
+			*/
 			java.lang.Thread.sleep(50);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void setup(Arbiter a, int ActionWeightIndex) {
+		idx = ActionWeightIndex;
+		leftMotorAction = a.leftMotorAction;
+		leftMotorWeight = a.leftMotorWeight;
+		rightMotorAction = a.rightMotorAction;
+		rightMotorWeight = a.rightMotorWeight;
+		rollerAction = a.rollerAction;
+		rollerWeight = a.rollerWeight;
 	}
 
 	public void bye() {

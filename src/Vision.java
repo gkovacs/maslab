@@ -96,6 +96,7 @@ public class Vision extends java.lang.Thread {
 	public int gapminidx = 0;
 	public int gaplen = 0;
 	public int gapminlen = 0;
+	public MouseController mc = null;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;
@@ -122,7 +123,8 @@ public class Vision extends java.lang.Thread {
 		leftMotorWeight[idx] = weights[newstate];
 		rightMotorWeight[idx] = weights[newstate];
 		rollerWeight[idx] = weights[newstate];
-		state = 6;
+		//state = 6;
+		mc.state = state;
 		return;
 	}
 
@@ -176,6 +178,7 @@ public class Vision extends java.lang.Thread {
 			processImage();
 			++gatetimer;
 			System.out.println("gate timer is "+gatetimer);
+			/*
 			if (circleseen && state != 4 && state != 5) {
 				setState(1);
 			}
@@ -188,6 +191,7 @@ public class Vision extends java.lang.Thread {
 					setState(3);
 				}
 			}
+			*/
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
 				if (turningright) {

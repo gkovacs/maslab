@@ -1320,6 +1320,7 @@ public class Main {
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testmouse")) testmouse3();
+			else if (args[0].contentEquals("teststuck")) teststuck();
 			else if (args[0].contentEquals("testforward")) testforward();
 			else if (args[0].contentEquals("testspin")) testspin();
 			else if (args[0].contentEquals("testencoder")) testencoder();
@@ -1649,6 +1650,16 @@ public class Main {
 		m.bye();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static void teststuck() {
+		try {
+		MouseController m = new MouseController();
+		m.start();
+		java.lang.Thread.sleep(296000);
+		} catch (Exception e) {
+
 		}
 	}
 

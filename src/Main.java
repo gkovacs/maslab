@@ -1656,6 +1656,24 @@ public class Main {
 		}
 	}
 
+	public static void test() {
+		try {
+		Mouse m = new Mouse();
+		//m.mapping = true;
+		m.start();
+		while (true) {
+			if (System.currentTimeMillis() - m.readtime < 100) {
+				System.out.println(m.output[1]+","+m.output[2]);
+			} else {
+				System.out.println("0,0");
+			}
+			java.lang.Thread.sleep(50);
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void testmouse3() {
 		try {
 		Mouse m = new Mouse();

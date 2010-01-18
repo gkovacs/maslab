@@ -25,6 +25,7 @@ public class MouseController extends java.lang.Thread {
 	public long totaldispy = 0;
 	public int state = 0;
 	public int unstuckmotion = 0;
+	public int unstuckstate = 0;
 
 	public static void shiftleft(double[] a, double v) {
 		int i = 0;
@@ -40,6 +41,18 @@ public class MouseController extends java.lang.Thread {
 			a[i] = a[i+1];
 		}
 		a[i] = v;
+	}
+
+	public float maxVal(float[] vals, float[] weights) {
+		float maxweight = 0.0f;
+		float maxval = 0.0f;
+		for (int i = 0; i < weights.length; ++i) {
+			if (weights[i] > maxweight) {
+				maxweight = weights[i];
+				maxval = vals[i];
+			}
+		}
+		return maxval;
 	}
 
 	public void run() {
@@ -71,32 +84,55 @@ public class MouseController extends java.lang.Thread {
 				//yvel = 0;
 				//System.out.println("0,0");
 			}
-			if (totaldispy < 500 && state == 2) { // failing to go forward, we're stuck
-				unstuckmotion = 300;
-			}
-			if ((totaldispx > -500 || totaldispx < 500) && state == 0) { // failing to rotate, we're stuck
-				unstuckmotion = 300;
-			}
-			if (unstuckmotion > 0) {
-				leftMotorWeight[idx] = 1.0f;
-				rightMotorWeight[idx] = 1.0f;
-				if (unstuckmotion < 50) { // go back
-					leftMotorAction[idx] = -1.0f;
-					rightMotorAction[idx] = -1.0f;
-				} else if (unstuckmotion < 100) { // go left
-					leftMotorAction[idx] = 1.0f;
-					rightMotorAction[idx] = -1.0f;
-				} else if (unstuckmotion < 150) { // go back again
-					leftMotorAction[idx] = -1.0f;
-					rightMotorAction[idx] = -1.0f;
-				} else if (unstuckmotion < 200) { // go right
-					leftMotorAction[idx] = -1.0f;
-					rightMotorAction[idx] = 1.0f;
-				}
-				++unstuckmotion;
-			} else {
+			if (unstuckmotion == 0) {
 				leftMotorWeight[idx] = 0.0f;
 				rightMotorWeight[idx] = 0.0f;
+				float leftact = maxVal(leftMotorAction, leftMotorWeight);
+				float rightact = maxVal(rightMotorAction, rightMotorWeight);
+				if (leftact >= 0.5f && rightact >= 0.5f) { // going forward
+					if (totaldispy < 100) {
+						unstuckmotion = 300;
+						System.out.println("stuck going forward");
+					}
+				}
+				else if (leftact-rightact > 0.7f) { // turning right
+					if (totaldispx > -100) {
+						unstuckmotion = 300;
+						System.out.println("stuck turning right");
+					}
+				}
+				else if (rightact-leftact > 0.7f) { // turning left
+					if (totaldispx < 100) {
+						unstuckmotion = 300;
+						System.out.println("stuck turning left");
+					}
+				}
+			}
+			/*
+			if (unstuckmotion == 0 && totaldispy < 500 && state == 2) { // failing to go forward, we're stuck
+				unstuckmotion = 300;
+			}
+			if (unstuckmotion == 0 && (totaldispx > -500 || totaldispx < 500) && state == 0) { // failing to rotate, we're stuck
+				unstuckmotion = 300;
+			}
+			*/
+			else {
+				leftMotorWeight[idx] = 1.0f;
+				rightMotorWeight[idx] = 1.0f;
+				if (unstuckmotion < 50) { // go right
+					leftMotorAction[idx] = 1.0f;
+					rightMotorAction[idx] = -1.0f;
+				} else if (unstuckmotion < 100) { // go back
+					leftMotorAction[idx] = -1.0f;
+					rightMotorAction[idx] = -1.0f;
+				} else if (unstuckmotion < 150) { // go left
+					leftMotorAction[idx] = -1.0f;
+					rightMotorAction[idx] = 1.0f;
+				} else if (unstuckmotion < 200) { // go back
+					leftMotorAction[idx] = -1.0f;
+					rightMotorAction[idx] = -1.0f;
+				}
+				--unstuckmotion;
 			}
 			
 			//long totaldisp = 0;

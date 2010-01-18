@@ -56,6 +56,10 @@ public class Vision extends java.lang.Thread {
 	public WritableRaster wallR = null;
 	public ImageIcon wallC = null;
 	public JLabel wallL = null;
+	public BufferedImage mapI = null;
+	public WritableRaster mapR = null;
+	public ImageIcon mapC = null;
+	public JLabel mapL = null;
 	public BufferedImage dispI = null;
 	public WritableRaster dispR = null;
 	public ImageIcon dispC = null;
@@ -123,7 +127,12 @@ public class Vision extends java.lang.Thread {
 		System.out.println("1");
 		orc.camera.Camera c;
 		System.out.println("1a");
+		try {
 		c = new orc.camera.Camera("/dev/video0");
+		} catch (Exception e) {
+			e.printStackTrace();
+			c = new orc.camera.Camera("/dev/video1");
+		}
 		//c = orc.camera.Camera.makeCamera();
 		System.out.println("2");
 		//orc.camera.Camera c = new orc.camera.Camera("/dev/video0");
@@ -298,6 +307,10 @@ public class Vision extends java.lang.Thread {
 		wallL = new JLabel();
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
+		mapC = new ImageIcon();
+		mapL = new JLabel();
+		mapC.setImage(mapI);
+		mapL.setIcon(mapC);
 		dispC = new ImageIcon();
 		dispL = new JLabel();
 		dispC.setImage(dispI);
@@ -310,6 +323,7 @@ public class Vision extends java.lang.Thread {
 		cp.add(vL);
 		cp.add(colorL);
 		cp.add(wallL);
+		cp.add(mapL);
 		cp.add(dispL);
 		jf.setContentPane(cp);
 		jf.setSize(origI.getWidth()*3, origI.getHeight()*3);
@@ -342,6 +356,7 @@ public class Vision extends java.lang.Thread {
 		hsvC.setImage(hsvI);
 		hsvL.setIcon(hsvC);
 		hsvL.repaint();
+		/*
 		breakcomponents(hsvR, hR, sR, vR);
 		hC.setImage(hI);
 		hL.setIcon(hC);
@@ -352,12 +367,22 @@ public class Vision extends java.lang.Thread {
 		vC.setImage(vI);
 		vL.setIcon(vC);
 		vL.repaint();
+		*/
 		//findWallBottom(hsvR, wallR);
 		//mostcarpet(hsvR, wallR);
-		paintwalls(hsvR, wallR);
+		//paintwalls(hsvR, wallR);
+		paintwalls(hsvR, walltop, wallbot);
+		meanfilter2(wallbot,wallbotm);
+		meanfilter2(walltop,walltopm);
+		shadeWalls(wallR,walltopm,wallbotm);
+		findwallgap(wallR,walltopm,wallbotm);
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
+		mapwalls(mapR,walltopm,wallbotm);
+		mapC.setImage(mapI);
+		mapL.setIcon(mapC);
+		mapL.repaint();
 		shadeColors(hsvR,colorR);
 		//shadeColors(origR,colorR);
 		colorC.setImage(colorI);
@@ -395,6 +420,8 @@ public class Vision extends java.lang.Thread {
 		wallI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
 		wallR = wallI.getRaster();
 		//shadeRed(origR,colorR);
+		mapI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
+		mapR = mapI.getRaster();
 		dispI = new BufferedImage(origI.getWidth(), origI.getHeight(), BufferedImage.TYPE_INT_RGB);
 		dispR = dispI.getRaster();
 		wallbot = new int[origI.getWidth()];
@@ -454,7 +481,65 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void paintwalls(WritableRaster r1, WritableRaster r2) {
+	public static void shiftleft(int[] a, int v) {
+		int i = 0;
+		for (; i < a.length-1; ++i) {
+			a[i] = a[i+1];
+		}
+		a[i] = v;
+	}
+
+	public static void findwallgap(WritableRaster r1, int[] wtop, int[] wbot) {
+		int[] gvals = new int[9];
+		int maxidx = 4;
+		gvals[0] = r1.getHeight()-wbot[0];
+		gvals[1] = r1.getHeight()-wbot[1];
+		gvals[2] = r1.getHeight()-wbot[2];
+		gvals[3] = r1.getHeight()-wbot[3];
+		gvals[4] = r1.getHeight()-wbot[4];
+		gvals[5] = r1.getHeight()-wbot[5];
+		gvals[6] = r1.getHeight()-wbot[6];
+		gvals[7] = r1.getHeight()-wbot[7];
+		gvals[8] = r1.getHeight()-wbot[8];
+		int tot = gvals[0]+gvals[1]+gvals[2]+gvals[3]+gvals[4]+gvals[5]+gvals[6]+gvals[7]+gvals[8];
+		int maxv = tot;
+		for (int x = 5; x < wtop.length-4; ++x) {
+			tot -= gvals[0];
+			shiftleft(gvals, r1.getHeight()-wbot[x+4]);
+			tot += gvals[8];
+			if (tot > maxv) {
+				maxv = tot;
+				maxidx = x;
+			}
+		}
+		r1.setSample(maxidx, 5, 0, 255);
+	}
+
+	public static void mapwalls(WritableRaster r1, int[] wtop, int[] wbot) {
+		for (int x = 0; x < wtop.length; ++x) {
+			if (wbot[x]-wtop[x] == 0) {
+				for (int y = 0; y < r1.getHeight(); ++y) {
+					r1.setSample(x, y, 0, 0);
+					r1.setSample(x, y, 1, 0);
+					r1.setSample(x, y, 2, 0);
+				}
+				continue;
+			}
+			int distance = r1.getHeight()-wbot[x]+2000/(wbot[x]-wtop[x]);
+			if (distance >= r1.getHeight() || distance < 0) continue;
+			r1.setSample(x, r1.getHeight()-distance, 0, 255);
+			r1.setSample(x, r1.getHeight()-distance, 1, 255);
+			r1.setSample(x, r1.getHeight()-distance, 2, 255);
+			for (int y = 0; y < r1.getHeight(); ++y) {
+				if (y == r1.getHeight()-distance) continue;
+				r1.setSample(x, y, 0, 0);
+				r1.setSample(x, y, 1, 0);
+				r1.setSample(x, y, 2, 0);
+			}
+		}
+	}
+
+	public static void paintwalls(WritableRaster r1, int[] wtop, int[] wbot) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int numcarpet = 0;
 			int numwall = 0;
@@ -501,6 +586,15 @@ public class Vision extends java.lang.Thread {
 					}
 				}
 			}
+			if (numwall < 20) {
+				wbot[x] = 0;
+				wtop[x] = 0;
+			} else {
+				wbot[x] = r1.getHeight()-1-(numcarpet);
+				wtop[x] = r1.getHeight()-1-(numcarpet)-(numwall);
+				if (wtop[x] < 0) wtop[x] = 0;
+			}
+			/*
 			if (numwall < 20) continue;
 			//r2.setSample(x, r1.getHeight()-1-(numcarpet), 0, 255);
 			//r2.setSample(x, r1.getHeight()-1-(numcarpet), 1, 255);
@@ -510,6 +604,7 @@ public class Vision extends java.lang.Thread {
 				r2.setSample(x, y, 1, 255);
 				r2.setSample(x, y, 2, 255);
 			}
+			*/
 		}
 	}
 
@@ -642,6 +737,67 @@ public class Vision extends java.lang.Thread {
 				inp[x] = total*3/4;
 			if (3*inp[x] > 4*total)
 				inp[x] = total*4/3;
+		}
+	}
+
+	public static void meanfilter2(int[] inp, int[] out) {
+		out[0] = inp[0];
+		out[1] = inp[1];
+		out[inp.length-1] = inp[inp.length-1];
+		out[inp.length-2] = inp[inp.length-2];
+		int tot = inp[0]+inp[1]+inp[2]+inp[3]+inp[4];
+		int numv = 0;
+		if (inp[0] != 0) ++numv;
+		if (inp[1] != 0) ++numv;
+		if (inp[2] != 0) ++numv;
+		if (inp[3] != 0) ++numv;
+		if (inp[4] != 0) ++numv;
+		if (numv == 0) out[2] = 0;
+		else out[2] = tot/numv;
+		for (int x = 3; x < inp.length-2; ++x) {
+			if (inp[x-3] != 0) {
+				tot -= inp[x-3];
+				--numv;
+			}
+			if (inp[x+2] != 0) {
+				tot += inp[x+2];
+				++numv;
+			}
+			if (numv == 0) out[x] = 0;
+			else out[x] = tot/numv;
+		}
+	}
+
+	public static void meanfilter(int[] inp, int[] out) {
+		out[0] = inp[0];
+		out[1] = inp[1];
+		out[inp.length-1] = inp[inp.length-1];
+		out[inp.length-2] = inp[inp.length-2];
+		for (int x = 2; x < inp.length-2; ++x) {
+			int numv = 0;
+			int tot = 0;
+			if (inp[x-2] != 0) {
+				tot += inp[x-2];
+				++numv;
+			}
+			if (inp[x-1] != 0) {
+				tot += inp[x-1];
+				++numv;
+			}
+			if (inp[x] != 0) {
+				tot += inp[x];
+				++numv;
+			}
+			if (inp[x+1] != 0) {
+				tot += inp[x+1];
+				++numv;
+			}
+			if (inp[x+2] != 0) {
+				tot += inp[x+2];
+				++numv;
+			}
+			if (numv == 0) out[x] = 0;
+			else out[x] = tot/numv;
 		}
 	}
 
@@ -1321,6 +1477,11 @@ public class Vision extends java.lang.Thread {
 				r.setSample(x, y, 2, 0);
 			}
 		}
+	}
+
+	public static void safeColorPix(WritableRaster r1, int x, int y, Colors c) {
+		if (x < 0 || y < 0 || x >= r1.getWidth() || y >= r1.getHeight()) return;
+		colorPix(r1,x,y,c);
 	}
 
 	public static void colorPix(WritableRaster r1, int x, int y, Colors c) {

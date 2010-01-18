@@ -82,16 +82,20 @@ public class Vision extends java.lang.Thread {
 	public int gatetimer = 501;
 	public int gatepxoffset;
 	public final float k = 0.005f;
-	public int state = 0;
+	public int state = 6;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60};
-	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f};
-	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot"};
-	public int[] transitions = {-2, -1, -1, -1, 3, -1};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999};
+	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f, 1.0f};
+	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore"};
+	public int[] transitions = {-2, -1, -1, -1, 3, -1, 6};
 	public int statetimeout = 0;
 	public boolean turningright = true;
 	public boolean goforward = false;
 	public int shoottimer = 0;
+	public int gapidx = 0;
+	public int gapminidx = 0;
+	public int gaplen = 0;
+	public int gapminlen = 0;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;
@@ -114,10 +118,12 @@ public class Vision extends java.lang.Thread {
 		statetimeout = 0;
 		leftMotorAction[idx] = 0.0f;
 		rightMotorAction[idx] = 0.0f;
-		rollerAction[idx] = 1.0f;
+		rollerAction[idx] = 0.0f; // temporary hack
 		leftMotorWeight[idx] = weights[newstate];
 		rightMotorWeight[idx] = weights[newstate];
 		rollerWeight[idx] = weights[newstate];
+		state = 6;
+		return;
 	}
 
 	public void run() {
@@ -254,8 +260,37 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = 1.0f;
 					leftMotorAction[idx] = 1.0f;
 				}
+			} if (state == 6) { // explore
+				rollerAction[idx] = 0.0f;
+				if (gaplen < 20 || gapminlen < 5) {
+					System.err.println("backing up gapminlen is "+gapminlen);
+					float basevel = bound(-1.0f+Math.abs(gapidx - origR.getWidth()/2)/0.1f, -1.0f, -0.7f);
+					float rspeed = -k*(gapidx - origR.getWidth()/2); //+ 0.6f;
+					float lspeed = k*(gapidx - origR.getWidth()/2); //+ 0.6f;
+					if (lspeed > rspeed) {
+						rspeed += basevel-Math.abs(lspeed);
+						lspeed = basevel;
+					} else {
+						lspeed += basevel-Math.abs(rspeed);
+						rspeed = basevel;
+					}
+					leftMotorAction[idx] = lspeed;
+					rightMotorAction[idx] = rspeed;
+				} else {
+					float basevel = bound(1.0f-Math.abs(gapidx - origR.getWidth()/2)/0.1f, 1.0f, 0.7f);
+					float rspeed = -k*(gapidx - origR.getWidth()/2); //+ 0.6f;
+					float lspeed = k*(gapidx - origR.getWidth()/2); //+ 0.6f;
+					if (lspeed > rspeed) {
+						rspeed += basevel-Math.abs(lspeed);
+						lspeed = basevel;
+					} else {
+						lspeed += basevel-Math.abs(rspeed);
+						rspeed = basevel;
+					}
+					leftMotorAction[idx] = lspeed;
+					rightMotorAction[idx] = rspeed;
+				}
 			}
-
 			//java.lang.Thread.sleep(idx);
 		}
 		} catch (Exception e) {
@@ -375,7 +410,7 @@ public class Vision extends java.lang.Thread {
 		meanfilter2(wallbot,wallbotm);
 		meanfilter2(walltop,walltopm);
 		shadeWalls(wallR,walltopm,wallbotm);
-		findwallgap(wallR,walltopm,wallbotm);
+		findwallgap(walltopm,wallbotm);
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
@@ -489,30 +524,45 @@ public class Vision extends java.lang.Thread {
 		a[i] = v;
 	}
 
-	public static void findwallgap(WritableRaster r1, int[] wtop, int[] wbot) {
-		int[] gvals = new int[9];
-		int maxidx = 4;
-		gvals[0] = r1.getHeight()-wbot[0];
-		gvals[1] = r1.getHeight()-wbot[1];
-		gvals[2] = r1.getHeight()-wbot[2];
-		gvals[3] = r1.getHeight()-wbot[3];
-		gvals[4] = r1.getHeight()-wbot[4];
-		gvals[5] = r1.getHeight()-wbot[5];
-		gvals[6] = r1.getHeight()-wbot[6];
-		gvals[7] = r1.getHeight()-wbot[7];
-		gvals[8] = r1.getHeight()-wbot[8];
-		int tot = gvals[0]+gvals[1]+gvals[2]+gvals[3]+gvals[4]+gvals[5]+gvals[6]+gvals[7]+gvals[8];
+	public void findwallgap(int[] wtop, int[] wbot) {
+		int[] gvals = new int[15];
+		int minidx = 7;
+		int maxidx = 7;
+		gvals[0] = origR.getHeight()-wbot[0];
+		gvals[1] = origR.getHeight()-wbot[1];
+		gvals[2] = origR.getHeight()-wbot[2];
+		gvals[3] = origR.getHeight()-wbot[3];
+		gvals[4] = origR.getHeight()-wbot[4];
+		gvals[5] = origR.getHeight()-wbot[5];
+		gvals[6] = origR.getHeight()-wbot[6];
+		gvals[7] = origR.getHeight()-wbot[7];
+		gvals[8] = origR.getHeight()-wbot[8];
+		gvals[9] = origR.getHeight()-wbot[9];
+		gvals[10] = origR.getHeight()-wbot[10];
+		gvals[11] = origR.getHeight()-wbot[11];
+		gvals[12] = origR.getHeight()-wbot[12];
+		gvals[13] = origR.getHeight()-wbot[13];
+		gvals[14] = origR.getHeight()-wbot[14];
+		int tot = gvals[0]+gvals[1]+gvals[2]+gvals[3]+gvals[4]+gvals[5]+gvals[6]+gvals[7]+gvals[8]+gvals[9]+gvals[10]+gvals[11]+gvals[12]+gvals[13]+gvals[14];
 		int maxv = tot;
-		for (int x = 5; x < wtop.length-4; ++x) {
+		int minv = tot;
+		for (int x = 8; x < wbot.length-7; ++x) {
 			tot -= gvals[0];
-			shiftleft(gvals, r1.getHeight()-wbot[x+4]);
-			tot += gvals[8];
+			shiftleft(gvals, origR.getHeight()-wbot[x+4]);
+			tot += gvals[14];
 			if (tot > maxv) {
 				maxv = tot;
 				maxidx = x;
+			} else if (tot < minv) {
+				minv = tot;
+				minidx = x;
 			}
 		}
-		r1.setSample(maxidx, 5, 0, 255);
+		gapidx = maxidx;
+		gapminidx = minidx;
+		gaplen = maxv/15;
+		gapminlen = minv/15;
+		wallR.setSample(maxidx, 5, 0, 255);
 	}
 
 	public static void mapwalls(WritableRaster r1, int[] wtop, int[] wbot) {

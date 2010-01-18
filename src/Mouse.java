@@ -14,9 +14,14 @@ import java.awt.*;
 import java.awt.image.*;
 
 public class Mouse extends java.lang.Thread {
-	java.io.FileInputStream mouse = null;
-	BufferedImage coordmap = null;
-	BufferedImage worldmap = null;
+	public java.io.FileInputStream mouse = null;
+	public BufferedImage coordmapI = null;
+	public BufferedImage worldmap = null;
+	public WritableRaster coordmapR = null;
+	public ImageIcon coordmapC = null;
+	public JLabel coordmapL = null;
+	public JFrame jf = null;
+	public JPanel cp = null;
 	byte[] output = null;
 	long totalx = 0;
 	long totaly = 0;
@@ -29,9 +34,27 @@ public class Mouse extends java.lang.Thread {
 	int bufstart = 0;
 	int buflen = 1024;
 	long readtime = 0;
+	boolean mapping = false;
+
+	public void setupMapping() {
+		jf = new JFrame();
+		coordmapI = new BufferedImage(160, 120, BufferedImage.TYPE_INT_RGB);
+		coordmapR = coordmapI.getRaster();
+		coordmapC = new ImageIcon();
+		coordmapL = new JLabel();
+		coordmapC.setImage(coordmapI);
+		coordmapL.setIcon(coordmapC);
+		//coordmapL.repaint();
+		cp = new JPanel(new GridLayout(1,1));
+		cp.add(coordmapL);
+		jf.setContentPane(cp);
+		jf.setSize(coordmapI.getWidth(), coordmapI.getHeight());
+		jf.setVisible(true);
+	}
 
 	public void run() {
 		try {
+		if (mapping) setupMapping();
 		mouse = new java.io.FileInputStream("/dev/input/mice");
 		/*
 		xreadbuf = new byte[buflen];
@@ -46,6 +69,12 @@ public class Mouse extends java.lang.Thread {
 			totalx += output[1];
 			totaly += output[2];
 			readtime = System.currentTimeMillis();
+			if (mapping) {
+			coordmapR.setSample((int)totalx+coordmapR.getWidth()/2, (int)-totaly+coordmapR.getHeight()/2, 0, 255);
+			coordmapC.setImage(coordmapI);
+			coordmapL.setIcon(coordmapC);
+			coordmapL.repaint();
+			}
 			//while (mouse.available() > 0) {
 			/*
 				bufendt = (bufendt + 1) % buflen;
@@ -60,7 +89,7 @@ public class Mouse extends java.lang.Thread {
 			//}
 		}
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		}
 	}
 

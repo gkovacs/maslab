@@ -1655,6 +1655,7 @@ public class Main {
 	public static void testmouse3() {
 		try {
 		Mouse m = new Mouse();
+		//m.mapping = true;
 		m.start();
 		while (true) {
 			if (System.currentTimeMillis() - m.readtime < 100) {

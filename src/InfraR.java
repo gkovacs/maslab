@@ -60,10 +60,11 @@ public class InfraR extends java.lang.Thread {
 		while (running) {
 			shiftleft(leftIRreadings, 62.5/leftIR.getVoltage());
 			shiftleft(rightIRreadings, 62.5/rightIR.getVoltage());
-			double left = averageArray(leftIRreadings);//a.getVoltage();
-			double right = 0.0;
+			double left = averageArray(leftIRreadings);//a.getVoltage()
+			//double left = 999999.0;
+			double right = averageArray(rightIRreadings);
 			//double right = averageArray(rightIRreadings);
-			System.out.println(left);
+			System.out.println("left is "+left+"right is "+right);
 			//System.out.println(right);
 			double lspeed;
 			double rspeed;
@@ -71,12 +72,14 @@ public class InfraR extends java.lang.Thread {
 				double error = left-desv;
 				if (error > 20.0) error = 20.0;
 				if (error < 20.0) error = -20.0;
-				double basevel = bound(1.0-error, 0.4, 0.4);
+				double basevel = bound(1.0-error, 0.7, 0.4);
 				lspeed = -(kp*error-kd*(left-prevleft))+basevel;
 				rspeed = (kp*error-kd*(left-prevleft))+basevel;
 			} else {
 				double error = right-desv;
-				double basevel = bound(1.0-error, 0.6, 0.5);
+				if (error > 20.0) error = 20.0;
+				if (error < 20.0) error = -20.0;
+				double basevel = bound(1.0-error, 0.7, 0.4);
 				lspeed = (kp*error-kd*(right-prevright))+basevel;
 				rspeed = -(kp*error-kd*(right-prevright))+basevel;
 			}

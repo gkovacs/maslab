@@ -65,7 +65,7 @@ public class Arbiter extends java.lang.Thread {
 			float rma = maxVal(rightMotorAction, rightMotorWeight);
 			float rla = maxVal(rollerAction, rollerWeight);
 			System.out.println("left: "+lma+" right: "+rma);
-			leftMotor.setPWM((float)bound(lma*0.9f, 1.0f, -1.0f));
+			leftMotor.setPWM((float)bound(lma, 1.0f, -1.0f));
 			rightMotor.setPWM((float)bound(rma, 1.0f, -1.0f));
 			rollers.setPWM((float)bound(rla, 1.0f, -1.0f));
 			java.lang.Thread.sleep(100);

@@ -55,6 +55,14 @@ public class MouseController extends java.lang.Thread {
 		return maxval;
 	}
 
+	public long sumArray(long[] a) {
+		long tot = 0;
+		for (int x = 0; x < a.length; ++x) {
+			tot += Math.abs(a[x]);
+		}
+		return tot;
+	}
+
 	public void run() {
 		try {
 		rollerWeight[idx] = 0.0f;
@@ -65,14 +73,16 @@ public class MouseController extends java.lang.Thread {
 		m = new Mouse();
 		m.start();
 		while (running) {
-			totaldispx -= xdisp[0];
-			totaldispy -= ydisp[0];
+			//totaldispx -= xdisp[0];
+			//totaldispy -= ydisp[0];
+			totaldispx = sumArray(xdisp);
+			totaldispy = sumArray(ydisp);
 			if (System.currentTimeMillis() - m.readtime < 100) {
 				long ndisp = m.totalx-xdisp[xdisp.length-1];
-				totaldispx += ndisp;
+				//totaldispx += Math.abs(ndisp);
 				shiftleft(xdisp, ndisp);
 				ndisp = m.totaly-ydisp[ydisp.length-1];
-				totaldispy += ndisp;
+				//totaldispy += Math.abs(ndisp);
 				shiftleft(ydisp, ndisp);
 				//xvel = m.output[1];
 				//yvel = m.output[2];
@@ -84,29 +94,37 @@ public class MouseController extends java.lang.Thread {
 				//yvel = 0;
 				//System.out.println("0,0");
 			}
+			System.out.println("dispx is "+totaldispx);
+			System.out.println("dispy is "+totaldispy);
 			if (unstuckmotion == 0) {
 				leftMotorWeight[idx] = 0.0f;
 				rightMotorWeight[idx] = 0.0f;
 				float leftact = maxVal(leftMotorAction, leftMotorWeight);
 				float rightact = maxVal(rightMotorAction, rightMotorWeight);
+				if (totaldispx+totaldispy < 100) {
+						unstuckmotion = 20;
+						System.out.println("stuck turning left");
+					}
+				/*
 				if (leftact >= 0.5f && rightact >= 0.5f) { // going forward
-					if (totaldispy < 100) {
-						unstuckmotion = 300;
+					if (totaldispy+totaldispx < 100) {
+						unstuckmotion = 20;
 						System.out.println("stuck going forward");
 					}
 				}
 				else if (leftact-rightact > 0.7f) { // turning right
-					if (totaldispx > -100) {
-						unstuckmotion = 300;
+					if (totaldispx+totaldispy < 100) {
+						unstuckmotion = 20;
 						System.out.println("stuck turning right");
 					}
 				}
 				else if (rightact-leftact > 0.7f) { // turning left
-					if (totaldispx < 100) {
-						unstuckmotion = 300;
+					if (totaldispx+totaldispy < 100) {
+						unstuckmotion = 20;
 						System.out.println("stuck turning left");
 					}
 				}
+				*/
 			}
 			/*
 			if (unstuckmotion == 0 && totaldispy < 500 && state == 2) { // failing to go forward, we're stuck
@@ -119,16 +137,16 @@ public class MouseController extends java.lang.Thread {
 			else {
 				leftMotorWeight[idx] = 1.0f;
 				rightMotorWeight[idx] = 1.0f;
-				if (unstuckmotion < 50) { // go right
+				if (unstuckmotion < 5) { // go right
 					leftMotorAction[idx] = 1.0f;
 					rightMotorAction[idx] = -1.0f;
-				} else if (unstuckmotion < 100) { // go back
+				} else if (unstuckmotion < 10) { // go back
 					leftMotorAction[idx] = -1.0f;
 					rightMotorAction[idx] = -1.0f;
-				} else if (unstuckmotion < 150) { // go left
+				} else if (unstuckmotion < 15) { // go left
 					leftMotorAction[idx] = -1.0f;
 					rightMotorAction[idx] = 1.0f;
-				} else if (unstuckmotion < 200) { // go back
+				} else if (unstuckmotion < 20) { // go back
 					leftMotorAction[idx] = -1.0f;
 					rightMotorAction[idx] = -1.0f;
 				}

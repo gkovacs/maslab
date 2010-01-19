@@ -1162,6 +1162,27 @@ public class Main {
 		}
 	}
 
+	public static void navigate() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(2);
+		InfraR v = new InfraR();
+		v.setup(a, 0);
+		MouseController m = new MouseController();
+		m.setup(a, 1);
+		a.start();
+		v.start();
+		java.lang.Thread.sleep(10000); // 10 seconds
+		m.start();
+		java.lang.Thread.sleep(300000); // 300 seconds
+		//m.bye();
+		v.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void wallfollow2() {
 		try {
 		Arbiter a = new Arbiter();
@@ -1321,6 +1342,7 @@ public class Main {
 			else if (args[0].contentEquals("fetchball")) fetchball();
 			else if (args[0].contentEquals("competition")) competition();
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
+			else if (args[0].contentEquals("navigate")) navigate();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testmouse")) testmouse3();
 			//else if (args[0].contentEquals("teststuck")) teststuck();
@@ -1742,7 +1764,7 @@ public class Main {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		AnalogInput a = new AnalogInput(o, 7);
+		AnalogInput a = new AnalogInput(o, 1);
 		while (true) {
 			System.out.println(62.5/a.getVoltage());
 		}

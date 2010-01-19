@@ -282,9 +282,11 @@ public class Vision extends java.lang.Thread {
 					leftMotorAction[idx] = lspeed;
 					rightMotorAction[idx] = rspeed;
 				} else*/ {
-					float basevel = bound(1.0f-Math.abs(gapidx - origR.getWidth()/2)/0.1f, 1.0f, 0.7f);
-					float rspeed = -k*(gapidx - origR.getWidth()/2); //+ 0.6f;
-					float lspeed = k*(gapidx - origR.getWidth()/2); //+ 0.6f;
+					float basevel = 0.7f;
+					//float basevel = bound(1.0f-Math.abs(gapidx - origR.getWidth()/2)/0.1f, 0.8f, 0.7f);
+					float rspeed = -k*(gapidx - origR.getWidth()/2) ;//+ basevel;
+					float lspeed = k*(gapidx - origR.getWidth()/2) ;//+ basevel;
+					
 					if (lspeed > rspeed) {
 						rspeed += basevel-Math.abs(lspeed);
 						lspeed = basevel;
@@ -292,6 +294,7 @@ public class Vision extends java.lang.Thread {
 						lspeed += basevel-Math.abs(rspeed);
 						rspeed = basevel;
 					}
+					
 					leftMotorAction[idx] = lspeed;
 					rightMotorAction[idx] = rspeed;
 				}

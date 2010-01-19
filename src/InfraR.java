@@ -46,7 +46,7 @@ public class InfraR extends java.lang.Thread {
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		AnalogInput leftIR = new AnalogInput(o, 7);
 		AnalogInput rightIR = new AnalogInput(o, 1);
-		final double desv = 100.0;
+		final double desv = 150.0;
 		final double kp = 0.002;
 		final double kd = 0.001;
 		double prevleft = leftIR.getVoltage();
@@ -78,16 +78,34 @@ public class InfraR extends java.lang.Thread {
 				double error = left-desv;
 				if (error > 100.0) error = 100.0;
 				if (error < -100.0) error = -100.0;
-				double basevel = bound(1.0-error, 0.7, 0.5);
-				lspeed = -(kp*error-kd*(left-prevleft))+basevel;
-				rspeed = (kp*error-kd*(left-prevleft))+basevel;
+				double basevel = 0.7;
+				//double basevel = bound(1.0-error, 0.7, 0.6);
+				lspeed = -(kp*error-kd*(left-prevleft));//+basevel;
+				rspeed = (kp*error-kd*(left-prevleft));//+basevel;
+				if (lspeed > rspeed) {
+					rspeed += basevel-Math.abs(lspeed);
+					lspeed = basevel;
+				} else {
+					lspeed += basevel-Math.abs(rspeed);
+					rspeed = basevel;
+				}
 			} else {
+				leftMotorWeight[idx] = 0.8f;
+				rightMotorWeight[idx] = 0.8f;
 				double error = right-desv;
 				if (error > 100.0) error = 100.0;
 				if (error < -100.0) error = -100.0;
-				double basevel = bound(1.0-error, 0.7, 0.4);
-				lspeed = (kp*error-kd*(right-prevright))+basevel;
-				rspeed = -(kp*error-kd*(right-prevright))+basevel;
+				//double basevel = bound(1.0-error, 0.7, 0.6);
+				double basevel = 0.7;
+				lspeed = (kp*error-kd*(right-prevright));//+basevel;
+				rspeed = -(kp*error-kd*(right-prevright));//+basevel;
+				if (lspeed > rspeed) {
+					rspeed += basevel-Math.abs(lspeed);
+					lspeed = basevel;
+				} else {
+					lspeed += basevel-Math.abs(rspeed);
+					rspeed = basevel;
+				}
 			}
 			prevleft = left;
 			prevright = right;

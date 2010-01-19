@@ -1277,6 +1277,21 @@ public class Main {
 		}
 	}
 
+	public static void testmousecontroller() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(3);
+		MouseController mc = new MouseController();
+		mc.setup(a, 2);
+		mc.start();
+		java.lang.Thread.sleep(296000); // 296 seconds
+		mc.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void explore() {
 		try {
 		Arbiter a = new Arbiter();
@@ -1369,6 +1384,7 @@ public class Main {
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("navigate")) navigate();
 			else if (args[0].contentEquals("explore")) explore();
+			else if (args[0].contentEquals("testmousecontroller")) testmousecontroller();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testmouse")) testmouse3();
 			//else if (args[0].contentEquals("teststuck")) teststuck();

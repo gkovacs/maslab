@@ -1313,7 +1313,7 @@ public class Main {
 		if (args.length > 0) {
 			System.out.println(args[0]);
 			if (args[0].contentEquals("testmotor")) testmotor();
-			else if (args[0].contentEquals("testir")) testir();
+			else if (args[0].contentEquals("testir")) testir3();
 			else if (args[0].contentEquals("testchannel")) testchannel();
 			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
 			else if (args[0].contentEquals("testimage")) testimage(args[1]);
@@ -1738,16 +1738,29 @@ public class Main {
 		}
 	}
 
+	public static void testir3() {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		AnalogInput a = new AnalogInput(o, 7);
+		while (true) {
+			System.out.println(62.5/a.getVoltage());
+		}
+		} catch (Exception e) {
+		e.printStackTrace();
+		}
+	}
+
 	public static void testir() {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		AnalogInput a = new AnalogInput(o, 0);
+		AnalogInput a = new AnalogInput(o, 7);
 		while (true) {
 			System.out.println(a.getVoltage());
 		}
 		} catch (Exception e) {
-		
+		e.printStackTrace();
 		}
 	}
 

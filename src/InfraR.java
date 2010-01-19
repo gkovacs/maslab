@@ -49,8 +49,8 @@ public class InfraR extends java.lang.Thread {
 		AnalogInput leftIR = new AnalogInput(o, 7);
 		AnalogInput rightIR = new AnalogInput(o, 1);
 		final double desv = 100.0;
-		final double kp = 0.005;
-		final double kd = 0.002;
+		final double kp = 0.002;
+		final double kd = 0.001;
 		double prevleft = leftIR.getVoltage();
 		double prevright = rightIR.getVoltage();
 		double[] leftIRreadings = new double[3];
@@ -68,18 +68,22 @@ public class InfraR extends java.lang.Thread {
 			//System.out.println(right);
 			double lspeed;
 			double rspeed;
-			if (left > right) {
+			if (left > 200.0 && right > 200.0) { // just go straight
+				lspeed = 0.6;
+				rspeed = 0.6;
+			}
+			else if (left > right) {
 				double error = left-desv;
-				if (error > 20.0) error = 20.0;
-				if (error < 20.0) error = -20.0;
-				double basevel = bound(1.0-error, 0.7, 0.6);
+				if (error > 100.0) error = 100.0;
+				if (error < -100.0) error = -100.0;
+				double basevel = bound(1.0-error, 0.7, 0.4);
 				lspeed = -(kp*error-kd*(left-prevleft))+basevel;
 				rspeed = (kp*error-kd*(left-prevleft))+basevel;
 			} else {
 				double error = right-desv;
-				if (error > 20.0) error = 20.0;
-				if (error < 20.0) error = -20.0;
-				double basevel = bound(1.0-error, 0.7, 0.6);
+				if (error > 100.0) error = 100.0;
+				if (error < -100.0) error = -100.0;
+				double basevel = bound(1.0-error, 0.7, 0.4);
 				lspeed = (kp*error-kd*(right-prevright))+basevel;
 				rspeed = -(kp*error-kd*(right-prevright))+basevel;
 			}

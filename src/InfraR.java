@@ -46,22 +46,39 @@ public class InfraR extends java.lang.Thread {
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		leftMotorWeight[idx] = 0.5f;
 		rightMotorWeight[idx] = 0.5f;
-		AnalogInput a = new AnalogInput(o, 7);
+		AnalogInput leftIR = new AnalogInput(o, 7);
+		AnalogInput rightIR = new AnalogInput(o, 1);
 		final double desv = 0.4;
 		final double kp = 0.1;
 		final double kd = 0.05;
-		double prevd = a.getVoltage();
-		double[] velreadings = new double[3];
-		java.util.Arrays.fill(velreadings, a.getVoltage());
+		double prevleft = leftIR.getVoltage();
+		double prevright = rightIR.getVoltage();
+		double[] leftIRreadings = new double[3];
+		double[] rightIRreadings = new double[3];
+		java.util.Arrays.fill(leftIRreadings, prevleft);
+		java.util.Arrays.fill(rightIRreadings, prevright);
 		while (running) {
-			shiftleft(velreadings, a.getVoltage());
-			double d = averageArray(velreadings);//a.getVoltage();
-			System.out.println(d);
-			double error = d-desv;
-			double basevel = bound(1.0-error, 0.6, 0.5);
-			double lspeed = (kp*error-kd*(d-prevd))+basevel;
-			double rspeed = -(kp*error-kd*(d-prevd))+basevel;
-			prevd = d;
+			shiftleft(leftIRreadings, leftIR.getVoltage());
+			shiftleft(rightIRreadings, rightIR.getVoltage());
+			double left = averageArray(leftIRreadings);//a.getVoltage();
+			double right = averageArray(rightIRreadings);
+			System.out.println(left);
+			System.out.println(right);
+			double lspeed;
+			double rspeed;
+			if (left > right) {
+				double error = left-desv;
+				double basevel = bound(1.0-error, 0.6, 0.5);
+				lspeed = (kp*error-kd*(left-prevleft))+basevel;
+				rspeed = -(kp*error-kd*(left-prevleft))+basevel;
+			} else {
+				double error = right-desv;
+				double basevel = bound(1.0-error, 0.6, 0.5);
+				lspeed = (kp*error-kd*(right-prevright))+basevel;
+				rspeed = -(kp*error-kd*(right-prevright))+basevel;
+			}
+			prevleft = left;
+			prevright = right;
 			/*
 			if (lspeed > rspeed) {
 				rspeed += basevel-Math.abs(lspeed);

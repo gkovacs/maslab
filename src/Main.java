@@ -1277,16 +1277,41 @@ public class Main {
 		}
 	}
 
+	public static void explore() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(3);
+		Vision v = new Vision();
+		v.setup(a, 0);
+		InfraR ir = new InfraR();
+		ir.setup(a, 1);
+		MouseController mc = new MouseController();
+		mc.setup(a, 2);
+		v.start();
+		ir.start();
+		a.start();
+		java.lang.Thread.sleep(5000);
+		mc.start();
+		java.lang.Thread.sleep(296000); // 296 seconds
+		v.bye();
+		ir.bye();
+		mc.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void fetchball() {
 		try {
 		Arbiter a = new Arbiter();
 		a.setup(2);
 		Vision v = new Vision();
 		v.setup(a, 0);
-		v.mc = new MouseController();
-		v.mc.setup(a, 1);
+		//v.mc = new MouseController();
+		//v.mc.setup(a, 1);
 		a.start();
-		v.mc.start();
+		//v.mc.start();
 		v.start();
 		java.lang.Thread.sleep(296000); // 296 seconds
 		v.bye();
@@ -1343,6 +1368,7 @@ public class Main {
 			else if (args[0].contentEquals("competition")) competition();
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("navigate")) navigate();
+			else if (args[0].contentEquals("explore")) explore();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testmouse")) testmouse3();
 			//else if (args[0].contentEquals("teststuck")) teststuck();

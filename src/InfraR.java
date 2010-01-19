@@ -44,8 +44,6 @@ public class InfraR extends java.lang.Thread {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		leftMotorWeight[idx] = 0.5f;
-		rightMotorWeight[idx] = 0.5f;
 		AnalogInput leftIR = new AnalogInput(o, 7);
 		AnalogInput rightIR = new AnalogInput(o, 1);
 		final double desv = 100.0;
@@ -68,11 +66,15 @@ public class InfraR extends java.lang.Thread {
 			//System.out.println(right);
 			double lspeed;
 			double rspeed;
-			if (left > 200.0 && right > 200.0) { // just go straight
+			if (left > 150.0 && right > 150.0) { // just go straight
+				leftMotorWeight[idx] = 0.5f;
+				rightMotorWeight[idx] = 0.5f;
 				lspeed = 0.6;
 				rspeed = 0.6;
 			}
 			else if (left > right) {
+				leftMotorWeight[idx] = 0.8f;
+				rightMotorWeight[idx] = 0.8f;
 				double error = left-desv;
 				if (error > 100.0) error = 100.0;
 				if (error < -100.0) error = -100.0;

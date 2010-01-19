@@ -85,7 +85,7 @@ public class Vision extends java.lang.Thread {
 	public int state = 6;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999};
-	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f, 1.0f};
+	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f, 0.6f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore"};
 	public int[] transitions = {-2, -1, -1, -1, 3, -1, 6};
 	public int statetimeout = 0;
@@ -96,7 +96,7 @@ public class Vision extends java.lang.Thread {
 	public int gapminidx = 0;
 	public int gaplen = 0;
 	public int gapminlen = 0;
-	public MouseController mc = null;
+	//public MouseController mc = null;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;
@@ -123,8 +123,8 @@ public class Vision extends java.lang.Thread {
 		leftMotorWeight[idx] = weights[newstate];
 		rightMotorWeight[idx] = weights[newstate];
 		rollerWeight[idx] = weights[newstate];
-		//state = 6;
-		mc.state = state;
+		state = 6;
+		//mc.state = state;
 		return;
 	}
 
@@ -266,6 +266,7 @@ public class Vision extends java.lang.Thread {
 				}
 			} if (state == 6) { // explore
 				rollerAction[idx] = 0.0f;
+				/*
 				if (gaplen < 20 || gapminlen < 5) {
 					System.err.println("backing up gapminlen is "+gapminlen);
 					float basevel = bound(-1.0f+Math.abs(gapidx - origR.getWidth()/2)/0.1f, -1.0f, -0.7f);
@@ -280,7 +281,7 @@ public class Vision extends java.lang.Thread {
 					}
 					leftMotorAction[idx] = lspeed;
 					rightMotorAction[idx] = rspeed;
-				} else {
+				} else*/ {
 					float basevel = bound(1.0f-Math.abs(gapidx - origR.getWidth()/2)/0.1f, 1.0f, 0.7f);
 					float rspeed = -k*(gapidx - origR.getWidth()/2); //+ 0.6f;
 					float lspeed = k*(gapidx - origR.getWidth()/2); //+ 0.6f;

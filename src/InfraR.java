@@ -48,7 +48,7 @@ public class InfraR extends java.lang.Thread {
 		rightMotorWeight[idx] = 0.5f;
 		AnalogInput leftIR = new AnalogInput(o, 7);
 		AnalogInput rightIR = new AnalogInput(o, 1);
-		final double desv = 50.0;
+		final double desv = 100.0;
 		final double kp = 0.005;
 		final double kd = 0.002;
 		double prevleft = leftIR.getVoltage();

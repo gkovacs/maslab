@@ -78,7 +78,7 @@ public class InfraR extends java.lang.Thread {
 				double error = left-desv;
 				if (error > 100.0) error = 100.0;
 				if (error < -100.0) error = -100.0;
-				double basevel = bound(1.0-error, 0.7, 0.4);
+				double basevel = bound(1.0-error, 0.7, 0.5);
 				lspeed = -(kp*error-kd*(left-prevleft))+basevel;
 				rspeed = (kp*error-kd*(left-prevleft))+basevel;
 			} else {

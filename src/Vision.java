@@ -82,10 +82,10 @@ public class Vision extends java.lang.Thread {
 	public int gatetimer = 501;
 	public int gatepxoffset;
 	public final float k = 0.005f;
-	public int state = 6;
+	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999};
-	public float[] weights = {0.3f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f, 0.6f};
+	public float[] weights = {0.3f, 1.0f, 0.4f, 0.6f, 0.6f, 1.0f, 0.6f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore"};
 	public int[] transitions = {-2, -1, -1, -1, 3, -1, 6};
 	public int statetimeout = 0;
@@ -123,7 +123,7 @@ public class Vision extends java.lang.Thread {
 		leftMotorWeight[idx] = weights[newstate];
 		rightMotorWeight[idx] = weights[newstate];
 		rollerWeight[idx] = weights[newstate];
-		state = 6;
+		//state = 6;
 		//mc.state = state;
 		return;
 	}
@@ -178,7 +178,7 @@ public class Vision extends java.lang.Thread {
 			processImage();
 			++gatetimer;
 			System.out.println("gate timer is "+gatetimer);
-			/*
+			
 			if (circleseen && state != 4 && state != 5) {
 				setState(1);
 			}
@@ -191,7 +191,7 @@ public class Vision extends java.lang.Thread {
 					setState(3);
 				}
 			}
-			*/
+			
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
 				if (turningright) {

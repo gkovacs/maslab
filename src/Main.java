@@ -1806,7 +1806,7 @@ public class Main {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		AnalogInput a = new AnalogInput(o, 5);
+		AnalogInput a = new AnalogInput(o, 7);
 		// 5 cross left
 		// 7 side left
 		// 0 side right

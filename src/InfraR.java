@@ -142,21 +142,46 @@ public class InfraR extends java.lang.Thread {
 					//lspeed = -lspeed;
 					if (left > right) {
 						if (rightcooldown == 0) {
-							rspeed = -basevel;
-							lspeed = basevel;
-							leftcooldown = 10;
+							rspeed = basevel;
+							lspeed = -basevel;
+							leftcooldown = 50;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
+							leftcooldown = 0;
 						}
 					} else {
 						if (leftcooldown == 0) {
-							lspeed = -basevel;
-							rspeed = basevel;
-							rightcooldown = 10;
+							lspeed = basevel;
+							rspeed = -basevel;
+							rightcooldown = 50;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
+							rightcooldown = 0;
+						}
+					}
+				}
+				else if (left < 40 || right < 40) {
+					if (left > right) {
+						if (rightcooldown == 0) {
+							rspeed = basevel;
+							lspeed = -basevel;
+							leftcooldown = 50;
+						} else {
+							rspeed = -basevel;
+							lspeed = -basevel;
+							leftcooldown = 0;
+						}
+					} else {
+						if (leftcooldown == 0) {
+							lspeed = basevel;
+							rspeed = -basevel;
+							rightcooldown = 50;
+						} else {
+							rspeed = -basevel;
+							lspeed = -basevel;
+							rightcooldown = 0;
 						}
 					}
 				}

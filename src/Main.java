@@ -1317,6 +1317,29 @@ public class Main {
 		}
 	}
 
+	public static void collect() {
+	try {
+		Arbiter a = new Arbiter();
+		a.setup(2);
+		Vision v = new Vision();
+		v.setup(a, 0);
+		InfraR ir = new InfraR();
+		ir.setup(a, 1);
+		//v.mc = new MouseController();
+		//v.mc.setup(a, 1);
+		ir.start();
+		v.start();
+		a.start();
+		//v.mc.start();
+		java.lang.Thread.sleep(296000); // 296 seconds
+		ir.bye();
+		v.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void fetchball() {
 		try {
 		Arbiter a = new Arbiter();
@@ -1379,6 +1402,7 @@ public class Main {
 			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
 			else if (args[0].contentEquals("testimage")) testimage(args[1]);
 			else if (args[0].contentEquals("testcamera")) testcamera2();
+			else if (args[0].contentEquals("collect")) collect();
 			else if (args[0].contentEquals("fetchball")) fetchball();
 			else if (args[0].contentEquals("competition")) competition();
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();

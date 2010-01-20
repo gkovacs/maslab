@@ -108,7 +108,7 @@ public class InfraR extends java.lang.Thread {
 					lspeed += basevel-Math.abs(rspeed);
 					rspeed = basevel;
 				}
-				//sideVote = true;
+				sideVote = true;
 			} else {
 				//leftMotorWeight[idx] = 0.8f;
 				//rightMotorWeight[idx] = 0.8f;
@@ -126,7 +126,7 @@ public class InfraR extends java.lang.Thread {
 					lspeed += basevel-Math.abs(rspeed);
 					rspeed = basevel;
 				}
-				//sideVote = true;
+				sideVote = true;
 			}
 			prevleft = left;
 			prevright = right;
@@ -191,7 +191,8 @@ public class InfraR extends java.lang.Thread {
 					leftMotorAction[idx] = (float)lspeedCross;
 					rightMotorAction[idx] = (float)rspeedCross;
 				} else { // crossVote && sideVote
-					
+					leftMotorAction[idx] = (float)((lspeed+lspeedCross)/2.0);
+					rightMotorAction[idx] = (float)((rspeed+rspeedCross)/2.0);
 				}
 			}
 			/*

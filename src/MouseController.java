@@ -63,6 +63,14 @@ public class MouseController extends java.lang.Thread {
 		return tot;
 	}
 
+	public long dispArray(long[] a) {
+		long tot = 0;
+		for (int x = 0; x < a.length-1; ++x) {
+			tot += Math.abs(a[x]-a[x+1]);
+		}
+		return tot;
+	}
+
 	public void run() {
 		try {
 		rollerWeight[idx] = 0.0f;
@@ -70,18 +78,22 @@ public class MouseController extends java.lang.Thread {
 		rightMotorWeight[idx] = 0.0f;
 		xdisp = new long[20];
 		ydisp = new long[20];
+		xdisp[0] = 9999;
+		xdisp[xdisp.length-1] = 9999;
+		ydisp[0] = 9999;
+		ydisp[ydisp.length-1] = 9999;
 		m = new Mouse();
 		m.start();
 		while (running) {
 			//totaldispx -= xdisp[0];
 			//totaldispy -= ydisp[0];
-			totaldispx = sumArray(xdisp);
-			totaldispy = sumArray(ydisp);
+			totaldispx = dispArray(xdisp);
+			totaldispy = dispArray(ydisp);
 			if (System.currentTimeMillis() - m.readtime < 50) {
-				long ndisp = m.totalx-xdisp[xdisp.length-1];
+				long ndisp = m.totalx;//-xdisp[xdisp.length-1];
 				//totaldispx += Math.abs(ndisp);
 				shiftleft(xdisp, ndisp);
-				ndisp = m.totaly-ydisp[ydisp.length-1];
+				ndisp = m.totaly;//-ydisp[ydisp.length-1];
 				//totaldispy += Math.abs(ndisp);
 				shiftleft(ydisp, ndisp);
 				//xvel = m.output[1];
@@ -102,7 +114,7 @@ public class MouseController extends java.lang.Thread {
 				float leftact = maxVal(leftMotorAction, leftMotorWeight);
 				float rightact = maxVal(rightMotorAction, rightMotorWeight);
 				if (totaldispy < 200) {
-						unstuckmotion = 25;
+						unstuckmotion = 30;
 						System.out.println("stuck turning left");
 					}
 				/*
@@ -138,17 +150,17 @@ public class MouseController extends java.lang.Thread {
 				leftMotorWeight[idx] = 1.0f;
 				rightMotorWeight[idx] = 1.0f;
 				if (unstuckmotion < 10) { // go right
-					leftMotorAction[idx] = 1.0f;
-					rightMotorAction[idx] = -1.0f;
+					leftMotorAction[idx] = 0.7f;
+					rightMotorAction[idx] = -0.7f;
 				} else if (unstuckmotion < 15) { // go back
-					leftMotorAction[idx] = -1.0f;
-					rightMotorAction[idx] = -1.0f;
+					leftMotorAction[idx] = -0.7f;
+					rightMotorAction[idx] = -0.7f;
 				} else if (unstuckmotion < 25) { // go right
-					leftMotorAction[idx] = 1.0f;
-					rightMotorAction[idx] = -1.0f;
+					leftMotorAction[idx] = 0.7f;
+					rightMotorAction[idx] = -0.7f;
 				} else if (unstuckmotion < 30) { // go back
-					leftMotorAction[idx] = -1.0f;
-					rightMotorAction[idx] = -1.0f;
+					leftMotorAction[idx] = -0.7f;
+					rightMotorAction[idx] = -0.7f;
 				}
 				--unstuckmotion;
 			}

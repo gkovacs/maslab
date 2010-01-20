@@ -64,6 +64,8 @@ public class InfraR extends java.lang.Thread {
 		java.util.Arrays.fill(rightIRreadings, prevright);
 		java.util.Arrays.fill(crossRightIRreadings, prevCrossLeft);
 		java.util.Arrays.fill(crossLeftIRreadings, prevCrossRight);
+		int rightcooldown = 0;
+		int leftcooldown = 0;
 		while (running) {
 			shiftleft(leftIRreadings, 62.5/leftIR.getVoltage());
 			shiftleft(rightIRreadings, 62.5/rightIR.getVoltage());
@@ -85,13 +87,16 @@ public class InfraR extends java.lang.Thread {
 			double rspeedCross = 0.0;
 			boolean sideVote = false;
 			boolean crossVote = false;
+			if (leftcooldown > 0) --leftcooldown;
+			if (rightcooldown > 0) --rightcooldown;
+			/*
 			if (left > 150.0 && right > 150.0) { // just go straight
 				//leftMotorWeight[idx] = 0.5f;
 				//rightMotorWeight[idx] = 0.5f;
 				//lspeed = 0.6;
 				//rspeed = 0.6;
 			}
-			else if (left > right) {
+			else*/ if (left > right) {
 				//leftMotorWeight[idx] = 0.8f;
 				//rightMotorWeight[idx] = 0.8f;
 				double error = left-desv;
@@ -131,50 +136,46 @@ public class InfraR extends java.lang.Thread {
 			prevleft = left;
 			prevright = right;
 			
-			if (crossLeft > 150.0 && crossRight > 150.0) { // just go straight
-				//leftMotorWeight[idx] = 0.5f;
-				//rightMotorWeight[idx] = 0.5f;
-				//lspeed = 0.6;
-				//rspeed = 0.6;
-			} else if (crossLeft > crossRight) {
-				//leftMotorWeight[idx] = 0.8f;
-				//rightMotorWeight[idx] = 0.8f;
-				double error = crossLeft-desvCross;
-				if (error > 100.0) error = 100.0;
-				if (error < -100.0) error = -100.0;
-				double basevel = 0.7;
-				//double basevel = bound(1.0-error, 0.7, 0.6);
-				lspeedCross = (kp*error-kd*(crossLeft-prevCrossLeft));//+basevel;
-				rspeedCross = -(kp*error-kd*(crossLeft-prevCrossLeft));//+basevel;
-				if (lspeedCross > rspeedCross) {
-					rspeedCross += basevel-Math.abs(lspeedCross);
-					lspeedCross = basevel;
-				} else {
-					lspeedCross += basevel-Math.abs(rspeedCross);
-					rspeedCross = basevel;
+			double basevel = 0.7;
+				if (crossLeft < 30.0 || crossRight < 30.0) {
+					//rspeed = -rspeed ;
+					//lspeed = -lspeed;
+					if (left > right) {
+						if (rightcooldown == 0) {
+							rspeed = -basevel;
+							lspeed = basevel;
+							leftcooldown = 10;
+						} else {
+							rspeed = -basevel;
+							lspeed = -basevel;
+						}
+					} else {
+						if (leftcooldown == 0) {
+							lspeed = -basevel;
+							rspeed = basevel;
+							rightcooldown = 10;
+						} else {
+							rspeed = -basevel;
+							lspeed = -basevel;
+						}
+					}
 				}
-				crossVote = true;
-			} else {
-				//leftMotorWeight[idx] = 0.8f;
-				//rightMotorWeight[idx] = 0.8f;
-				double error = crossRight-desvCross;
-				if (error > 100.0) error = 100.0;
-				if (error < -100.0) error = -100.0;
-				//double basevel = bound(1.0-error, 0.7, 0.6);
-				double basevel = 0.7;
-				lspeedCross = -(kp*error-kd*(right-prevright));//+basevel;
-				rspeedCross = (kp*error-kd*(right-prevright));//+basevel;
-				if (lspeedCross > rspeedCross) {
-					rspeedCross += basevel-Math.abs(lspeedCross);
-					lspeedCross = basevel;
-				} else {
-					lspeedCross += basevel-Math.abs(rspeedCross);
-					rspeedCross = basevel;
+				/*
+				else if (crossLeft < 30.0) {
+					//rspeed = -rspeed ;//2*basevel;
+					//lspeed = -lspeed;
+					rspeed -= basevel;
+					//lspeed += basevel;
 				}
-				crossVote = true;
-			}
-			prevCrossLeft = crossLeft;
-			prevCrossRight = crossRight;
+				else if (crossRight < 30) {
+					//rspeed = -rspeed ;//2*basevel;
+					//lspeed = -lspeed;
+					lspeed -= basevel;
+					//rspeed += basevel;
+				}
+				*/
+				//crossVote = true;
+
 			
 			if (!sideVote && !crossVote) {
 				leftMotorWeight[idx] = 0.5f;

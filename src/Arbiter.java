@@ -68,7 +68,7 @@ public class Arbiter extends java.lang.Thread {
 			leftMotor.setPWM((float)bound(lma, 1.0f, -1.0f));
 			rightMotor.setPWM((float)bound(rma, 1.0f, -1.0f));
 			rollers.setPWM((float)bound(rla, 1.0f, -1.0f));
-			java.lang.Thread.sleep(100);
+			java.lang.Thread.sleep(50);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();

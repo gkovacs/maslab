@@ -85,7 +85,7 @@ public class Vision extends java.lang.Thread {
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999};
-	public float[] weights = {0.3f, 0.95f, 0.8f, 0.8f, 0.8f, 0.95f, 0.6f};
+	public float[] weights = {0.3f, 0.99f, 0.8f, 0.4f, 0.0f, 0.0f, 0.6f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6};
 	public int statetimeout = 0;
@@ -182,6 +182,7 @@ public class Vision extends java.lang.Thread {
 			if (circleseen && state != 4 && state != 5) {
 				setState(1);
 			}
+			/*
 			if (gateseen && state != 5) {
 				if (gatetimer > 500) {
 					System.out.println("approach gate");
@@ -191,7 +192,7 @@ public class Vision extends java.lang.Thread {
 					setState(3);
 				}
 			}
-			
+			*/
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
 				if (turningright) {

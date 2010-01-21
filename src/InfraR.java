@@ -17,6 +17,16 @@ public class InfraR extends java.lang.Thread {
 	public float[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
 	public int idx = 0;
+	public int state = 0;
+	public String[] names = {"forward", "left", "right", "back"};
+	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f};
+
+	public void setState(int newstate) {
+		System.err.println("transition to "+names[newstate]);
+		state = newstate;
+		leftMotorWeight[idx] = weights[newstate];
+		rightMotorWeight[idx] = weights[newstate];
+	}
 
 	public static double bound(double v, double max, double min) {
 		if (v > max) return max;
@@ -48,7 +58,7 @@ public class InfraR extends java.lang.Thread {
 		AnalogInput rightIR = new AnalogInput(o, 0);
 		AnalogInput crossLeftIR = new AnalogInput(o, 5);
 		AnalogInput crossRightIR = new AnalogInput(o, 2);
-		final double desv = 150.0;
+		final double desv = 120.0;
 		final double desvCross = 30.0;
 		final double kp = 0.002;
 		final double kd = 0.001;
@@ -164,7 +174,7 @@ public class InfraR extends java.lang.Thread {
 						}
 					}
 				}
-				else if (left < 30 || right < 30) {
+				else if (left < 35 || right < 35) {
 					escape = true;
 					if (left > right) {
 						if (rightcooldown == 0) {
@@ -215,8 +225,8 @@ public class InfraR extends java.lang.Thread {
 				leftMotorWeight[idx] = 0.97f;
 				rightMotorWeight[idx] = 0.97f;
 				} else {
-				leftMotorWeight[idx] = 0.8f;
-				rightMotorWeight[idx] = 0.8f;
+				leftMotorWeight[idx] = 0.6f;
+				rightMotorWeight[idx] = 0.6f;
 				}
 				if (sideVote && !crossVote) {
 					leftMotorAction[idx] = (float)lspeed;

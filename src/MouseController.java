@@ -120,7 +120,7 @@ public class MouseController extends java.lang.Thread {
 				float leftact = maxVal(leftMotorAction, leftMotorWeight);
 				float rightact = maxVal(rightMotorAction, rightMotorWeight);
 				if (totaldispy+totaldispx < 200) {
-						unstuckmotion = 30;
+						unstuckmotion = 60;
 						direction = reverseb(direction);
 						System.out.println("stuck turning left");
 					}
@@ -157,30 +157,30 @@ public class MouseController extends java.lang.Thread {
 				leftMotorWeight[idx] = 1.0f;
 				rightMotorWeight[idx] = 1.0f;
 				if (direction) {
-				if (unstuckmotion < 10) { // go right
-					leftMotorAction[idx] = 0.7f;
-					rightMotorAction[idx] = -0.7f;
-				} else if (unstuckmotion < 15) { // go back
-					leftMotorAction[idx] = -0.7f;
-					rightMotorAction[idx] = -0.7f;
-				} else if (unstuckmotion < 25) { // go right
+				if (unstuckmotion < 20) { // go right
 					leftMotorAction[idx] = 0.7f;
 					rightMotorAction[idx] = -0.7f;
 				} else if (unstuckmotion < 30) { // go back
 					leftMotorAction[idx] = -0.7f;
 					rightMotorAction[idx] = -0.7f;
+				} else if (unstuckmotion < 50) { // go right
+					leftMotorAction[idx] = 0.7f;
+					rightMotorAction[idx] = -0.7f;
+				} else if (unstuckmotion < 60) { // go back
+					leftMotorAction[idx] = -0.7f;
+					rightMotorAction[idx] = -0.7f;
 				}
 				} else {
-					if (unstuckmotion < 10) { // go left
-					leftMotorAction[idx] = -0.7f;
-					rightMotorAction[idx] = 0.7f;
-				} else if (unstuckmotion < 15) { // go forward
-					leftMotorAction[idx] = 0.7f;
-					rightMotorAction[idx] = 0.7f;
-				} else if (unstuckmotion < 25) { // go left
+					if (unstuckmotion < 30) { // go left
 					leftMotorAction[idx] = -0.7f;
 					rightMotorAction[idx] = 0.7f;
 				} else if (unstuckmotion < 30) { // go forward
+					leftMotorAction[idx] = 0.7f;
+					rightMotorAction[idx] = 0.7f;
+				} else if (unstuckmotion < 50) { // go left
+					leftMotorAction[idx] = -0.7f;
+					rightMotorAction[idx] = 0.7f;
+				} else if (unstuckmotion < 60) { // go forward
 					leftMotorAction[idx] = 0.7f;
 					rightMotorAction[idx] = 0.7f;
 				}

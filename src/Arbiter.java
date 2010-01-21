@@ -18,6 +18,8 @@ public class Arbiter extends java.lang.Thread {
 	public float[] rightMotorWeight = null;
 	public float[] rollerAction = null;
 	public float[] rollerWeight = null;
+	public Orc o = null;
+	public byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 
 	public float kp = 0.1f;
 	public float kd = 0.0f;
@@ -37,8 +39,6 @@ public class Arbiter extends java.lang.Thread {
 
 	public void run() {
 		try {
-		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
-		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		Motor rightMotor = new Motor(o, 0, true);
 		Motor leftMotor = new Motor(o, 1, false);
 		Motor rollers = new Motor(o, 2, false);
@@ -88,12 +88,17 @@ public class Arbiter extends java.lang.Thread {
 	}
 
 	public void setup(int numComrades) {
+		try {
+		o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		leftMotorAction = new float[numComrades];
 		leftMotorWeight = new float[numComrades];
 		rightMotorAction = new float[numComrades];
 		rightMotorWeight = new float[numComrades];
 		rollerAction = new float[numComrades];
 		rollerWeight = new float[numComrades];
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void bye() {

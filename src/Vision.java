@@ -97,6 +97,7 @@ public class Vision extends java.lang.Thread {
 	public int gaplen = 0;
 	public int gapminlen = 0;
 	//public MouseController mc = null;
+	//public Orc o = null;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;

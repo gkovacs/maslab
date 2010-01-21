@@ -1398,6 +1398,8 @@ public class Main {
 			System.out.println(args[0]);
 			if (args[0].contentEquals("testmotor")) testmotor();
 			else if (args[0].contentEquals("testir")) testir3();
+			else if (args[0].contentEquals("testbump")) testbump();
+			else if (args[0].contentEquals("bump")) bump();
 			else if (args[0].contentEquals("testchannel")) testchannel();
 			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
 			else if (args[0].contentEquals("testimage")) testimage(args[1]);
@@ -1823,6 +1825,39 @@ public class Main {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static void bump() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(1);
+		Bump b = new Bump();
+		b.setup(a, 0);
+		b.start();
+		a.start();
+		java.lang.Thread.sleep(296000);
+		a.bye();
+		b.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void testbump() {
+		try {
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		DigitalInput a = new DigitalInput(o, 10, false, true);
+		// 5 cross left
+		// 7 side left
+		// 0 side right
+		// 2 cross right
+		while (true) {
+			System.out.println(a.getValue());
+		}
+		} catch (Exception e) {
+		e.printStackTrace();
 		}
 	}
 

@@ -20,6 +20,7 @@ public class InfraR extends java.lang.Thread {
 	public int state = 0;
 	public String[] names = {"forward", "left", "right", "back"};
 	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f};
+	public Orc o = null;
 
 	public void setState(int newstate) {
 		System.err.println("transition to "+names[newstate]);
@@ -52,8 +53,8 @@ public class InfraR extends java.lang.Thread {
 
 	public void run() {
 		try {
-		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
-		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		//byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		//Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		AnalogInput leftIR = new AnalogInput(o, 7);
 		AnalogInput rightIR = new AnalogInput(o, 0);
 		AnalogInput crossLeftIR = new AnalogInput(o, 5);
@@ -280,6 +281,7 @@ public class InfraR extends java.lang.Thread {
 		leftMotorWeight = a.leftMotorWeight;
 		rightMotorAction = a.rightMotorAction;
 		rightMotorWeight = a.rightMotorWeight;
+		o = a.o;
 	}
 
 	public void bye() {

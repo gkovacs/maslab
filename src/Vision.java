@@ -85,9 +85,9 @@ public class Vision extends java.lang.Thread {
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999};
-	public float[] weights = {0.3f, 1.0f, 0.4f, 0.6f, 0.6f, 1.0f, 0.6f};
+	public float[] weights = {0.3f, 0.95f, 0.8f, 0.8f, 0.8f, 0.95f, 0.6f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore"};
-	public int[] transitions = {-2, -1, -1, -1, 3, -1, 6};
+	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6};
 	public int statetimeout = 0;
 	public boolean turningright = true;
 	public boolean goforward = false;
@@ -119,7 +119,7 @@ public class Vision extends java.lang.Thread {
 		statetimeout = 0;
 		leftMotorAction[idx] = 0.0f;
 		rightMotorAction[idx] = 0.0f;
-		rollerAction[idx] = 0.0f; // temporary hack
+		rollerAction[idx] = 1.0f;
 		leftMotorWeight[idx] = weights[newstate];
 		rightMotorWeight[idx] = weights[newstate];
 		rollerWeight[idx] = weights[newstate];

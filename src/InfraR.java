@@ -87,6 +87,7 @@ public class InfraR extends java.lang.Thread {
 			double rspeedCross = 0.0;
 			boolean sideVote = false;
 			boolean crossVote = false;
+			boolean escape = false;
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			/*
@@ -138,13 +139,14 @@ public class InfraR extends java.lang.Thread {
 			
 			double basevel = 0.7;
 				if (crossLeft < 30.0 || crossRight < 30.0) {
+					escape = true;
 					//rspeed = -rspeed ;
 					//lspeed = -lspeed;
 					if (left > right) {
 						if (rightcooldown == 0) {
 							rspeed = basevel;
 							lspeed = -basevel;
-							leftcooldown = 50;
+							leftcooldown = 100;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
@@ -154,7 +156,7 @@ public class InfraR extends java.lang.Thread {
 						if (leftcooldown == 0) {
 							lspeed = basevel;
 							rspeed = -basevel;
-							rightcooldown = 50;
+							rightcooldown = 100;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
@@ -162,26 +164,27 @@ public class InfraR extends java.lang.Thread {
 						}
 					}
 				}
-				else if (left < 40 || right < 40) {
+				else if (left < 30 || right < 30) {
+					escape = true;
 					if (left > right) {
 						if (rightcooldown == 0) {
 							rspeed = basevel;
 							lspeed = -basevel;
-							leftcooldown = 50;
+							leftcooldown = 300;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
-							leftcooldown = 0;
+							//leftcooldown = 0;
 						}
 					} else {
 						if (leftcooldown == 0) {
 							lspeed = basevel;
 							rspeed = -basevel;
-							rightcooldown = 50;
+							rightcooldown = 300;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
-							rightcooldown = 0;
+							//rightcooldown = 0;
 						}
 					}
 				}
@@ -203,13 +206,18 @@ public class InfraR extends java.lang.Thread {
 
 			
 			if (!sideVote && !crossVote) {
-				leftMotorWeight[idx] = 0.5f;
-				rightMotorWeight[idx] = 0.5f;
+				leftMotorWeight[idx] = 0.4f;
+				rightMotorWeight[idx] = 0.4f;
 				leftMotorAction[idx] = 0.6f;
 				rightMotorAction[idx] = 0.6f;
 			} else {
+				if (escape) {
+				leftMotorWeight[idx] = 0.97f;
+				rightMotorWeight[idx] = 0.97f;
+				} else {
 				leftMotorWeight[idx] = 0.8f;
 				rightMotorWeight[idx] = 0.8f;
+				}
 				if (sideVote && !crossVote) {
 					leftMotorAction[idx] = (float)lspeed;
 					rightMotorAction[idx] = (float)rspeed;

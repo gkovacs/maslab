@@ -1165,18 +1165,22 @@ public class Main {
 	public static void navigate() {
 		try {
 		Arbiter a = new Arbiter();
-		a.setup(2);
+		a.setup(3);
 		InfraR v = new InfraR();
 		v.setup(a, 0);
 		MouseController m = new MouseController();
 		m.setup(a, 1);
+		Bump b = new Bump();
+		b.setup(a, 2);
 		a.start();
+		b.start();
 		v.start();
-		java.lang.Thread.sleep(10000); // 10 seconds
+		//java.lang.Thread.sleep(10000); // 10 seconds
 		m.start();
 		java.lang.Thread.sleep(300000); // 300 seconds
 		//m.bye();
 		v.bye();
+		b.bye();
 		a.bye();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1295,18 +1299,22 @@ public class Main {
 	public static void explore() {
 		try {
 		Arbiter a = new Arbiter();
-		a.setup(3);
+		a.setup(4);
 		Vision v = new Vision();
 		v.setup(a, 0);
 		InfraR ir = new InfraR();
 		ir.setup(a, 1);
 		MouseController mc = new MouseController();
 		mc.setup(a, 2);
+		Bump b = new Bump();
+		b.setup(a,3);
 		v.start();
 		ir.start();
+		b.start();
+		mc.start();
+		java.lang.Thread.sleep(1000);
 		a.start();
 		//java.lang.Thread.sleep(5000);
-		mc.start();
 		java.lang.Thread.sleep(296000); // 296 seconds
 		v.bye();
 		ir.bye();
@@ -1397,6 +1405,7 @@ public class Main {
 		if (args.length > 0) {
 			System.out.println(args[0]);
 			if (args[0].contentEquals("testmotor")) testmotor();
+			if (args[0].contentEquals("testroller")) testroller();
 			else if (args[0].contentEquals("testir")) testir3();
 			else if (args[0].contentEquals("testbump")) testbump();
 			else if (args[0].contentEquals("bump")) bump();
@@ -1988,6 +1997,29 @@ public class Main {
 		java.lang.Thread.sleep(10000);
 		} catch (Exception e) {
 			
+		}
+	}
+
+	public static void testroller() {
+		try {
+		/*
+		TextChannel tx = new TextChannel("team6");
+		java.lang.Thread.sleep(10000);
+		tx.publish("Hello World");
+		java.lang.Thread.sleep(10000);
+		*/
+
+		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
+		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		Motor m2 = new Motor(o, 2, false);
+		m2.setWatchDog(1000000);
+		//m2.setPWM(0.5);
+		while (true) {
+		m2.setPWM(-1.0);
+		}
+		//java.lang.Thread.sleep(10000);
+		} catch (Exception e) {
+
 		}
 	}
 

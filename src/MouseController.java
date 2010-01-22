@@ -95,7 +95,7 @@ public class MouseController extends java.lang.Thread {
 			//totaldispy -= ydisp[0];
 			totaldispx = dispArray(xdisp);
 			totaldispy = dispArray(ydisp);
-			if (System.currentTimeMillis() - m.readtime < 50) {
+			//if (System.currentTimeMillis() - m.readtime < 50) {
 				long ndisp = m.totalx;//-xdisp[xdisp.length-1];
 				//totaldispx += Math.abs(ndisp);
 				shiftleft(xdisp, ndisp);
@@ -105,13 +105,13 @@ public class MouseController extends java.lang.Thread {
 				//xvel = m.output[1];
 				//yvel = m.output[2];
 				//System.out.println(m.output[1]+","+m.output[2]);
-			} else {
-				shiftleft(xdisp, 0);
-				shiftleft(ydisp, 0);
+			//} else {
+			//	shiftleft(xdisp, 0);
+			//	shiftleft(ydisp, 0);
 				//xvel = 0;
 				//yvel = 0;
 				//System.out.println("0,0");
-			}
+			//}
 			//System.out.println("dispx is "+totaldispx);
 			System.out.println("dispy is "+totaldispy);
 			if (unstuckmotion == 0) {

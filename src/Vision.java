@@ -85,7 +85,7 @@ public class Vision extends java.lang.Thread {
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999};
-	public float[] weights = {0.3f, 0.99f, 0.8f, 0.4f, 0.0f, 0.0f, 0.6f};
+	public float[] weights = {0.3f, 0.99f, 0.4f, 0.4f, 0.0f, 0.0f, 0.4f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6};
 	public int statetimeout = 0;
@@ -104,6 +104,12 @@ public class Vision extends java.lang.Thread {
 		else return true;
 	}
 
+	public void setWeight(float newweight) {
+		leftMotorWeight[idx] = newweight;
+		rightMotorWeight[idx] = newweight;
+		rollerWeight[idx] = newweight;
+	}
+
 	public void setState(int newstate) {
 		if (newstate == -1) {
 			turningright = reverseb(turningright);
@@ -118,12 +124,10 @@ public class Vision extends java.lang.Thread {
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
 		statetimeout = 0;
-		leftMotorAction[idx] = 0.0f;
-		rightMotorAction[idx] = 0.0f;
+		//leftMotorAction[idx] = 0.0f;
+		//rightMotorAction[idx] = 0.0f;
 		rollerAction[idx] = 1.0f;
-		leftMotorWeight[idx] = weights[newstate];
-		rightMotorWeight[idx] = weights[newstate];
-		rollerWeight[idx] = weights[newstate];
+		setWeight(weights[newstate]);
 		//state = 6;
 		//mc.state = state;
 		return;
@@ -154,6 +158,7 @@ public class Vision extends java.lang.Thread {
 		leftMotorWeight[idx] = 0.5f;
 		rightMotorWeight[idx] = 0.5f;
 		rollerWeight[idx] = 0.5f;
+		rollerAction[idx] = 1.0f;
 		// 0 = rotating
 		// 1 = going forward to get seen ball
 		// 2 = capturing previously seen ball
@@ -398,9 +403,6 @@ public class Vision extends java.lang.Thread {
 		origL.setIcon(origC);
 		origL.repaint();
 		rgb2hsv(origR, hsvR);
-		hsvC.setImage(hsvI);
-		hsvL.setIcon(hsvC);
-		hsvL.repaint();
 		/*
 		breakcomponents(hsvR, hR, sR, vR);
 		hC.setImage(hI);
@@ -421,13 +423,19 @@ public class Vision extends java.lang.Thread {
 		meanfilter2(walltop,walltopm);
 		shadeWalls(wallR,walltopm,wallbotm);
 		findwallgap(walltopm,wallbotm);
+		blankTop(hsvR, walltopm);
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
+		hsvC.setImage(hsvI);
+		hsvL.setIcon(hsvC);
+		hsvL.repaint();
+		/*
 		mapwalls(mapR,walltopm,wallbotm);
 		mapC.setImage(mapI);
 		mapL.setIcon(mapC);
 		mapL.repaint();
+		*/
 		shadeColors(hsvR,colorR);
 		//shadeColors(origR,colorR);
 		colorC.setImage(colorI);

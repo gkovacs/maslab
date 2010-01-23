@@ -45,11 +45,11 @@ public class Bump extends java.lang.Thread {
 					setState(1);
 				} if (fwdright.getValue()) {
 					setState(2);
-				} if (backleft.getValue()) {
+				} /*if (backleft.getValue()) {
 					setState(3);
 				} if (backright.getValue()) {
 					setState(4);
-				}
+				}*/
 			} else {
 				arb.setState(1);
 			}

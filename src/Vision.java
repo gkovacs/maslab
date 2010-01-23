@@ -654,7 +654,8 @@ public class Vision extends java.lang.Thread {
 					}
 				}
 			}
-			if (numwall < 20) {
+			if (false) {
+			//if (numwall < 20) {
 				wbot[x] = 0;
 				wtop[x] = 0;
 			} else {

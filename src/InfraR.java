@@ -103,12 +103,12 @@ public class InfraR extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (/*crossLeft < 30 ||*/ crossRight < 120) { // rotate left
+				if (/*crossLeft < 30 ||*/ right < 40) { // rotate left
 					setState(1);
-				} else if (crossRight < 120 /*|| left < 40*/) { // rotate right
+				} else if (crossRight < 120 || left < 40) { // rotate right
 					setState(2);
 				} else {
-			if (right > left) {
+			if (left > right) {
 				//leftMotorWeight[idx] = 0.8f;
 				//rightMotorWeight[idx] = 0.8f;
 				double error = left-desv;

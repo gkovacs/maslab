@@ -229,7 +229,8 @@ public class Vision extends java.lang.Thread {
 				if (!circleseen) { // ball out of sight, let's capture it
 					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
 						setState(2);
-						statetimeout = 10;
+						setWeight(1.0f);
+						statetimeout = 5;
 					} else { // we misssed the ball, search further //go back // search further
 						//setState(-1);
 						if (pxoffset > 0) { // likely disappeared off the right, scan right

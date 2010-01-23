@@ -327,11 +327,11 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = rspeed;
 				}
 			} if (state == 7) { // rotate left
-				leftMotorAction[idx] = -0.2f;
-				rightMotorAction[idx] = 0.8f;
+				leftMotorAction[idx] = -0.1f;
+				rightMotorAction[idx] = 0.7f;
 			} if (state == 8) { // rotate right
-				leftMotorAction[idx] = 0.8f;
-				rightMotorAction[idx] = -0.2f;
+				leftMotorAction[idx] = 0.7f;
+				rightMotorAction[idx] = -0.1f;
 			}
 			java.lang.Thread.sleep(10);
 		}

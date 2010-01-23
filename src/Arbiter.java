@@ -29,8 +29,10 @@ public class Arbiter extends java.lang.Thread {
 
 	public int state = 0;
 	public int timeback = 0;
+	public int cooldown = 0;
 
 	public void setState(int newstate) {
+		if (cooldown > 0) return;
 		state = newstate;
 	}
 
@@ -66,8 +68,8 @@ public class Arbiter extends java.lang.Thread {
 		MotorController c1 = new MotorController(kp, kd, ki);
 		*/
 
-		rightMotorLog = new float[200];
-		leftMotorLog = new float[200];
+		rightMotorLog = new float[100];
+		leftMotorLog = new float[100];
 		while (running) {
 			/*
 			float lma = maxVal(leftMotorAction, leftMotorWeight);
@@ -82,6 +84,7 @@ public class Arbiter extends java.lang.Thread {
 			java.lang.Thread.sleep(50);
 			*/
 			if (state == 0) { // arbitrate
+			if (cooldown > 100) --cooldown;
 			float lma = maxVal(leftMotorAction, leftMotorWeight);
 			float rma = maxVal(rightMotorAction, rightMotorWeight);
 			float rla = maxVal(rollerAction, rollerWeight);
@@ -97,6 +100,7 @@ public class Arbiter extends java.lang.Thread {
 				if (++timeback >= leftMotorLog.length) {
 					setState(0);
 					timeback = 0;
+					cooldown = 100;
 				}
 			}
 			java.lang.Thread.sleep(10);

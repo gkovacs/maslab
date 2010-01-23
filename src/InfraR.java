@@ -77,6 +77,7 @@ public class InfraR extends java.lang.Thread {
 		java.util.Arrays.fill(crossLeftIRreadings, prevCrossRight);
 		int rightcooldown = 0;
 		int leftcooldown = 0;
+		setState(0);
 		while (running) {
 			shiftleft(leftIRreadings, 62.5/leftIR.getVoltage());
 			shiftleft(rightIRreadings, 62.5/rightIR.getVoltage());
@@ -102,9 +103,9 @@ public class InfraR extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (crossLeft < 30 || right < 30) { // rotate left
+				if (/*crossLeft < 30 ||*/ right < 60) { // rotate left
 					setState(1);
-				} else if (crossRight < 30 || left < 30) { // rotate right
+				} else if (crossRight < 60 || left < 60) { // rotate right
 					setState(2);
 				} else {
 			if (left > right) {
@@ -113,7 +114,7 @@ public class InfraR extends java.lang.Thread {
 				double error = left-desv;
 				if (error > 100.0) error = 100.0;
 				if (error < -100.0) error = -100.0;
-				double basevel = 0.7;
+				double basevel = 0.8;
 				//double basevel = bound(1.0-error, 0.7, 0.6);
 				lspeed = -(kp*error-kd*(left-prevleft));//+basevel;
 				rspeed = (kp*error-kd*(left-prevleft));//+basevel;
@@ -132,7 +133,7 @@ public class InfraR extends java.lang.Thread {
 				if (error > 100.0) error = 100.0;
 				if (error < -100.0) error = -100.0;
 				//double basevel = bound(1.0-error, 0.7, 0.6);
-				double basevel = 0.7;
+				double basevel = 0.8;
 				lspeed = (kp*error-kd*(right-prevright));//+basevel;
 				rspeed = -(kp*error-kd*(right-prevright));//+basevel;
 				if (lspeed > rspeed) {
@@ -147,13 +148,13 @@ public class InfraR extends java.lang.Thread {
 			} if (state ==  1) { // rotate left
 				rspeed = 0.7;
 				lspeed = -0.7;
-				if (crossLeft > 40 && crossRight > 40 && left > 40 && right > 40) {
+				if (/*crossLeft > 100 &&*/ crossRight > 100 && left > 100) {
 					setState(0);
 				}
 			} if (state == 2) { // rotate right
 				rspeed = -0.7;
 				lspeed = 0.7;
-				if (crossLeft > 40 && crossRight > 40 && left > 40 && right > 40) {
+				if (/*crossLeft > 40 &&*/ crossRight > 100 && right > 100) {
 					setState(0);
 				}
 			}

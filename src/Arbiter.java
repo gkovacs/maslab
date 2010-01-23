@@ -14,8 +14,10 @@ public class Arbiter extends java.lang.Thread {
 	public boolean running = true;
 	public float[] leftMotorAction = null;
 	public float[] leftMotorWeight = null;
+	public float[] leftMotorLog = null;
 	public float[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
+	public float[] rightMotorLog = null;
 	public float[] rollerAction = null;
 	public float[] rollerWeight = null;
 	public Orc o = null;

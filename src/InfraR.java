@@ -101,14 +101,13 @@ public class InfraR extends java.lang.Thread {
 			boolean escape = false;
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
-			/*
-			if (left > 150.0 && right > 150.0) { // just go straight
-				//leftMotorWeight[idx] = 0.5f;
-				//rightMotorWeight[idx] = 0.5f;
-				//lspeed = 0.6;
-				//rspeed = 0.6;
-			}
-			else*/ if (left > right) {
+			if (state == 0) { // forwards
+				if (crossLeft < 30 || right < 30) { // rotate left
+					setState(1);
+				} else if (crossRight < 30 || left < 30) { // rotate right
+					setState(2);
+				} else {
+			if (left > right) {
 				//leftMotorWeight[idx] = 0.8f;
 				//rightMotorWeight[idx] = 0.8f;
 				double error = left-desv;
@@ -143,133 +142,27 @@ public class InfraR extends java.lang.Thread {
 					lspeed += basevel-Math.abs(rspeed);
 					rspeed = basevel;
 				}
-				sideVote = true;
+			}
+			}
+			} if (state ==  1) { // rotate left
+				rspeed = 0.7;
+				lspeed = -0.7;
+				if (crossLeft > 40 && crossRight > 40 && left > 40 && right > 40) {
+					setState(0);
+				}
+			} if (state == 2) { // rotate right
+				rspeed = -0.7;
+				lspeed = 0.7;
+				if (crossLeft > 40 && crossRight > 40 && left > 40 && right > 40) {
+					setState(0);
+				}
 			}
 			prevleft = left;
 			prevright = right;
-			
-			double basevel = 0.7;
-				if (crossLeft < 30.0 || crossRight < 30.0) {
-					escape = true;
-					//rspeed = -rspeed ;
-					//lspeed = -lspeed;
-					if (left > right) {
-						if (rightcooldown == 0) {
-							rspeed = basevel;
-							lspeed = -basevel;
-							leftcooldown = 50;
-						} else {
-							rspeed = -basevel;
-							lspeed = -basevel;
-							leftcooldown = 0;
-						}
-					} else {
-						if (leftcooldown == 0) {
-							lspeed = basevel;
-							rspeed = -basevel;
-							rightcooldown = 50;
-						} else {
-							rspeed = -basevel;
-							lspeed = -basevel;
-							leftcooldown = 0;
-						}
-					}
-				}
-				else if (left < 35 || right < 35) {
-					escape = true;
-					if (left > right) {
-						if (rightcooldown == 0) {
-							rspeed = basevel;
-							lspeed = -basevel;
-							leftcooldown = 50;
-						} else {
-							rspeed = -basevel;
-							lspeed = -basevel;
-							rightcooldown = 0;
-						}
-					} else {
-						if (leftcooldown == 0) {
-							lspeed = basevel;
-							rspeed = -basevel;
-							rightcooldown = 50;
-						} else {
-							rspeed = -basevel;
-							lspeed = -basevel;
-							leftcooldown = 0;
-						}
-					}
-				}
-				/*
-				else if (crossLeft < 30.0) {
-					//rspeed = -rspeed ;//2*basevel;
-					//lspeed = -lspeed;
-					rspeed -= basevel;
-					//lspeed += basevel;
-				}
-				else if (crossRight < 30) {
-					//rspeed = -rspeed ;//2*basevel;
-					//lspeed = -lspeed;
-					lspeed -= basevel;
-					//rspeed += basevel;
-				}
-				*/
-				//crossVote = true;
-
-			
-			if (!sideVote && !crossVote) {
-				leftMotorWeight[idx] = 0.6f;
-				rightMotorWeight[idx] = 0.6f;
-				leftMotorAction[idx] = 0.6f;
-				rightMotorAction[idx] = 0.6f;
-			} else {
-				if (escape) {
-				leftMotorWeight[idx] = 0.97f;
-				rightMotorWeight[idx] = 0.97f;
-				} else {
-				leftMotorWeight[idx] = 0.6f;
-				rightMotorWeight[idx] = 0.6f;
-				}
-				if (sideVote && !crossVote) {
-					leftMotorAction[idx] = (float)lspeed;
-					rightMotorAction[idx] = (float)rspeed;
-				} else if (crossVote && !sideVote) {
-					leftMotorAction[idx] = (float)lspeedCross;
-					rightMotorAction[idx] = (float)rspeedCross;
-				} else { // crossVote && sideVote
-					leftMotorAction[idx] = (float)((lspeed+lspeedCross)/2.0);
-					rightMotorAction[idx] = (float)((rspeed+rspeedCross)/2.0);
-				}
-			}
-			/*
-			if (lspeed > rspeed) {
-				rspeed += basevel-Math.abs(lspeed);
-				lspeed = basevel;
-			} else {
-				lspeed += basevel-Math.abs(rspeed);
-				rspeed = basevel;
-			}
-			*/
+			leftMotorAction[idx] = (float)lspeed;
+			rightMotorAction[idx] = (float)rspeed;
 			java.lang.Thread.sleep(20);
 		}
-		/* log distance ir
-		final float dd = 30.0f; // desired distance
-		final float k = 0.05f; // proportionality constant
-		while (running) {
-			float d = (62.5f/(float)a.getVoltage())-20.0f;
-			float lspeed = k*(dd-d);
-			float rspeed = -lspeed;
-			if (lspeed > rspeed) {
-				rspeed += (0.7f - lspeed);
-				lspeed = 0.7f;
-			} else {
-				lspeed += (0.7f - rspeed);
-				rspeed = 0.7f;
-			}
-			leftMotorAction[idx] = lspeed;
-			rightMotorAction[idx] = rspeed;
-			System.out.println(d);
-		}
-		*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -24,6 +24,7 @@ public class Bump extends java.lang.Thread {
 	public int[] transitions = {0, 0, 0, 0, 0};
 	public int statetimeout = 0;
 	public Orc o = null;
+	public Arbiter arb = null;
 
 	public void run() {
 		try {
@@ -49,7 +50,10 @@ public class Bump extends java.lang.Thread {
 				} if (backright.getValue()) {
 					setState(4);
 				}
-			} if (state == 1) {
+			} else {
+				arb.setState(1);
+			}
+			/*if (state == 1) {
 				System.out.println("fwdleft");
 				leftMotorAction[idx] = -1.0f;
 				rightMotorAction[idx] = -0.5f;
@@ -65,7 +69,7 @@ public class Bump extends java.lang.Thread {
 				System.out.println("backright");
 				leftMotorAction[idx] = 1.0f;
 				rightMotorAction[idx] = -0.5f;
-			}
+			}*/
 			java.lang.Thread.sleep(50);
 		}
 		} catch (Exception e) {
@@ -89,6 +93,7 @@ public class Bump extends java.lang.Thread {
 
 	public void setup(Arbiter a, int ActionWeightIndex) {
 		idx = ActionWeightIndex;
+		arb = a;
 		leftMotorAction = a.leftMotorAction;
 		leftMotorWeight = a.leftMotorWeight;
 		rightMotorAction = a.rightMotorAction;

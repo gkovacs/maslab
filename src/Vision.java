@@ -87,10 +87,10 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 15, 15};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 8, 8};
 	public float[] weights = {0.3f, 0.96f, 0.4f, 0.4f, 0.0f, 0.0f, 0.4f, 0.96f, 0.96f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright"};
-	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6};
+	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1};
 	public int statetimeout = 0;
 	public boolean turningright = true;
 	public boolean goforward = false;
@@ -196,9 +196,9 @@ public class Vision extends java.lang.Thread {
 
 			if (unknownseen && state != 4 && state != 5) {
 				if (unknownpxoffset > 0) {
-					setState(8);
-				} else {
 					setState(7);
+				} else {
+					setState(8);
 				}
 			}
 			if (circleseen && state != 4 && state != 5) {
@@ -327,11 +327,11 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = rspeed;
 				}
 			} if (state == 7) { // rotate left
-				leftMotorAction[idx] = -0.7f;
-				rightMotorAction[idx] = 0.7f;
+				leftMotorAction[idx] = -0.5f;
+				rightMotorAction[idx] = 0.5f;
 			} if (state == 8) { // rotate right
-				leftMotorAction[idx] = 0.7f;
-				rightMotorAction[idx] = -0.7f;
+				leftMotorAction[idx] = 0.5f;
+				rightMotorAction[idx] = -0.5f;
 			}
 			java.lang.Thread.sleep(10);
 		}

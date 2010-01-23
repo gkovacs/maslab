@@ -23,8 +23,8 @@ public class Mouse extends java.lang.Thread {
 	public JFrame jf = null;
 	public JPanel cp = null;
 	byte[] output = null;
-	long totalx = 0;
-	long totaly = 0;
+	public long totalx = 0;
+	public long totaly = 0;
 	public boolean running = true;
 	public byte[] xreadbuf = null;
 	public byte[] yreadbuf = null;
@@ -33,8 +33,8 @@ public class Mouse extends java.lang.Thread {
 	int bufendt = 0;
 	int bufstart = 0;
 	int buflen = 1024;
-	long readtime = 0;
-	boolean mapping = false;
+	public long readtime = 0;
+	public boolean mapping = false;
 
 	public void setupMapping() {
 		jf = new JFrame();

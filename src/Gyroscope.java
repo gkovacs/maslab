@@ -12,7 +12,8 @@ import orc.*;
 
 public class Gyroscope extends java.lang.Thread {
 
-	public int angle = 0;
+	public int anglei = 0;
+	public double angle = 0;
 	public Orc o = null;
 	public long[] angles = null;
 	public long[] baseang = null;
@@ -55,8 +56,11 @@ public class Gyroscope extends java.lang.Thread {
 			angles[1] += (angvel[1]*deltatime)/100000;
 			angles[2] += (angvel[2]*deltatime)/100000;
 			//printList(angles);
-			angle = (int)((angles[1]*360/80000000) % 360);
-			System.out.println(angle);
+			//System.out.println(angles[1]);
+			anglei = (int)((angles[1]*360/75000000) % 360);
+			System.out.println(anglei);
+			angle = ((angles[1]*2.0*Math.PI/75000000) % 2.0*Math.PI);
+			//System.out.println(angle);
 			//System.out.println(angles[1]*360/80000000);
 			prevtime += deltatime;
 		}

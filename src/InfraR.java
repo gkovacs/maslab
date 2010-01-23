@@ -157,7 +157,7 @@ public class InfraR extends java.lang.Thread {
 						if (rightcooldown == 0) {
 							rspeed = basevel;
 							lspeed = -basevel;
-							leftcooldown = 100;
+							leftcooldown = 30;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
@@ -167,11 +167,11 @@ public class InfraR extends java.lang.Thread {
 						if (leftcooldown == 0) {
 							lspeed = basevel;
 							rspeed = -basevel;
-							rightcooldown = 100;
+							rightcooldown = 0;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
-							rightcooldown = 0;
+							leftcooldown = 0;
 						}
 					}
 				}
@@ -181,21 +181,21 @@ public class InfraR extends java.lang.Thread {
 						if (rightcooldown == 0) {
 							rspeed = basevel;
 							lspeed = -basevel;
-							leftcooldown = 300;
+							leftcooldown = 0;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
-							//leftcooldown = 0;
+							rightcooldown = 0;
 						}
 					} else {
 						if (leftcooldown == 0) {
 							lspeed = basevel;
 							rspeed = -basevel;
-							rightcooldown = 300;
+							rightcooldown = 0;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
-							//rightcooldown = 0;
+							leftcooldown = 0;
 						}
 					}
 				}

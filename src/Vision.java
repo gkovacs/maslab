@@ -959,7 +959,7 @@ public class Vision extends java.lang.Thread {
 			Colors c = Colors.None;
 			if (y >= 0 && (c = getColor(r1,x,y)) == Colors.Red || c == Colors.Yellow) {
 				--y;
-				while (y >= 0 && (c = getColor(r1,x,y)) == Colors.Red || c == Colors.Yellow) {
+				while (y >= 0 && ((c = getColor(r1,x,y)) == Colors.Red || c == Colors.Yellow)) {
 					--y;
 				}
 				wtop[x] = y+1;

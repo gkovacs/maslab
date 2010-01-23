@@ -1325,6 +1325,36 @@ public class Main {
 		}
 	}
 
+	public static void testshoot() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(1);
+		Vision v = new Vision();
+		v.setup(a, 0);
+		v.setState(5);
+		InfraR ir = new InfraR();
+		ir.setup(a, 1);
+		MouseController mc = new MouseController();
+		mc.setup(a, 2);
+		Bump b = new Bump();
+		b.setup(a,3);
+		v.start();
+		//ir.start();
+		//b.start();
+		//mc.start();
+		java.lang.Thread.sleep(1000);
+		a.start();
+		//java.lang.Thread.sleep(5000);
+		java.lang.Thread.sleep(296000); // 296 seconds
+		v.bye();
+		ir.bye();
+		mc.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void collect() {
 	try {
 		Arbiter a = new Arbiter();
@@ -1409,6 +1439,7 @@ public class Main {
 			else if (args[0].contentEquals("testir")) testir3();
 			else if (args[0].contentEquals("testbump")) testbump();
 			else if (args[0].contentEquals("bump")) bump();
+			else if (args[0].contentEquals("testshoot")) testshoot();
 			else if (args[0].contentEquals("testchannel")) testchannel();
 			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
 			else if (args[0].contentEquals("testimage")) testimage(args[1]);
@@ -1984,13 +2015,13 @@ public class Main {
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		Motor m0 = new Motor(o, 0, true);
 		m0.setWatchDog(4000000);
-		m0.setPWM(0.5);
+		m0.setPWM(0.7);
 		Motor m1 = new Motor(o, 1, false);
 		m1.setWatchDog(4000000);
-		m1.setPWM(0.5);
+		m1.setPWM(0.7);
 		Motor m2 = new Motor(o, 2, false);
 		m2.setWatchDog(4000000);
-		m2.setPWM(0.5);
+		m2.setPWM(0.7);
 		//while (true) {
 		//m.setPWM(1.0);
 		//}

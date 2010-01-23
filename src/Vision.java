@@ -85,7 +85,7 @@ public class Vision extends java.lang.Thread {
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999};
-	public float[] weights = {0.3f, 0.99f, 0.4f, 0.4f, 0.0f, 0.0f, 0.4f};
+	public float[] weights = {0.3f, 0.96f, 0.4f, 0.4f, 0.0f, 0.0f, 0.4f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6};
 	public int statetimeout = 0;
@@ -147,6 +147,9 @@ public class Vision extends java.lang.Thread {
 			c = new orc.camera.Camera("/dev/video1");
 		}
 		//c = orc.camera.Camera.makeCamera();
+		c.setBacklightCompensation(false);
+		c.setGain(0);
+		c.setNoiseReduction(3);
 		System.out.println("2");
 		//orc.camera.Camera c = new orc.camera.Camera("/dev/video0");
 		origI = c.createImage();
@@ -306,7 +309,7 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = rspeed;
 				}
 			}
-			//java.lang.Thread.sleep(idx);
+			java.lang.Thread.sleep(10);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -418,6 +421,7 @@ public class Vision extends java.lang.Thread {
 		//findWallBottom(hsvR, wallR);
 		//mostcarpet(hsvR, wallR);
 		//paintwalls(hsvR, wallR);
+		/*
 		paintwalls(hsvR, walltop, wallbot);
 		meanfilter2(wallbot,wallbotm);
 		meanfilter2(walltop,walltopm);
@@ -427,6 +431,7 @@ public class Vision extends java.lang.Thread {
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
+		*/
 		hsvC.setImage(hsvI);
 		hsvL.setIcon(hsvC);
 		hsvL.repaint();
@@ -654,8 +659,8 @@ public class Vision extends java.lang.Thread {
 					}
 				}
 			}
-			if (false) {
-			//if (numwall < 20) {
+			//if (false) {
+			if (numwall < 20) {
 				wbot[x] = 0;
 				wtop[x] = 0;
 			} else {

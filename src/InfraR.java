@@ -157,7 +157,7 @@ public class InfraR extends java.lang.Thread {
 						if (rightcooldown == 0) {
 							rspeed = basevel;
 							lspeed = -basevel;
-							leftcooldown = 30;
+							leftcooldown = 50;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
@@ -167,7 +167,7 @@ public class InfraR extends java.lang.Thread {
 						if (leftcooldown == 0) {
 							lspeed = basevel;
 							rspeed = -basevel;
-							rightcooldown = 0;
+							rightcooldown = 50;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
@@ -181,7 +181,7 @@ public class InfraR extends java.lang.Thread {
 						if (rightcooldown == 0) {
 							rspeed = basevel;
 							lspeed = -basevel;
-							leftcooldown = 0;
+							leftcooldown = 50;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
@@ -191,7 +191,7 @@ public class InfraR extends java.lang.Thread {
 						if (leftcooldown == 0) {
 							lspeed = basevel;
 							rspeed = -basevel;
-							rightcooldown = 0;
+							rightcooldown = 50;
 						} else {
 							rspeed = -basevel;
 							lspeed = -basevel;
@@ -217,8 +217,8 @@ public class InfraR extends java.lang.Thread {
 
 			
 			if (!sideVote && !crossVote) {
-				leftMotorWeight[idx] = 0.4f;
-				rightMotorWeight[idx] = 0.4f;
+				leftMotorWeight[idx] = 0.6f;
+				rightMotorWeight[idx] = 0.6f;
 				leftMotorAction[idx] = 0.6f;
 				rightMotorAction[idx] = 0.6f;
 			} else {

@@ -1312,7 +1312,7 @@ public class Main {
 		ir.start();
 		b.start();
 		mc.start();
-		java.lang.Thread.sleep(1000);
+		//java.lang.Thread.sleep(1000);
 		a.start();
 		//java.lang.Thread.sleep(5000);
 		java.lang.Thread.sleep(296000); // 296 seconds

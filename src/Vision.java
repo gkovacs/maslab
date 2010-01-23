@@ -82,13 +82,13 @@ public class Vision extends java.lang.Thread {
 	public int gatewidth;
 	public int gateheight;
 	public int unknownwidth;
-	public int gatetimer = 501;
+	public int gatetimer = 0;
 	public int gatepxoffset;
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4};
-	public float[] weights = {0.3f, 0.985f, 0.4f, 0.4f, 0.0f, 0.0f, 0.4f, 0.985f, 0.985f};
+	public float[] weights = {0.3f, 0.965f, 0.4f, 0.4f, 0.965f, 0.965f, 0.4f, 0.965f, 0.965f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1};
 	public int statetimeout = 0;
@@ -153,6 +153,7 @@ public class Vision extends java.lang.Thread {
 		c.setBacklightCompensation(false);
 		c.setGain(0);
 		c.setNoiseReduction(3);
+		c.setWhiteBalanceMode(0);
 		System.out.println("2");
 		//orc.camera.Camera c = new orc.camera.Camera("/dev/video0");
 		origI = c.createImage();
@@ -204,7 +205,7 @@ public class Vision extends java.lang.Thread {
 			if (circleseen && state != 4 && state != 5) {
 				setState(1);
 			}
-			/*
+			
 			if (gateseen && state != 5) {
 				if (gatetimer > 500) {
 					System.out.println("approach gate");
@@ -214,7 +215,7 @@ public class Vision extends java.lang.Thread {
 					setState(3);
 				}
 			}
-			*/
+			
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
 				if (turningright) {
@@ -240,7 +241,8 @@ public class Vision extends java.lang.Thread {
 						}
 					}
 				} else { // we see a ball, go to it
-				float basevel = bound(1.0f-Math.abs(pxoffset)/0.1f, 1.0f, 0.7f);
+				float basevel = 0.7f;
+				//float basevel = bound(1.0f-Math.abs(pxoffset)/0.1f, 1.0f, 0.7f);
 				float rspeed = -k*pxoffset; //+ 0.6f;
 				float lspeed = k*pxoffset; //+ 0.6f;
 				if (lspeed > rspeed) {
@@ -267,7 +269,8 @@ public class Vision extends java.lang.Thread {
 					gatetimer = 0;
 					shoottimer = 0;
 				} else { // approach the gate
-				float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
+				float basevel = 0.7f;
+				//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
 				float rspeed = -k*gatepxoffset; //+ 0.6f;
 				float lspeed = k*gatepxoffset; //+ 0.6f;
 				if (lspeed > rspeed) {
@@ -446,7 +449,7 @@ public class Vision extends java.lang.Thread {
 		//findWallBottom(hsvR, wallR);
 		//mostcarpet(hsvR, wallR);
 		//paintwalls(hsvR, wallR);
-		/*
+		
 		paintwalls(hsvR, walltop, wallbot);
 		meanfilter2(wallbot,wallbotm);
 		meanfilter2(walltop,walltopm);
@@ -456,7 +459,7 @@ public class Vision extends java.lang.Thread {
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
-		*/
+		
 		hsvC.setImage(hsvI);
 		hsvL.setIcon(hsvC);
 		hsvL.repaint();

@@ -38,7 +38,7 @@ public class Mouse extends java.lang.Thread {
 
 	public void setupMapping() {
 		jf = new JFrame();
-		coordmapI = new BufferedImage(160, 120, BufferedImage.TYPE_INT_RGB);
+		coordmapI = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_RGB);
 		coordmapR = coordmapI.getRaster();
 		coordmapC = new ImageIcon();
 		coordmapL = new JLabel();

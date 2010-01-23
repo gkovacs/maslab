@@ -1332,6 +1332,7 @@ public class Main {
 		Vision v = new Vision();
 		v.setup(a, 0);
 		v.setState(5);
+		v.gatetimer = 501;
 		InfraR ir = new InfraR();
 		ir.setup(a, 1);
 		MouseController mc = new MouseController();
@@ -1457,7 +1458,7 @@ public class Main {
 			else if (args[0].contentEquals("testforward")) testforward();
 			else if (args[0].contentEquals("testspin")) testspin();
 			else if (args[0].contentEquals("testencoder")) testencoder();
-			else if (args[0].contentEquals("testgyro")) testgyro();
+			else if (args[0].contentEquals("testgyro")) testgyro2();
 			else if (args[0].contentEquals("gyrodrive")) gyrodrive();
 			else if (args[0].contentEquals("gyroturn")) gyroturn(Double.parseDouble(args[1]));
 			else if (args[0].contentEquals("testpid")) testpid(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]));
@@ -1556,6 +1557,21 @@ public class Main {
 		return total / (double)a.length;
 	}
 
+	public static void testgyro2() {
+		try {
+			Arbiter a = new Arbiter();
+			a.setup(1);
+			Gyroscope g = new Gyroscope();
+			g.setup(a, 0);
+			g.start();
+			java.lang.Thread.sleep(296000);
+			a.bye();
+			g.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void testgyro() {
 		try {
 		byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
@@ -1585,13 +1601,17 @@ public class Main {
 			angvel[0] -= baseang[0];
 			angvel[1] -= baseang[1];
 			angvel[2] -= baseang[2];
+			if (angvel[0] < 100 && angvel[0] > -100) angvel[0] = 0;
+			if (angvel[1] < 100 && angvel[1] > -100) angvel[1] = 0;
+			if (angvel[2] < 100 && angvel[2] > -100) angvel[2] = 0;
 			//printList(angvel);
 			long deltatime = System.nanoTime()-prevtime;
 			//System.out.println(deltatime);
 			angles[0] += (angvel[0]*deltatime)/100000;
 			angles[1] += (angvel[1]*deltatime)/100000;
 			angles[2] += (angvel[2]*deltatime)/100000;
-			printList(angles);
+			//printList(angles);
+			System.out.println(angles[1]*360/80000000);
 			prevtime += deltatime;
 		}
 		} catch (Exception e) {
@@ -1786,6 +1806,7 @@ public class Main {
 		}
 	}
 
+	/*
 	public static void test() {
 		try {
 		Mouse m = new Mouse();
@@ -1802,12 +1823,12 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	public static void testmouse3() {
 		try {
 		Mouse m = new Mouse();
-		//m.mapping = true;
+		m.mapping = true;
 		m.start();
 		while (true) {
 			if (System.currentTimeMillis() - m.readtime < 100) {

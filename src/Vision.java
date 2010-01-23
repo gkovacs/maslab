@@ -196,9 +196,9 @@ public class Vision extends java.lang.Thread {
 
 			if (unknownseen && state != 4 && state != 5) {
 				if (unknownpxoffset > 0) {
-					setState(7);
-				} else {
 					setState(8);
+				} else {
+					setState(7);
 				}
 			}
 			if (circleseen && state != 4 && state != 5) {
@@ -1521,7 +1521,7 @@ public class Vision extends java.lang.Thread {
 		} else {
 			setState(7);
 		}*/
-		unknownpxoffset = (m.rx+m.lx)/2-r1.getWidth()/2;
+		//unknownpxoffset = (m.rx+m.lx)/2-r1.getWidth()/2;
 		/*
 		int r = (m.rx-m.lx)/2;
 		int ndistance = 600/r;

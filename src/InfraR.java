@@ -148,18 +148,22 @@ public class InfraR extends java.lang.Thread {
 			} if (state ==  1) { // rotate left
 				rspeed = 0.7;
 				lspeed = -0.7;
-				if (/*crossLeft > 100 &&*/ crossRight > 120 && left > 50 && right > 50) {
+				if (((crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((left-prevleft) > 0 || (right-prevright) > 0)) {
+				//if (/*crossLeft > 100 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
 				}
 			} if (state == 2) { // rotate right
 				rspeed = -0.7;
 				lspeed = 0.7;
-				if (/*crossLeft > 40 &&*/ crossRight > 120 && left > 50 && right > 50) {
+				if (((crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((left-prevleft) > 0 || (right-prevright) > 0)) {
+				//if (/*crossLeft > 40 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
 				}
 			}
 			prevleft = left;
 			prevright = right;
+			prevCrossLeft = crossLeft;
+			prevCrossRight = crossRight;
 			leftMotorAction[idx] = (float)lspeed;
 			rightMotorAction[idx] = (float)rspeed;
 			java.lang.Thread.sleep(20);

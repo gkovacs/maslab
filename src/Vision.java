@@ -230,7 +230,7 @@ public class Vision extends java.lang.Thread {
 					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
 						setState(2);
 						statetimeout = 10;
-					} else { // we missed the ball, search further //go back // search further
+					} else { // we misssed the ball, search further //go back // search further
 						//setState(-1);
 						if (pxoffset > 0) { // likely disappeared off the right, scan right
 							setState(8);
@@ -327,11 +327,11 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = rspeed;
 				}
 			} if (state == 7) { // rotate left
-				leftMotorAction[idx] = -0.5f;
-				rightMotorAction[idx] = 0.5f;
+				leftMotorAction[idx] = -0.2f;
+				rightMotorAction[idx] = 0.8f;
 			} if (state == 8) { // rotate right
-				leftMotorAction[idx] = 0.5f;
-				rightMotorAction[idx] = -0.5f;
+				leftMotorAction[idx] = 0.8f;
+				rightMotorAction[idx] = -0.2f;
 			}
 			java.lang.Thread.sleep(10);
 		}

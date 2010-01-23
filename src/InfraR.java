@@ -108,7 +108,7 @@ public class InfraR extends java.lang.Thread {
 				} else if (crossRight < 120 /*|| left < 40*/) { // rotate right
 					setState(2);
 				} else {
-			if (left > right) {
+			if (right > left) {
 				//leftMotorWeight[idx] = 0.8f;
 				//rightMotorWeight[idx] = 0.8f;
 				double error = left-desv;

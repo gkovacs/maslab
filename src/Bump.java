@@ -19,7 +19,7 @@ public class Bump extends java.lang.Thread {
 	public int idx = 0;
 	public int state = 0;
 	public String[] names = {"none", "fwdleft", "fwdright", "backleft", "backright"};
-	public float[] weights = {0.0f, 0.9f, 0.9f, 0.9f, 0.9f};
+	public float[] weights = {0.0f, 0.99f, 0.99f, 0.99f, 0.99f};
 	public int[] timeouts = {9999, 5, 5, 5, 5, 5, 5};
 	public int[] transitions = {0, 0, 0, 0, 0};
 	public int statetimeout = 0;

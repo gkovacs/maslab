@@ -27,6 +27,7 @@ public class Vision extends java.lang.Thread {
 	public int lifetime = 0;
 	public int distance = Integer.MAX_VALUE;
 	public int pxoffset = 0;
+	public int unknownpxoffset = 0;
 	public byte color = 0; // 0 is red, 1 is yellow, 2 is blue
 	public BufferedImage origI = null;
 	public WritableRaster origR = null;
@@ -74,19 +75,21 @@ public class Vision extends java.lang.Thread {
 	public int[] queuey = null;
 	public boolean circleseen = false;
 	public boolean gateseen = false;
+	public boolean unknownseen = false;
 	public boolean testmode = true;
 	public int circlecentery;
 	public int circleradius;
 	public int gatewidth;
 	public int gateheight;
+	public int unknownwidth;
 	public int gatetimer = 501;
 	public int gatepxoffset;
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999};
-	public float[] weights = {0.3f, 0.96f, 0.4f, 0.4f, 0.0f, 0.0f, 0.4f};
-	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore"};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 15, 15};
+	public float[] weights = {0.3f, 0.96f, 0.4f, 0.4f, 0.0f, 0.0f, 0.4f, 0.96f, 0.96f};
+	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6};
 	public int statetimeout = 0;
 	public boolean turningright = true;
@@ -184,10 +187,20 @@ public class Vision extends java.lang.Thread {
 			gateseen = false;
 			gatewidth = 0;
 			gatepxoffset = 0;
+			unknownseen = false;
+			unknownpxoffset = 0;
+			unknownwidth = 0;
 			processImage();
 			++gatetimer;
 			System.out.println("gate timer is "+gatetimer);
-			
+
+			if (unknownseen && state != 4 && state != 5) {
+				if (unknownpxoffset > 0) {
+					setState(8);
+				} else {
+					setState(7);
+				}
+			}
 			if (circleseen && state != 4 && state != 5) {
 				setState(1);
 			}
@@ -218,7 +231,12 @@ public class Vision extends java.lang.Thread {
 						setState(2);
 						statetimeout = 10;
 					} else { // we missed the ball, search further //go back // search further
-						setState(-1);
+						//setState(-1);
+						if (pxoffset > 0) { // likely disappeared off the right, scan right
+							setState(8);
+						} else {
+							setState(7);
+						}
 					}
 				} else { // we see a ball, go to it
 				float basevel = bound(1.0f-Math.abs(pxoffset)/0.1f, 1.0f, 0.7f);
@@ -308,6 +326,12 @@ public class Vision extends java.lang.Thread {
 					leftMotorAction[idx] = lspeed;
 					rightMotorAction[idx] = rspeed;
 				}
+			} if (state == 7) { // rotate left
+				leftMotorAction[idx] = -0.7f;
+				rightMotorAction[idx] = 0.7f;
+			} if (state == 8) { // rotate right
+				leftMotorAction[idx] = 0.7f;
+				rightMotorAction[idx] = -0.7f;
 			}
 			java.lang.Thread.sleep(10);
 		}
@@ -1487,6 +1511,17 @@ public class Vision extends java.lang.Thread {
 			filledRectange(r1, m.ty, m.by, m.lx, m.rx, Colors.Brown);
 		else
 			filledRectange(r1, m.ty, m.by, m.lx, m.rx, Colors.Teal);
+		if (m.rx-m.lx > unknownwidth) {
+		unknownwidth = m.rx-m.lx;
+		unknownseen = true;
+		unknownpxoffset = (m.rx+m.lx)/2-r1.getWidth()/2;
+		}
+		/*if ((m.rx+m.lx) > r1.getWidth()) { // towards the right half
+			setState(8);
+		} else {
+			setState(7);
+		}*/
+		unknownpxoffset = (m.rx+m.lx)/2-r1.getWidth()/2;
 		/*
 		int r = (m.rx-m.lx)/2;
 		int ndistance = 600/r;

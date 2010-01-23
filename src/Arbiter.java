@@ -47,8 +47,8 @@ public class Arbiter extends java.lang.Thread {
 	}
 
 	public static void shiftright(float[] a, float v) {
-		int i = 1;
-		for (; i < a.length; ++i) {
+		int i = a.length-1;
+		for (; i >= 1; --i) {
 			a[i] = a[i-1];
 		}
 		a[0] = v;
@@ -66,8 +66,8 @@ public class Arbiter extends java.lang.Thread {
 		MotorController c1 = new MotorController(kp, kd, ki);
 		*/
 
-		rightMotorLog = new float[100];
-		leftMotorLog = new float[100];
+		rightMotorLog = new float[200];
+		leftMotorLog = new float[200];
 		while (running) {
 			/*
 			float lma = maxVal(leftMotorAction, leftMotorWeight);
@@ -91,15 +91,15 @@ public class Arbiter extends java.lang.Thread {
 			leftMotor.setPWM((float)bound(lma, 1.0f, -1.0f)*0.95);
 			rightMotor.setPWM((float)bound(rma, 1.0f, -1.0f));
 			rollers.setPWM((float)bound(rla, 1.0f, -1.0f));
-			java.lang.Thread.sleep(10);
 			} else { // turning back time
-				leftMotor.setPWM(leftMotorLog[timeback]);
-				rightMotor.setPWM(rightMotorLog[timeback]);
+				leftMotor.setPWM(-leftMotorLog[timeback]);
+				rightMotor.setPWM(-rightMotorLog[timeback]);
 				if (++timeback >= leftMotorLog.length) {
 					setState(0);
 					timeback = 0;
 				}
 			}
+			java.lang.Thread.sleep(10);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();

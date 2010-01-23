@@ -103,9 +103,9 @@ public class InfraR extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (/*crossLeft < 30 ||*/ right < 60) { // rotate left
+				if (/*crossLeft < 30 ||*/ crossRight < 120) { // rotate left
 					setState(1);
-				} else if (crossRight < 60 || left < 60) { // rotate right
+				} else if (crossRight < 120 /*|| left < 40*/) { // rotate right
 					setState(2);
 				} else {
 			if (left > right) {
@@ -148,13 +148,13 @@ public class InfraR extends java.lang.Thread {
 			} if (state ==  1) { // rotate left
 				rspeed = 0.7;
 				lspeed = -0.7;
-				if (/*crossLeft > 100 &&*/ crossRight > 100 && left > 100) {
+				if (/*crossLeft > 100 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
 				}
 			} if (state == 2) { // rotate right
 				rspeed = -0.7;
 				lspeed = 0.7;
-				if (/*crossLeft > 40 &&*/ crossRight > 100 && right > 100) {
+				if (/*crossLeft > 40 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
 				}
 			}

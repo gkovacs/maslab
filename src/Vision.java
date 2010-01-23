@@ -88,7 +88,7 @@ public class Vision extends java.lang.Thread {
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 8, 8};
-	public float[] weights = {0.3f, 0.96f, 0.4f, 0.4f, 0.0f, 0.0f, 0.4f, 0.96f, 0.96f};
+	public float[] weights = {0.3f, 0.985f, 0.4f, 0.4f, 0.0f, 0.0f, 0.4f, 0.985f, 0.985f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1};
 	public int statetimeout = 0;

@@ -77,6 +77,11 @@ public class MouseController extends java.lang.Thread {
 		else return true;
 	}
 
+	public MouseController() {
+		m = new Mouse();
+		m.start();
+	}
+
 	public void run() {
 		try {
 		rollerWeight[idx] = 0.0f;
@@ -88,8 +93,6 @@ public class MouseController extends java.lang.Thread {
 		xdisp[xdisp.length-1] = 9999;
 		ydisp[0] = 9999;
 		ydisp[ydisp.length-1] = 9999;
-		m = new Mouse();
-		m.start();
 		while (running) {
 			//totaldispx -= xdisp[0];
 			//totaldispy -= ydisp[0];

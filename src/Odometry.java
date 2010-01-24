@@ -63,9 +63,12 @@ public class Odometry extends java.lang.Thread {
 			if (m.totaly != totaly) {
 				long dispy = m.totaly-totaly;
 				totaly += dispy;
+
+				double angle = m.totalx*2*Math.PI/22000.0;
 				//System.out.println(dispy);
-				coordx += dispy*Math.sin(g.angle);
-				coordy += dispy*Math.cos(g.angle);
+				coordx += dispy*Math.sin(angle);
+				coordy += dispy*Math.cos(angle);
+
 				try {
 				coordmapR.setSample(coordmapR.getWidth()/2+(int)(coordx/200.0), coordmapR.getHeight()/2+(int)(coordy/200.0), 0, 255);
 				}  catch (Exception e) {

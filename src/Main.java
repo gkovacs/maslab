@@ -1492,6 +1492,7 @@ public class Main {
 			else if (args[0].contentEquals("testencoder")) testencoder();
 			else if (args[0].contentEquals("testgyro")) testgyro2();
 			else if (args[0].contentEquals("testodom")) testodom();
+			else if (args[0].contentEquals("visodom")) visodom();
 			else if (args[0].contentEquals("gyrodrive")) gyrodrive();
 			else if (args[0].contentEquals("gyroturn")) gyroturn(Double.parseDouble(args[1]));
 			else if (args[0].contentEquals("testpid")) testpid(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]));
@@ -1588,6 +1589,32 @@ public class Main {
 			total += a[i];
 		}
 		return total / (double)a.length;
+	}
+
+	public static void visodom() {
+		try {
+			Arbiter a = new Arbiter();
+			a.setup(4);
+			Vision v = new Vision();
+			Mouse m = new Mouse();
+			Gyroscope g = new Gyroscope();
+			v.setup(a, 0);
+			g.setup(a, 0);
+			Odometry o = new Odometry();
+			o.setup(m, g);
+			v.odom = o;
+			g.start();
+			m.start();
+			o.run();
+			v.run();
+			java.lang.Thread.sleep(296000);
+			a.bye();
+			g.bye();
+			m.bye();
+			o.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void testodom() {

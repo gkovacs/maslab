@@ -101,6 +101,7 @@ public class Vision extends java.lang.Thread {
 	public int gapminlen = 0;
 	//public MouseController mc = null;
 	//public Orc o = null;
+	public Odometry odom = null;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;
@@ -2033,6 +2034,9 @@ public class Vision extends java.lang.Thread {
 			System.out.println("distance is "+ndistance+"cm offcenter is "+npxoffset+"px");
 			found = 3;
 			//if (distance > ndistance || lifetime == 0) {
+			if (odom != null) {
+				odom.markPoint(ndistance, npxoffset, c);
+			}
 			if (r > circleradius) {
 				circleradius = r;
 				lifetime = 1;

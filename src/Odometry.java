@@ -27,7 +27,16 @@ public class Odometry extends java.lang.Thread {
 	public long totaly = 0;
 	public double coordx = 0.0;
 	public double coordy = 0.0;
+	public double angle = 0.0;
 	public boolean running = true;
+
+	public void markPoint(double fwd, double right, Colors c) {
+		double fwddispy = fwd*Math.sin(angle);
+		double fwddispx = fwd*Math.cos(angle);
+		double rightdispy = right*Math.cos(angle);
+		double rightdispx = -right*Math.sin(angle);
+		Vision.filledCircle(coordmapR, coordmapR.getWidth()/2+(int)((coordx+fwddispx+rightdispx)/200.0), coordmapR.getHeight()/2+(int)((coordy+fwddispy+rightdispy)/200.0), 3, c);
+	}
 
 	public void setupMapping() {
 		jf = new JFrame();
@@ -64,10 +73,10 @@ public class Odometry extends java.lang.Thread {
 				long dispy = m.totaly-totaly;
 				totaly += dispy;
 
-				double angle = m.totalx*2*Math.PI/22000.0;
+				//double angle = m.totalx*2*Math.PI/22000.0;
 				//System.out.println(dispy);
-				coordx += dispy*Math.sin(angle);
-				coordy += dispy*Math.cos(angle);
+				coordx += dispy*Math.cos(g.angle);
+				coordy += dispy*Math.sin(g.angle);
 
 				try {
 				coordmapR.setSample(coordmapR.getWidth()/2+(int)(coordx/200.0), coordmapR.getHeight()/2+(int)(coordy/200.0), 0, 255);

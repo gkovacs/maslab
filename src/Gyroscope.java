@@ -62,7 +62,7 @@ public class Gyroscope extends java.lang.Thread {
 	public void run() {
 		try {
 		WiiMotionPlus g = new WiiMotionPlus(o);
-		int numsamples = 3000;
+		int numsamples = 300;
 		angles = new long[3];
 		baseang = new int[3];
 		int[] mdf0 = new int[3];
@@ -92,9 +92,9 @@ public class Gyroscope extends java.lang.Thread {
 			ba2 += median3(mdf2[0], mdf2[1], mdf2[2]);
 			--numsamples;
 		}
-		baseang[0] = (int)(ba0/3000);
-		baseang[1] = (int)(ba1/3000);
-		baseang[2] = (int)(ba2/3000);
+		baseang[0] = (int)(ba0/300);
+		baseang[1] = (int)(ba1/300);
+		baseang[2] = (int)(ba2/300);
 		}
 		prevtime = System.nanoTime();
 		while (running) {
@@ -120,9 +120,9 @@ public class Gyroscope extends java.lang.Thread {
 			angles[2] += (v2*deltatime)/100000;
 			//printList(angles);
 			//System.out.println(angles[1]);
-			anglei = (int)((angles[1]*360/75000000) % 360);
+			anglei = Math.abs((int)((angles[1]*360/75000000) % 360));
 			System.out.println(anglei);
-			angle = ((angles[1]*2.0*Math.PI/75000000) % 2.0*Math.PI);
+			angle = Math.abs(((angles[1]*2.0*Math.PI/75000000) % 2.0*Math.PI));
 			//System.out.println(angle);
 			//System.out.println(angles[1]*360/80000000);
 			prevtime += deltatime;

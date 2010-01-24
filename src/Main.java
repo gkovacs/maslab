@@ -1200,13 +1200,13 @@ public class Main {
 		Gyroscope g = new Gyroscope();
 		g.setup(a, 3);
 		Odometry o = new Odometry();
-		o.setup(m.m, g);
+		m.start();
 		g.start();
 		a.start();
 		b.start();
 		v.start();
 		//java.lang.Thread.sleep(10000); // 10 seconds
-		m.start();
+		o.setup(m.m, g);
 		o.start();
 		java.lang.Thread.sleep(300000); // 300 seconds
 		//m.bye();

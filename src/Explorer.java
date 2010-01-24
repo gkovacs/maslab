@@ -133,7 +133,7 @@ public class Explorer extends java.lang.Thread {
 		java.util.Arrays.fill(crossLeftIRreadings, prevCrossRight);
 		int rightcooldown = 0;
 		int leftcooldown = 0;
-		//setState(3);
+		setState(0);
 		while (running) {
 			shiftleft(leftIRreadings, 62.5/leftIR.getVoltage());
 			shiftleft(rightIRreadings, 62.5/rightIR.getVoltage());
@@ -200,12 +200,12 @@ public class Explorer extends java.lang.Thread {
 					rspeed = basevel;
 				}
 			}
-			rspeed = 0;
-			lspeed = 0;
+			//rspeed = 0;
+			//lspeed = 0;
 			}
 			} if (state ==  1) { // scan left
 				int curang = g.anglei;
-				double heuv = Math.min(left, 200.0)+Math.min(right, 200.0)+Math.min(crossLeft, 200.0)+Math.min(crossRight, 200.0);
+				double heuv = Math.min(left, 500.0)+Math.min(right, 500.0)+Math.min(crossLeft, 500.0)+Math.min(crossRight, 500.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;
 					targang = curang;
@@ -222,7 +222,7 @@ public class Explorer extends java.lang.Thread {
 				}
 			} if (state ==  2) { // scan right
 				int curang = g.anglei;
-				double heuv = Math.min(left, 200.0)+Math.min(right, 200.0)+Math.min(crossLeft, 200.0)+Math.min(crossRight, 200.0);
+				double heuv = Math.min(left, 500.0)+Math.min(right, 500.0)+Math.min(crossLeft, 500.0)+Math.min(crossRight, 500.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;
 					targang = curang;

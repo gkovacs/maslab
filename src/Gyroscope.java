@@ -12,7 +12,7 @@ import orc.*;
 
 public class Gyroscope extends java.lang.Thread {
 
-	public static final int gyrot = 6913242;
+	public static final int gyrot = 7213242;
 	public int anglei = 0;
 	public double angle = 0;
 	public Orc o = null;

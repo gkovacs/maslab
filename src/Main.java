@@ -1626,8 +1626,8 @@ public class Main {
 			g.setup(a, 0);
 			Explorer e = new Explorer();
 			e.setup(a, g, 1);
-			e.setState(4);
-			e.targang = 180;
+			e.setState(0);
+			//e.targang = 180;
 			g.start();
 			java.lang.Thread.sleep(1000);
 			e.start();

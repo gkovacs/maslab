@@ -19,7 +19,10 @@ public class Explorer extends java.lang.Thread {
 	public int idx = 0;
 	public int state = 0;
 	public String[] names = {"forward", "left", "right", "rotateleft", "rotateright"};
+	public int[] timeouts = {80, 80, 80, 80, 80};
 	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f, 0.97f};
+	public int[] transitions = {0, 4, 3, 0, 0};
+	public int statetimeout = 0;
 	public Orc o = null;
 	public Gyroscope g = null;
 	public int angendi = 0;
@@ -135,6 +138,11 @@ public class Explorer extends java.lang.Thread {
 		int leftcooldown = 0;
 		setState(0);
 		while (running) {
+			if (statetimeout >= timeouts[state]) { // state timed out, make transition
+				setState(transitions[state]);
+			} else {
+				++statetimeout;
+			}
 			shiftleft(leftIRreadings, 62.5/leftIR.getVoltage());
 			shiftleft(rightIRreadings, 62.5/rightIR.getVoltage());
 			shiftleft(crossLeftIRreadings, 62.5/crossLeftIR.getVoltage());

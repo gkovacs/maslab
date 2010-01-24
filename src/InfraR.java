@@ -129,7 +129,7 @@ public class InfraR extends java.lang.Thread {
 			if (state == 0) { // forwards
 				if (/*crossLeft < 30 ||*/ right < 100) { // rotate left
 					setState(1);
-				} else if (crossRight < 120 || left < 100) { // rotate right
+				} else if (crossRight < 100 || left < 100) { // rotate right
 					setState(2);
 				} else {
 			if (left > right) {
@@ -170,16 +170,16 @@ public class InfraR extends java.lang.Thread {
 			}
 			}
 			} if (state ==  1) { // rotate left
-				rspeed = 0.7;
-				lspeed = -0.7;
-				if (((crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((left-prevleft) > 0 || (right-prevright) > 0)) {
+				rspeed = 0.3;
+				lspeed = -0.9;
+				if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 100 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
 				}
 			} if (state == 2) { // rotate right
-				rspeed = -0.7;
-				lspeed = 0.7;
-				if (((crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((left-prevleft) > 0 || (right-prevright) > 0)) {
+				rspeed = -0.9;
+				lspeed = 0.3;
+				if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 40 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
 				}

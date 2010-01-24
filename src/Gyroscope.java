@@ -12,6 +12,7 @@ import orc.*;
 
 public class Gyroscope extends java.lang.Thread {
 
+	public static final int gyrot = 69132419;
 	public int anglei = 0;
 	public double angle = 0;
 	public Orc o = null;
@@ -21,6 +22,15 @@ public class Gyroscope extends java.lang.Thread {
 	boolean running = true;
 
 	public static void printList(int[] c) {
+		if (c.length == 0) return;
+		System.out.print("[ ");
+		for (int x = 0; x < c.length-1; ++x) {
+			System.out.print(c[x]+", ");
+		}
+		System.out.println(c[c.length-1]+" ]");
+	}
+
+	public static void printList(long[] c) {
 		if (c.length == 0) return;
 		System.out.print("[ ");
 		for (int x = 0; x < c.length-1; ++x) {
@@ -116,13 +126,19 @@ public class Gyroscope extends java.lang.Thread {
 			long deltatime = System.nanoTime()-prevtime;
 			//System.out.println(deltatime);
 			angles[0] += (v0*deltatime)/100000;
+			if ((angles[0]) < 0) angles[0] += gyrot;
+			if ((angles[0]) > gyrot) angles[0] -= gyrot;
 			angles[1] += (v1*deltatime)/100000;
+			if ((angles[1]) < 0) angles[1] += gyrot;
+			if ((angles[1]) > gyrot) angles[1] -= gyrot;
 			angles[2] += (v2*deltatime)/100000;
+			if ((angles[2]) < 0) angles[2] += gyrot;
+			if ((angles[2]) > gyrot) angles[2] -= gyrot;
 			//printList(angles);
 			//System.out.println(angles[1]);
-			anglei = Math.abs((int)((angles[1]*360/75000000) % 360));
+			anglei = (int)((angles[0]*360/gyrot));
 			System.out.println(anglei);
-			angle = Math.abs(((angles[1]*2.0*Math.PI/75000000) % 2.0*Math.PI));
+			angle = ((angles[0]*2.0*Math.PI/gyrot));
 			//System.out.println(angle);
 			//System.out.println(angles[1]*360/80000000);
 			prevtime += deltatime;

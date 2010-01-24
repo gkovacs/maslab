@@ -2035,7 +2035,7 @@ public class Vision extends java.lang.Thread {
 			found = 3;
 			//if (distance > ndistance || lifetime == 0) {
 			if (odom != null) {
-				odom.markPoint(ndistance, npxoffset, c);
+				odom.markPoint(ndistance*100.0, npxoffset*50.0, r/3, c);
 			}
 			if (r > circleradius) {
 				circleradius = r;

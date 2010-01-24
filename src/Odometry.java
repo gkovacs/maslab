@@ -30,12 +30,12 @@ public class Odometry extends java.lang.Thread {
 	public double angle = 0.0;
 	public boolean running = true;
 
-	public void markPoint(double fwd, double right, Colors c) {
+	public void markPoint(double fwd, double right, int radius, Colors c) {
 		double fwddispy = fwd*Math.sin(angle);
 		double fwddispx = fwd*Math.cos(angle);
 		double rightdispy = right*Math.cos(angle);
 		double rightdispx = -right*Math.sin(angle);
-		Vision.filledCircle(coordmapR, coordmapR.getWidth()/2+(int)((coordx+fwddispx+rightdispx)/200.0), coordmapR.getHeight()/2+(int)((coordy+fwddispy+rightdispy)/200.0), 3, c);
+		Vision.filledCircle(coordmapR, coordmapR.getWidth()/2+(int)((coordx+fwddispx+rightdispx)/200.0), coordmapR.getHeight()/2+(int)((coordy+fwddispy+rightdispy)/200.0), radius, c);
 	}
 
 	public void setupMapping() {
@@ -80,6 +80,8 @@ public class Odometry extends java.lang.Thread {
 
 				try {
 				coordmapR.setSample(coordmapR.getWidth()/2+(int)(coordx/200.0), coordmapR.getHeight()/2+(int)(coordy/200.0), 0, 255);
+				coordmapR.setSample(coordmapR.getWidth()/2+(int)(coordx/200.0), coordmapR.getHeight()/2+(int)(coordy/200.0), 1, 255);
+				coordmapR.setSample(coordmapR.getWidth()/2+(int)(coordx/200.0), coordmapR.getHeight()/2+(int)(coordy/200.0), 2, 255);
 				}  catch (Exception e) {
 				e.printStackTrace();
 				}

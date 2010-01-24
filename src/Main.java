@@ -1605,8 +1605,8 @@ public class Main {
 			v.odom = o;
 			g.start();
 			m.start();
-			o.run();
-			v.run();
+			o.start();
+			v.start();
 			java.lang.Thread.sleep(296000);
 			a.bye();
 			g.bye();
@@ -1628,7 +1628,7 @@ public class Main {
 			o.setup(m, g);
 			g.start();
 			m.start();
-			o.run();
+			o.start();
 			java.lang.Thread.sleep(296000);
 			a.bye();
 			g.bye();

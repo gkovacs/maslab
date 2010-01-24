@@ -1187,6 +1187,37 @@ public class Main {
 		}
 	}
 
+	public static void navodom() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(3);
+		InfraR v = new InfraR();
+		v.setup(a, 0);
+		MouseController m = new MouseController();
+		m.setup(a, 1);
+		Bump b = new Bump();
+		b.setup(a, 2);
+		Gyroscope g = new Gyroscope();
+		g.setup(a, 3);
+		Odometry o = new Odometry();
+		o.setup(m.m, g);
+		g.start();
+		a.start();
+		b.start();
+		v.start();
+		//java.lang.Thread.sleep(10000); // 10 seconds
+		m.start();
+		o.start();
+		java.lang.Thread.sleep(300000); // 300 seconds
+		//m.bye();
+		v.bye();
+		b.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void wallfollow2() {
 		try {
 		Arbiter a = new Arbiter();
@@ -1450,6 +1481,7 @@ public class Main {
 			else if (args[0].contentEquals("competition")) competition();
 			else if (args[0].contentEquals("wallfollow")) wallfollow2();
 			else if (args[0].contentEquals("navigate")) navigate();
+			else if (args[0].contentEquals("navodom")) navodom();
 			else if (args[0].contentEquals("explore")) explore();
 			else if (args[0].contentEquals("testmousecontroller")) testmousecontroller();
 			else if (args[0].contentEquals("saveimages")) saveimages();
@@ -1851,13 +1883,13 @@ public class Main {
 	public static void testmouse3() {
 		try {
 		Mouse m = new Mouse();
-		m.mapping = true;
+		//m.mapping = true;
 		m.start();
 		while (true) {
 			if (System.currentTimeMillis() - m.readtime < 100) {
-				System.out.println(m.output[1]+","+m.output[2]);
+				//System.out.println(m.output[1]+","+m.output[2]);
 			} else {
-				System.out.println("0,0");
+				//System.out.println("0,0");
 			}
 			java.lang.Thread.sleep(50);
 		}

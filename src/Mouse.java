@@ -69,7 +69,7 @@ public class Mouse extends java.lang.Thread {
 			totalx += output[1];
 			totaly += output[2];
 			readtime = System.currentTimeMillis();
-			//System.out.println(totalx+","+totaly);
+			System.out.println(totalx+","+totaly);
 			if (mapping) {
 			coordmapR.setSample((int)totalx+coordmapR.getWidth()/2, (int)-totaly+coordmapR.getHeight()/2, 0, 255);
 			coordmapC.setImage(coordmapI);

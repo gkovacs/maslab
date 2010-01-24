@@ -1492,6 +1492,7 @@ public class Main {
 			else if (args[0].contentEquals("testencoder")) testencoder();
 			else if (args[0].contentEquals("testgyro")) testgyro2();
 			else if (args[0].contentEquals("testodom")) testodom();
+			else if (args[0].contentEquals("testrot")) testrot();
 			else if (args[0].contentEquals("visodom")) visodom();
 			else if (args[0].contentEquals("gyrodrive")) gyrodrive();
 			else if (args[0].contentEquals("gyroturn")) gyroturn(Double.parseDouble(args[1]));
@@ -1625,15 +1626,16 @@ public class Main {
 			g.setup(a, 0);
 			Explorer e = new Explorer();
 			e.setup(a, g, 1);
-			e.setState(3);
+			e.setState(4);
 			e.targang = 180;
 			g.start();
+			java.lang.Thread.sleep(1000);
 			e.start();
+			a.start();
 			java.lang.Thread.sleep(296000);
 			a.bye();
+			e.bye();
 			g.bye();
-			m.bye();
-			o.bye();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

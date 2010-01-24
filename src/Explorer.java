@@ -33,8 +33,8 @@ public class Explorer extends java.lang.Thread {
 		leftMotorWeight[idx] = weights[newstate];
 		rightMotorWeight[idx] = weights[newstate];
 		prevtargdiff = Integer.MAX_VALUE;
-		if (newstate != 3) {
 		angrefi = g.anglei;
+		if (newstate != 3 && newstate != 4) {
 		maxheu = 0;
 		targang = angrefi;
 		}
@@ -120,7 +120,7 @@ public class Explorer extends java.lang.Thread {
 		java.util.Arrays.fill(crossLeftIRreadings, prevCrossRight);
 		int rightcooldown = 0;
 		int leftcooldown = 0;
-		setState(0);
+		//setState(3);
 		while (running) {
 			shiftleft(leftIRreadings, 62.5/leftIR.getVoltage());
 			shiftleft(rightIRreadings, 62.5/rightIR.getVoltage());
@@ -188,6 +188,8 @@ public class Explorer extends java.lang.Thread {
 				}
 			}
 			}
+			lspeed = 0.0;
+			rspeed = 0.0;
 			} if (state ==  1) { // rotate left
 				rspeed = 0.7;
 				lspeed = -0.7;
@@ -204,7 +206,7 @@ public class Explorer extends java.lang.Thread {
 				}
 			} if (state == 3) { // rotate to target angle by the left
 				int targdiff = circdiff(g.anglei,targang);
-				if (targdiff > prevtargdiff) { // done rotating
+				if (targdiff < 70 && targdiff > prevtargdiff) { // done rotating
 					rspeed = -0.7;
 					lspeed = 0.7;
 					setState(0);
@@ -215,7 +217,7 @@ public class Explorer extends java.lang.Thread {
 				}
 			} if (state == 4) { // rotate to target angle by the right
 				int targdiff = circdiff(g.anglei,targang);
-				if (targdiff > prevtargdiff) { // done rotating
+				if (targdiff < 70 && targdiff > prevtargdiff) { // done rotating
 					rspeed = 0.7;
 					lspeed = -0.7;
 					setState(0);

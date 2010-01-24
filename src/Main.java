@@ -1617,6 +1617,28 @@ public class Main {
 		}
 	}
 
+	public static void testrot() {
+		try {
+			Arbiter a = new Arbiter();
+			a.setup(2);
+			Gyroscope g = new Gyroscope();
+			g.setup(a, 0);
+			Explorer e = new Explorer();
+			e.setup(a, g, 1);
+			e.setState(3);
+			e.targang = 180;
+			g.start();
+			e.start();
+			java.lang.Thread.sleep(296000);
+			a.bye();
+			g.bye();
+			m.bye();
+			o.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void testodom() {
 		try {
 			Arbiter a = new Arbiter();

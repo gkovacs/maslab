@@ -22,8 +22,8 @@ public class Explorer extends java.lang.Thread {
 	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f, 0.97f};
 	public Orc o = null;
 	public Gyroscope g = null;
-	public int angrefi = 0;
-	public int maxheu = 0;
+	public int angendi = 0;
+	public double maxheu = 0;
 	public int targang = 0;
 	public int prevtargdiff = Integer.MAX_VALUE;
 
@@ -33,10 +33,23 @@ public class Explorer extends java.lang.Thread {
 		leftMotorWeight[idx] = weights[newstate];
 		rightMotorWeight[idx] = weights[newstate];
 		prevtargdiff = Integer.MAX_VALUE;
-		angrefi = g.anglei;
-		if (newstate != 3 && newstate != 4) {
+		//angendi = g.anglei;
+		//if (newstate != 3 && newstate != 4) {
+		//maxheu = 0;
+		//targang = angrefi;
+		//}
+		if (newstate == 1) {
 		maxheu = 0;
-		targang = angrefi;
+		targang = g.anglei;
+		// angle increases ccw
+		//   0
+		//90   270
+		//  180
+		angendi = (targang + 180) % 360;
+		} else if (newstate == 2) {
+		maxheu = 0;
+		targang = g.anglei;
+		angendi = (targang + 180) % 360;
 		}
 	}
 
@@ -187,39 +200,48 @@ public class Explorer extends java.lang.Thread {
 					rspeed = basevel;
 				}
 			}
+			rspeed = 0;
+			lspeed = 0;
 			}
-			lspeed = 0.0;
-			rspeed = 0.0;
-			} if (state ==  1) { // rotate left
-				rspeed = 0.7;
-				lspeed = -0.7;
-
-				if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
-					setState(0);
+			} if (state ==  1) { // scan left
+				int curang = g.anglei;
+				double heuv = Math.min(left, 200.0)+Math.min(right, 200.0)+Math.min(crossLeft, 200.0)+Math.min(crossRight, 200.0);
+				if (heuv > maxheu) {
+					maxheu = heuv;
+					targang = curang;
 				}
-			} if (state == 2) { // rotate right
-				rspeed = -0.9;
-				lspeed = 0.3;
-				if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
-				//if (/*crossLeft > 40 &&*/ crossRight > 120 && left > 50 && right > 50) {
-					setState(0);
-				}
-			} if (state == 3) { // rotate to target angle by the left
-				int targdiff = circdiff(g.anglei,targang);
-				if (targdiff < 70 && targdiff > prevtargdiff) { // done rotating
-					rspeed = -0.7;
-					lspeed = 0.7;
-					setState(0);
+				int targdiff = circdiff(curang,angendi);
+				if (targdiff < 70 && (targdiff == 0 || targdiff > prevtargdiff)) { // done rotating
+					rspeed = 0.0;
+					lspeed = 0.0;
+					setState(4);
 				} else {
 					rspeed = 0.7;
 					lspeed = -0.7;
 					prevtargdiff = targdiff;
 				}
+			} if (state ==  2) { // scan right
+				int curang = g.anglei;
+				double heuv = Math.min(left, 200.0)+Math.min(right, 200.0)+Math.min(crossLeft, 200.0)+Math.min(crossRight, 200.0);
+				if (heuv > maxheu) {
+					maxheu = heuv;
+					targang = curang;
+				}
+				int targdiff = circdiff(curang,angendi);
+				if (targdiff < 70 && (targdiff == 0 || targdiff > prevtargdiff)) { // done rotating
+					rspeed = 0.0;
+					lspeed = 0.0;
+					setState(3);
+				} else {
+					rspeed = -0.7;
+					lspeed = 0.7;
+					prevtargdiff = targdiff;
+				}
 			} if (state == 4) { // rotate to target angle by the right
 				int targdiff = circdiff(g.anglei,targang);
-				if (targdiff < 70 && targdiff > prevtargdiff) { // done rotating
-					rspeed = 0.7;
-					lspeed = -0.7;
+				if (targdiff < 70 && (targdiff == 0 || targdiff > prevtargdiff)) { // done rotating
+					rspeed = 0.0;
+					lspeed = 0.0;
 					setState(0);
 				} else {
 					rspeed = -0.7;

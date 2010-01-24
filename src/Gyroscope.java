@@ -12,7 +12,7 @@ import orc.*;
 
 public class Gyroscope extends java.lang.Thread {
 
-	public static final int gyrot = 69132419;
+	public static final int gyrot = 6913242;
 	public int anglei = 0;
 	public double angle = 0;
 	public Orc o = null;
@@ -106,7 +106,7 @@ public class Gyroscope extends java.lang.Thread {
 		baseang[1] = (int)(ba1/300);
 		baseang[2] = (int)(ba2/300);
 		}
-		prevtime = System.nanoTime();
+		prevtime = System.currentTimeMillis();
 		while (running) {
 			//double degrees = g.getTheta()/0.005;
 			//System.out.println(degrees);
@@ -123,15 +123,15 @@ public class Gyroscope extends java.lang.Thread {
 			if (v1 < 100 && v1 > -100) v1 = 0;
 			if (v2 < 100 && v2 > -100) v2 = 0;
 			//printList(angvel);
-			long deltatime = System.nanoTime()-prevtime;
+			long deltatime = System.currentTimeMillis()-prevtime;
 			//System.out.println(deltatime);
-			angles[0] += (v0*deltatime)/100000;
+			angles[0] += (v0*deltatime);
 			if ((angles[0]) < 0) angles[0] += gyrot;
 			if ((angles[0]) > gyrot) angles[0] -= gyrot;
-			angles[1] += (v1*deltatime)/100000;
+			angles[1] += (v1*deltatime);
 			if ((angles[1]) < 0) angles[1] += gyrot;
 			if ((angles[1]) > gyrot) angles[1] -= gyrot;
-			angles[2] += (v2*deltatime)/100000;
+			angles[2] += (v2*deltatime);
 			if ((angles[2]) < 0) angles[2] += gyrot;
 			if ((angles[2]) > gyrot) angles[2] -= gyrot;
 			//printList(angles);

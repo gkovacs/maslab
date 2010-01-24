@@ -51,6 +51,30 @@ public class InfraR extends java.lang.Thread {
 		return total / (double)a.length;
 	}
 
+	public static double median3(double a, double b, double c) {
+		if (a < b) {
+			if (c < b) { // a,c < b
+				if (a < c) { // a < c < b
+					return c;
+				} else { // c < a < b
+					return a;
+				}
+			} else { // a < b < c
+				return b;
+			}
+		} else { // b < a
+			if ( c < a) { // b,c < a
+				if (b < c) { // b < c < a
+					return c;
+				} else { // c < b < a
+					return b;
+				}
+			} else { // b < a < c
+				return a;
+			}
+		}
+	}
+
 	public void run() {
 		try {
 		//byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
@@ -83,13 +107,13 @@ public class InfraR extends java.lang.Thread {
 			shiftleft(rightIRreadings, 62.5/rightIR.getVoltage());
 			shiftleft(crossLeftIRreadings, 62.5/crossLeftIR.getVoltage());
 			shiftleft(crossRightIRreadings, 62.5/crossRightIR.getVoltage());
-			double left = averageArray(leftIRreadings);//a.getVoltage()
+			double left = median3(leftIRreadings[0], leftIRreadings[1], leftIRreadings[2]);//a.getVoltage()
 			//double left = 999999.0;
-			double right = averageArray(rightIRreadings);
+			double right = median3(rightIRreadings[0], rightIRreadings[1], rightIRreadings[2]);
 			//double right = averageArray(rightIRreadings);
 			
-			double crossLeft = averageArray(crossLeftIRreadings);
-			double crossRight = averageArray(crossRightIRreadings);
+			double crossLeft = median3(crossLeftIRreadings[0], crossLeftIRreadings[1], crossLeftIRreadings[2]);
+			double crossRight = median3(crossRightIRreadings[0], crossRightIRreadings[1], crossRightIRreadings[2]);
 			
 			System.out.println("left is "+left+"right is "+right);
 			//System.out.println(right);
@@ -103,9 +127,9 @@ public class InfraR extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (/*crossLeft < 30 ||*/ right < 40) { // rotate left
+				if (/*crossLeft < 30 ||*/ right < 100) { // rotate left
 					setState(1);
-				} else if (crossRight < 120 || left < 40) { // rotate right
+				} else if (crossRight < 120 || left < 100) { // rotate right
 					setState(2);
 				} else {
 			if (left > right) {

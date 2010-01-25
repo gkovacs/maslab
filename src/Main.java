@@ -1179,9 +1179,9 @@ public class Main {
 		v.start();
 		a.start();
 		//java.lang.Thread.sleep(10000); // 10 seconds
-		//m.start();
+		m.start();
 		java.lang.Thread.sleep(300000); // 300 seconds
-		//m.bye();
+		m.bye();
 		v.bye();
 		b.bye();
 		a.bye();

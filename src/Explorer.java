@@ -111,6 +111,13 @@ public class Explorer extends java.lang.Thread {
 		}
 	}
 
+	public static double max(double a, double b, double c, double d) {
+		if (a > b && a > c && a > d) return a;
+		if (b > a && b > c && b > d) return b;
+		if (c > a && c > b && c > d) return c;
+		return d;
+	}
+
 	public void run() {
 		try {
 		//byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
@@ -168,11 +175,11 @@ public class Explorer extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (/*crossLeft < 30 ||*/ right < 100) { // rotate left
+				if (/*crossLeft < 30 ||*/ right < 80) { // rotate left
 					lspeed = 0.0;
 					rspeed = 0.0;
 					setState(5);
-				} else if (crossRight < 130 || left < 100) { // rotate right
+				} else if (crossRight < 130 || left < 80) { // rotate right
 					lspeed = 0.0;
 					rspeed = 0.0;
 					setState(6);
@@ -220,7 +227,7 @@ public class Explorer extends java.lang.Thread {
 			}
 			} if (state ==  1) { // scan left
 				int curang = g.anglei;
-				double heuv = Math.log(left)/2.0+Math.log(right)/2.0+Math.log(crossLeft)+Math.log(crossRight);
+				double heuv = left+right+crossLeft+crossRight-max(left,right,crossLeft,crossRight);
 				//double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;
@@ -238,7 +245,7 @@ public class Explorer extends java.lang.Thread {
 				}
 			} if (state ==  2) { // scan right
 				int curang = g.anglei;
-				double heuv = Math.log(left)/2.0+Math.log(right)/2.0+Math.log(crossLeft)+Math.log(crossRight);
+				double heuv = left+right+crossLeft+crossRight-max(left,right,crossLeft,crossRight);
 				//double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;

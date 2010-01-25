@@ -20,7 +20,7 @@ public class Bump extends java.lang.Thread {
 	public int state = 0;
 	public String[] names = {"none", "fwdleft", "fwdright", "backleft", "backright"};
 	public float[] weights = {0.0f, 0.1f, 0.1f, 0.99f, 0.99f};
-	public int[] timeouts = {9999, 3, 3, 3, 3, 3, 3};
+	public int[] timeouts = {9999, 5, 5, 5, 5, 5, 5};
 	public int[] transitions = {0, 0, 0, 0, 0};
 	public int statetimeout = 0;
 	public Orc o = null;
@@ -45,15 +45,19 @@ public class Bump extends java.lang.Thread {
 					setState(1);
 				} if (fwdright.getValue()) {
 					setState(2);
-				} /*if (backleft.getValue()) {
+				} if (backleft.getValue()) {
 					setState(3);
 				} if (backright.getValue()) {
 					setState(4);
-				}*/
+				}
 			} if (state == 1) {
-				arb.setState(1);
+				leftMotorAction[idx] = -0.7f;
+				rightMotorAction[idx] = -0.7f;
+				//arb.setState(1);
 			} if (state == 2) {
-				arb.setState(1);
+				leftMotorAction[idx] = -0.7f;
+				rightMotorAction[idx] = -0.7f;
+				//arb.setState(1);
 			} if (state == 3) {
 				leftMotorAction[idx] = 1.0f;
 				rightMotorAction[idx] = 0.5f;

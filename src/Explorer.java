@@ -49,11 +49,11 @@ public class Explorer extends java.lang.Thread {
 		//   0
 		//90   270
 		//  180
-		angendi = (targang + 120) % 360;
+		angendi = (targang + 100) % 360;
 		} else if (newstate == 2) {
 		maxheu = 0;
 		targang = g.anglei;
-		angendi = (targang + 360 - 120) % 360;
+		angendi = (targang + 360 - 100) % 360;
 		}
 	}
 

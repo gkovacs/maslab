@@ -68,8 +68,8 @@ public class Arbiter extends java.lang.Thread {
 		MotorController c1 = new MotorController(kp, kd, ki);
 		*/
 
-		rightMotorLog = new float[70];
-		leftMotorLog = new float[70];
+		rightMotorLog = new float[100];
+		leftMotorLog = new float[100];
 		while (running) {
 			/*
 			float lma = maxVal(leftMotorAction, leftMotorWeight);

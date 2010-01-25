@@ -19,7 +19,7 @@ public class Explorer extends java.lang.Thread {
 	public int idx = 0;
 	public int state = 0;
 	public String[] names = {"forward", "left", "right", "rotateleft", "rotateright", "backupleft", "backupright"};
-	public int[] timeouts = {150, 80, 80, 60, 60, 20, 20};
+	public int[] timeouts = {150, 80, 80, 60, 60, 10, 10};
 	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f, 0.97f, 0.97f, 0.97f};
 	public int[] transitions = {0, 4, 3, 0, 0, 1, 2};
 	public int statetimeout = 0;
@@ -49,11 +49,11 @@ public class Explorer extends java.lang.Thread {
 		//   0
 		//90   270
 		//  180
-		angendi = (targang + 180) % 360;
+		angendi = (targang + 120) % 360;
 		} else if (newstate == 2) {
 		maxheu = 0;
 		targang = g.anglei;
-		angendi = (targang + 180) % 360;
+		angendi = (targang + 360 - 120) % 360;
 		}
 	}
 

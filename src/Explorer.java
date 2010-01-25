@@ -18,10 +18,10 @@ public class Explorer extends java.lang.Thread {
 	public float[] rightMotorWeight = null;
 	public int idx = 0;
 	public int state = 0;
-	public String[] names = {"forward", "left", "right", "rotateleft", "rotateright"};
-	public int[] timeouts = {80, 80, 80, 80, 80};
-	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f, 0.97f};
-	public int[] transitions = {0, 4, 3, 0, 0};
+	public String[] names = {"forward", "left", "right", "rotateleft", "rotateright", "backupleft", "backupright"};
+	public int[] timeouts = {80, 80, 80, 80, 80, 20, 20};
+	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f, 0.97f, 0.97f, 0.97f};
+	public int[] transitions = {0, 4, 3, 0, 0, 1, 2};
 	public int statetimeout = 0;
 	public Orc o = null;
 	public Gyroscope g = null;
@@ -171,11 +171,11 @@ public class Explorer extends java.lang.Thread {
 				if (/*crossLeft < 30 ||*/ right < 120) { // rotate left
 					lspeed = 0.0;
 					rspeed = 0.0;
-					setState(1);
+					setState(5);
 				} else if (crossRight < 140 || left < 120) { // rotate right
 					lspeed = 0.0;
 					rspeed = 0.0;
-					setState(2);
+					setState(6);
 				} else {
 			if (left > right) {
 				//leftMotorWeight[idx] = 0.8f;
@@ -220,7 +220,7 @@ public class Explorer extends java.lang.Thread {
 			}
 			} if (state ==  1) { // scan left
 				int curang = g.anglei;
-				double heuv = Math.min(left, 500.0)+Math.min(right, 500.0)+Math.min(crossLeft, 500.0)+Math.min(crossRight, 500.0);
+				double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;
 					targang = curang;
@@ -237,7 +237,7 @@ public class Explorer extends java.lang.Thread {
 				}
 			} if (state ==  2) { // scan right
 				int curang = g.anglei;
-				double heuv = Math.min(left, 500.0)+Math.min(right, 500.0)+Math.min(crossLeft, 500.0)+Math.min(crossRight, 500.0);
+				double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;
 					targang = curang;
@@ -274,6 +274,12 @@ public class Explorer extends java.lang.Thread {
 					lspeed = 0.7;
 					prevtargdiff = targdiff;
 				}
+			} if (state == 5) { // backup left
+				rspeed = -0.8;
+				lspeed = -0.6;
+			} if (state == 6) { // backup right
+				rspeed = -0.6;
+				lspeed = -0.8;
 			}
 			prevleft = left;
 			prevright = right;

@@ -1165,18 +1165,21 @@ public class Main {
 	public static void navigate() {
 		try {
 		Arbiter a = new Arbiter();
-		a.setup(3);
-		InfraR v = new InfraR();
-		v.setup(a, 0);
+		a.setup(4);
+		Gyroscope g = new Gyroscope();
+		g.setup(a, 0);
+		Explorer v = new Explorer();
+		v.setup(a, g, 1);
 		MouseController m = new MouseController();
-		m.setup(a, 1);
+		m.setup(a, 2);
 		Bump b = new Bump();
-		b.setup(a, 2);
-		a.start();
+		b.setup(a, 3);
+		g.start();
 		b.start();
 		v.start();
+		a.start();
 		//java.lang.Thread.sleep(10000); // 10 seconds
-		m.start();
+		//m.start();
 		java.lang.Thread.sleep(300000); // 300 seconds
 		//m.bye();
 		v.bye();

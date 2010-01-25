@@ -19,7 +19,7 @@ public class Explorer extends java.lang.Thread {
 	public int idx = 0;
 	public int state = 0;
 	public String[] names = {"forward", "left", "right", "rotateleft", "rotateright", "backupleft", "backupright"};
-	public int[] timeouts = {80, 80, 80, 80, 80, 20, 20};
+	public int[] timeouts = {150, 100, 100, 70, 70, 20, 20};
 	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f, 0.97f, 0.97f, 0.97f};
 	public int[] transitions = {0, 4, 3, 0, 0, 1, 2};
 	public int statetimeout = 0;
@@ -168,11 +168,11 @@ public class Explorer extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (/*crossLeft < 30 ||*/ right < 120) { // rotate left
+				if (/*crossLeft < 30 ||*/ right < 110) { // rotate left
 					lspeed = 0.0;
 					rspeed = 0.0;
 					setState(5);
-				} else if (crossRight < 140 || left < 120) { // rotate right
+				} else if (crossRight < 140 || left < 110) { // rotate right
 					lspeed = 0.0;
 					rspeed = 0.0;
 					setState(6);
@@ -220,7 +220,8 @@ public class Explorer extends java.lang.Thread {
 			}
 			} if (state ==  1) { // scan left
 				int curang = g.anglei;
-				double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
+				double heuv = Math.log(left)+Math.log(right)+Math.log(crossLeft)+Math.log(crossRight);
+				//double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;
 					targang = curang;
@@ -237,7 +238,8 @@ public class Explorer extends java.lang.Thread {
 				}
 			} if (state ==  2) { // scan right
 				int curang = g.anglei;
-				double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
+				double heuv = Math.log(left)+Math.log(right)+Math.log(crossLeft)+Math.log(crossRight);
+				//double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;
 					targang = curang;

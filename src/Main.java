@@ -1336,14 +1336,17 @@ public class Main {
 		a.setup(4);
 		Vision v = new Vision();
 		v.setup(a, 0);
-		InfraR ir = new InfraR();
-		ir.setup(a, 1);
+		Gyroscope g = new Gyroscope();
+		g.setup(a, 2);
+		Explorer e = new Explorer();
+		e.setup(a, g, 1);
 		MouseController mc = new MouseController();
 		mc.setup(a, 2);
 		Bump b = new Bump();
 		b.setup(a,3);
 		v.start();
-		ir.start();
+		g.start();
+		e.start();
 		b.start();
 		mc.start();
 		//java.lang.Thread.sleep(1000);
@@ -1351,7 +1354,8 @@ public class Main {
 		//java.lang.Thread.sleep(5000);
 		java.lang.Thread.sleep(296000); // 296 seconds
 		v.bye();
-		ir.bye();
+		g.bye();
+		e.bye();
 		mc.bye();
 		a.bye();
 		} catch (Exception e) {

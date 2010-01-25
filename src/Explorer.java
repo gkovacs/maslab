@@ -118,6 +118,17 @@ public class Explorer extends java.lang.Thread {
 		return d;
 	}
 
+	public static double heuf(double a, double b, double c, double d) {
+		a = Math.log(a);
+		b = Math.log(b);
+		c = Math.log(c);
+		d = Math.log(d);
+		if (a > b && a > c && a > d) return b+c+d;
+		if (b > a && b > c && b > d) return a+c+d;
+		if (c > a && c > b && c > d) return a+b+d;
+		return b+c+d;
+	}
+
 	public void run() {
 		try {
 		//byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
@@ -227,7 +238,8 @@ public class Explorer extends java.lang.Thread {
 			}
 			} if (state ==  1) { // scan left
 				int curang = g.anglei;
-				double heuv = left+right+crossLeft+crossRight-max(left,right,crossLeft,crossRight);
+				double heuv = heuf(left,right,crossLeft,crossRight);
+				//double heuv = left+right+crossLeft+crossRight-max(left,right,crossLeft,crossRight);
 				//double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;
@@ -245,7 +257,8 @@ public class Explorer extends java.lang.Thread {
 				}
 			} if (state ==  2) { // scan right
 				int curang = g.anglei;
-				double heuv = left+right+crossLeft+crossRight-max(left,right,crossLeft,crossRight);
+				double heuv = heuf(left,right,crossLeft,crossRight);
+				//double heuv = left+right+crossLeft+crossRight-max(left,right,crossLeft,crossRight);
 				//double heuv = Math.min(left, 800.0)+Math.min(right, 800.0)+Math.min(crossLeft, 800.0)+Math.min(crossRight, 800.0);
 				if (heuv > maxheu) {
 					maxheu = heuv;

@@ -61,8 +61,8 @@ public class Arbiter extends java.lang.Thread {
 
 	public void run() {
 		try {
-		rightMotor = new Motor(o, 0, true);
-		leftMotor = new Motor(o, 1, false);
+		rightMotor = new Motor(o, 1, false);
+		leftMotor = new Motor(o, 0, true);
 		rollers = new Motor(o, 2, false);
 		/*
 		QuadratureEncoder e0 = new QuadratureEncoder(o, 0, false);

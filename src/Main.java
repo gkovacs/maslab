@@ -1171,8 +1171,8 @@ public class Main {
 		//Explorer v = new Explorer();
 		InfraR v = new InfraR();
 		v.setup(a, 0);
-		MouseController m = new MouseController();
-		m.setup(a, 2);
+		//MouseController m = new MouseController();
+		//m.setup(a, 2);
 		//Bump b = new Bump();
 		//b.setup(a, 3);
 		//g.start();
@@ -1183,7 +1183,7 @@ public class Main {
 		//m.start();
 		java.lang.Thread.sleep(295000); // 300 seconds
 		a.bye();
-		m.bye();
+		//m.bye();
 		v.bye();
 		//b.bye();
 		} catch (Exception e) {
@@ -2042,7 +2042,7 @@ public class Main {
 		Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		AnalogInput left = new AnalogInput(o, 7);
 		AnalogInput right = new AnalogInput(o, 0);
-		AnalogInput cleft = new AnalogInput(o, 5);
+		AnalogInput cleft = new AnalogInput(o, 4);
 		AnalogInput cright = new AnalogInput(o, 2);
 		// 5 cross left
 		// 7 side left

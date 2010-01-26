@@ -1180,11 +1180,11 @@ public class Main {
 		a.start();
 		//java.lang.Thread.sleep(10000); // 10 seconds
 		m.start();
-		java.lang.Thread.sleep(300000); // 300 seconds
+		java.lang.Thread.sleep(295000); // 300 seconds
+		a.bye();
 		m.bye();
 		v.bye();
 		b.bye();
-		a.bye();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1333,7 +1333,7 @@ public class Main {
 	public static void explore() {
 		try {
 		Arbiter a = new Arbiter();
-		a.setup(4);
+		a.setup(5);
 		Vision v = new Vision();
 		v.setup(a, 0);
 		Gyroscope g = new Gyroscope();
@@ -1341,14 +1341,14 @@ public class Main {
 		Explorer e = new Explorer();
 		e.setup(a, g, 1);
 		MouseController mc = new MouseController();
-		mc.setup(a, 2);
+		mc.setup(a, 3);
 		Bump b = new Bump();
-		b.setup(a,3);
+		b.setup(a,4);
 		v.start();
 		g.start();
 		e.start();
 		b.start();
-		mc.start();
+		//mc.start();
 		//java.lang.Thread.sleep(1000);
 		a.start();
 		//java.lang.Thread.sleep(5000);

@@ -87,8 +87,8 @@ public class MouseController extends java.lang.Thread {
 		rollerWeight[idx] = 0.0f;
 		leftMotorWeight[idx] = 0.0f;
 		rightMotorWeight[idx] = 0.0f;
-		xdisp = new long[80];
-		ydisp = new long[80];
+		xdisp = new long[40];
+		ydisp = new long[40];
 		xdisp[0] = 9999;
 		xdisp[xdisp.length-1] = 9999;
 		ydisp[0] = 9999;

@@ -21,6 +21,9 @@ public class Arbiter extends java.lang.Thread {
 	public float[] rollerAction = null;
 	public float[] rollerWeight = null;
 	public Orc o = null;
+	public Motor rightMotor = null;
+	public Motor leftMotor = null;
+	public Motor rollers = null;
 	public byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 
 	public float kp = 0.1f;
@@ -58,9 +61,9 @@ public class Arbiter extends java.lang.Thread {
 
 	public void run() {
 		try {
-		Motor rightMotor = new Motor(o, 0, true);
-		Motor leftMotor = new Motor(o, 1, false);
-		Motor rollers = new Motor(o, 2, false);
+		rightMotor = new Motor(o, 0, true);
+		leftMotor = new Motor(o, 1, false);
+		rollers = new Motor(o, 2, false);
 		/*
 		QuadratureEncoder e0 = new QuadratureEncoder(o, 0, false);
 		QuadratureEncoder e1 = new QuadratureEncoder(o, 1, false);
@@ -93,7 +96,7 @@ public class Arbiter extends java.lang.Thread {
 			System.out.println("left: "+lma+" right: "+rma);
 			leftMotor.setPWM((float)bound(lma, 1.0f, -1.0f)*0.95);
 			rightMotor.setPWM((float)bound(rma, 1.0f, -1.0f));
-			rollers.setPWM((float)bound(rla, 1.0f, -1.0f));
+			rollers.setPWM((float)bound(rla, 0.5f, -0.5f));
 			} else { // turning back time
 				leftMotor.setPWM(-leftMotorLog[timeback]);
 				rightMotor.setPWM(-rightMotorLog[timeback]);
@@ -138,5 +141,8 @@ public class Arbiter extends java.lang.Thread {
 
 	public void bye() {
 		running = false;
+		leftMotor.setPWM(0.0);
+		rightMotor.setPWM(0.0);
+		rollers.setPWM(0.0);
 	}
 }

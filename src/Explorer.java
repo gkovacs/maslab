@@ -186,14 +186,14 @@ public class Explorer extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (/*crossLeft < 30 ||*/ right < 80) { // rotate left
+				if (/*crossLeft < 30 ||*/ right < 100) { // rotate left
 					lspeed = 0.0;
 					rspeed = 0.0;
-					setState(5);
-				} else if (crossRight < 130 || left < 80) { // rotate right
+					setState(1);
+				} else if (crossRight < 130 || left < 100) { // rotate right
 					lspeed = 0.0;
 					rspeed = 0.0;
-					setState(6);
+					setState(2);
 				} else {
 			if (left > right) {
 				//leftMotorWeight[idx] = 0.8f;

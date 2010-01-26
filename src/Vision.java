@@ -88,7 +88,7 @@ public class Vision extends java.lang.Thread {
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4};
-	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 0.975f, 0.4f, 0.975f, 0.975f};
+	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 2.00f, 0.4f, 0.965f, 0.965f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1};
 	public int statetimeout = 0;
@@ -232,7 +232,7 @@ public class Vision extends java.lang.Thread {
 					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
 						setState(2);
 						setWeight(1.0f);
-						statetimeout = 10;
+						statetimeout = 20;
 					} else { // we misssed the ball, search further //go back // search further
 						//setState(-1);
 						if (pxoffset > 0) { // likely disappeared off the right, scan right
@@ -257,11 +257,11 @@ public class Vision extends java.lang.Thread {
 				rightMotorAction[idx] = rspeed;
 				}
 			} if (state == 2) { // forwards
-				leftMotorAction[idx] = 0.6f;
-				rightMotorAction[idx] = 0.6f;
+				leftMotorAction[idx] = 0.7f;
+				rightMotorAction[idx] = 0.7f;
 			} if (state == 3) { // backwards
-				leftMotorAction[idx] = -0.6f;
-				rightMotorAction[idx] = -0.6f;
+				leftMotorAction[idx] = -0.7f;
+				rightMotorAction[idx] = -0.7f;
 			} if (state == 4) { // gate delivery approach
 				/*if (!gateseen) { // we missed the gate, back up
 					setState(3);
@@ -450,7 +450,7 @@ public class Vision extends java.lang.Thread {
 		//findWallBottom(hsvR, wallR);
 		//mostcarpet(hsvR, wallR);
 		//paintwalls(hsvR, wallR);
-		
+		/*
 		paintwalls(hsvR, walltop, wallbot);
 		meanfilter2(wallbot,wallbotm);
 		meanfilter2(walltop,walltopm);
@@ -460,7 +460,7 @@ public class Vision extends java.lang.Thread {
 		wallC.setImage(wallI);
 		wallL.setIcon(wallC);
 		wallL.repaint();
-		
+		*/
 		hsvC.setImage(hsvI);
 		hsvL.setIcon(hsvC);
 		hsvL.repaint();
@@ -470,11 +470,11 @@ public class Vision extends java.lang.Thread {
 		mapL.setIcon(mapC);
 		mapL.repaint();
 		*/
-		shadeColors(hsvR,colorR);
+		//shadeColors(hsvR,colorR);
 		//shadeColors(origR,colorR);
-		colorC.setImage(colorI);
-		colorL.setIcon(colorC);
-		colorL.repaint();
+		//colorC.setImage(colorI);
+		//colorL.setIcon(colorC);
+		//colorL.repaint();
 		//seekStart2(r,r3);
 		/*
 		rgb2hsv(origR, wallR);

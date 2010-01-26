@@ -1166,25 +1166,26 @@ public class Main {
 		try {
 		Arbiter a = new Arbiter();
 		a.setup(4);
-		Gyroscope g = new Gyroscope();
-		g.setup(a, 0);
-		Explorer v = new Explorer();
-		v.setup(a, g, 1);
+		//Gyroscope g = new Gyroscope();
+		//g.setup(a, 0);
+		//Explorer v = new Explorer();
+		InfraR v = new InfraR();
+		v.setup(a, 0);
 		MouseController m = new MouseController();
 		m.setup(a, 2);
-		Bump b = new Bump();
-		b.setup(a, 3);
-		g.start();
-		b.start();
+		//Bump b = new Bump();
+		//b.setup(a, 3);
+		//g.start();
+		//b.start();
 		v.start();
 		a.start();
 		//java.lang.Thread.sleep(10000); // 10 seconds
-		m.start();
+		//m.start();
 		java.lang.Thread.sleep(295000); // 300 seconds
 		a.bye();
 		m.bye();
 		v.bye();
-		b.bye();
+		//b.bye();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1347,7 +1348,7 @@ public class Main {
 		v.start();
 		g.start();
 		e.start();
-		b.start();
+		//b.start();
 		//mc.start();
 		//java.lang.Thread.sleep(1000);
 		a.start();

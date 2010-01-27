@@ -1613,9 +1613,10 @@ public class Main {
 		try {
 		Arbiter a = new Arbiter();
 		a.setup(1);
-		a.kp = (float)kp;
-		a.kd = (float)kd;
-		a.ki= (float)ki;
+		//a.kp = (float)kp;
+		//a.kd = (float)kd;
+		//a.ki= (float)ki;
+		
 		//Vision v = new Vision();
 		//v.setup(a, 0);
 		//a.start();

@@ -12,9 +12,9 @@ import orc.*;
 
 public class Bump extends java.lang.Thread {
 	public boolean running = true;
-	public float[] leftMotorAction = null;
+	public double[] leftMotorAction = null;
 	public float[] leftMotorWeight = null;
-	public float[] rightMotorAction = null;
+	public double[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
 	public int idx = 0;
 	public int state = 0;

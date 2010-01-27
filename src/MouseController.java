@@ -10,9 +10,9 @@
 public class MouseController extends java.lang.Thread {
 	public Mouse m = null;
 	public boolean running = true;
-	public float[] leftMotorAction = null;
+	public double[] leftMotorAction = null;
 	public float[] leftMotorWeight = null;
-	public float[] rightMotorAction = null;
+	public double[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
 	public int idx = 0;
 	public int xvel = 0;
@@ -117,8 +117,8 @@ public class MouseController extends java.lang.Thread {
 			if (unstuckmotion == 0) {
 				leftMotorWeight[idx] = 0.0f;
 				rightMotorWeight[idx] = 0.0f;
-				float leftact = maxVal(leftMotorAction, leftMotorWeight);
-				float rightact = maxVal(rightMotorAction, rightMotorWeight);
+				//float leftact = maxVal(leftMotorAction, leftMotorWeight);
+				//float rightact = maxVal(rightMotorAction, rightMotorWeight);
 				if (totaldispy+totaldispx < 100) {
 						unstuckmotion = 60;
 						direction = reverseb(direction);

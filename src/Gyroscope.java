@@ -12,9 +12,9 @@ import orc.*;
 
 public class Gyroscope extends java.lang.Thread {
 
-	public float[] leftMotorAction = null;
+	public double[] leftMotorAction = null;
 	public float[] leftMotorWeight = null;
-	public float[] rightMotorAction = null;
+	public double[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
 	public float[] rollerAction = null;
 	public float[] rollerWeight = null;
@@ -220,8 +220,6 @@ public class Gyroscope extends java.lang.Thread {
 		leftMotorWeight = a.leftMotorWeight;
 		rightMotorAction = a.rightMotorAction;
 		rightMotorWeight = a.rightMotorWeight;
-		//rollerAction = a.rollerAction;
-		//rollerWeight = a.rollerWeight;
 	}
 
 	public void bye() {

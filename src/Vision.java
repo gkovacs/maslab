@@ -16,9 +16,9 @@ import java.awt.image.*;
 
 public class Vision extends java.lang.Thread {
 	public boolean running = true;
-	public float[] leftMotorAction = null;
+	public double[] leftMotorAction = null;
 	public float[] leftMotorWeight = null;
-	public float[] rightMotorAction = null;
+	public double[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
 	//public float[] rollerAction = null;
 	//public float[] rollerWeight = null;

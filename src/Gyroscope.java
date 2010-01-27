@@ -183,11 +183,11 @@ public class Gyroscope extends java.lang.Thread {
 			shiftleft(angledisp, angle);
 			System.err.println(dispArray(angledisp));
 			if (dispArray(angledisp) < 0.05) {
-				escapemode = 120;
+				escapemode = 80;
 			} if (escapemode > 0) {
 				leftMotorWeight[idx] = 2.5f;
 				rightMotorWeight[idx] = 2.5f;
-				if (escapemode > 80) { // backup
+				if (escapemode > 40) { // backup
 					leftMotorAction[idx] = -0.8f;
 					rightMotorAction[idx] = -0.8f;
 				} else { // left

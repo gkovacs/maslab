@@ -127,9 +127,9 @@ public class InfraR extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (crossRight < 120 || right < 90) { // rotate left
+				if (crossRight < 130 || right < 90) { // rotate left
 					setState(1);
-				} else if (crossLeft < 120 || left < 90) { // rotate right
+				} else if (crossLeft < 130 || left < 90) { // rotate right
 					setState(2);
 				} else {
 			if (left > right) {

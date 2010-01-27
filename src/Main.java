@@ -1347,9 +1347,12 @@ public class Main {
 		//mc.setup(a, 3);
 		//Bump b = new Bump();
 		//b.setup(a,4);
-		v.start();
-		ir.start();
+		java.lang.Thread.sleep(250);
 		g.start();
+		java.lang.Thread.sleep(1000);
+		v.start();
+		v.gatetimer = 501;
+		ir.start();
 		//e.start();
 		//b.start();
 		//mc.start();

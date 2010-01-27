@@ -288,17 +288,50 @@ public class Vision extends java.lang.Thread {
 				rollerAction[idx] = -1.0f;
 				++shoottimer;
 				if (shoottimer < 8) { // go back
+					if (gateseen) {
+					float basevel = -0.7f;
+					//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
+					float rspeed = k*gatepxoffset; //+ 0.6f;
+					float lspeed = -k*gatepxoffset; //+ 0.6f;
+					if (lspeed > rspeed) {
+						rspeed += basevel-Math.abs(lspeed);
+						lspeed = basevel;
+					} else {
+						lspeed += basevel-Math.abs(rspeed);
+						rspeed = basevel;
+					}
+					leftMotorAction[idx] = lspeed;
+					rightMotorAction[idx] = rspeed;
+					} else {
 					rightMotorAction[idx] = -0.7f;
 					leftMotorAction[idx] = -0.7f;
+					}
 				} else if (shoottimer < 10) { // stop
 					rightMotorAction[idx] = 0.0f;
 					leftMotorAction[idx] = 0.0f;
 				}else {
 					if (shoottimer == 17) {
 						shoottimer = 0;
+					} else { // forward
+					if (gateseen) {
+					float basevel = 0.7f;
+					//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
+					float rspeed = -k*gatepxoffset; //+ 0.6f;
+					float lspeed = k*gatepxoffset; //+ 0.6f;
+					if (lspeed > rspeed) {
+						rspeed += basevel-Math.abs(lspeed);
+						lspeed = basevel;
+					} else {
+						lspeed += basevel-Math.abs(rspeed);
+						rspeed = basevel;
 					}
+					leftMotorAction[idx] = lspeed;
+					rightMotorAction[idx] = rspeed;
+					} else {
 					rightMotorAction[idx] = 0.7f;
 					leftMotorAction[idx] = 0.7f;
+					}
+					}
 				}
 			} if (state == 6) { // explore
 				rollerAction[idx] = 0.0f;

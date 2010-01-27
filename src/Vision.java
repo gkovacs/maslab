@@ -73,6 +73,7 @@ public class Vision extends java.lang.Thread {
 	public int[] walltopm = null;
 	public int[] queuex = null;
 	public int[] queuey = null;
+	public Colors[] ctable = null;
 	public boolean circleseen = false;
 	public boolean gateseen = false;
 	public boolean unknownseen = false;
@@ -155,6 +156,32 @@ public class Vision extends java.lang.Thread {
 		try {
 		//byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		//Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		ctable = new Colors[16777216];
+		for (int r = 0; r < 256; ++r) {
+			for (int g = 0; g < 256; ++g) {
+				for (int b = 0; b < 256; ++b) {
+					int max = Math.max(Math.max(r, g), b);
+					int min = Math.min(Math.min(r, g), b);
+					int h = 0;
+					int s = 0;
+					int delta = max-min;
+					if (delta == 0) delta = 1;
+					if (max != 0) {
+						s = 255*delta/max;
+						if (max == r) {
+							h = (g-b)*85/(2*delta);
+							if (h < 0)
+								h += 256;
+						} else if (max == g) {
+							h = 85 + (b-r)*85/(2*delta);
+						} else { // max == b
+							h = 170 + (r-g)*85/(2*delta);
+						}
+						ctable[r*65536+g*256+b] = getColorHsv(h,s,max);
+					}
+				}
+			}
+		}
 		System.out.println("1");
 		orc.camera.Camera c;
 		System.out.println("1a");
@@ -561,7 +588,7 @@ public class Vision extends java.lang.Thread {
 		origC.setImage(origI);
 		origL.setIcon(origC);
 		origL.repaint();
-		rgb2hsv(origR, hsvR);
+		//rgb2hsv(origR, hsvR);
 		/*
 		breakcomponents(hsvR, hR, sR, vR);
 		hC.setImage(hI);
@@ -588,9 +615,11 @@ public class Vision extends java.lang.Thread {
 		wallL.setIcon(wallC);
 		wallL.repaint();
 		*/
+		/*
 		hsvC.setImage(hsvI);
 		hsvL.setIcon(hsvC);
 		hsvL.repaint();
+		*/
 		/*
 		mapwalls(mapR,walltopm,wallbotm);
 		mapC.setImage(mapI);
@@ -598,10 +627,10 @@ public class Vision extends java.lang.Thread {
 		mapL.repaint();
 		*/
 		//shadeColors(hsvR,colorR);
-		//shadeColors(origR,colorR);
-		//colorC.setImage(colorI);
-		//colorL.setIcon(colorC);
-		//colorL.repaint();
+		shadeColors(origR,colorR);
+		colorC.setImage(colorI);
+		colorL.setIcon(colorC);
+		colorL.repaint();
 		//seekStart2(r,r3);
 		/*
 		rgb2hsv(origR, wallR);
@@ -768,7 +797,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void paintwalls(WritableRaster r1, int[] wtop, int[] wbot) {
+	public void paintwalls(WritableRaster r1, int[] wtop, int[] wbot) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int numcarpet = 0;
 			int numwall = 0;
@@ -838,7 +867,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void mostcarpet(WritableRaster r1, WritableRaster r2) {
+	public void mostcarpet(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int numcarpet = 0;
 			int numwall = 0;
@@ -869,7 +898,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void walldist2(WritableRaster r1, WritableRaster r2) {
+	public void walldist2(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int numcarpet = 0;
 			int numwall = 0;
@@ -912,7 +941,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void walldist(WritableRaster r1, WritableRaster r2) {
+	public void walldist(WritableRaster r1, WritableRaster r2) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int numcarpet = 0;
 			int numwall = 0;
@@ -1114,7 +1143,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void blankTop(final WritableRaster r1, final int[] wtop) {
+	public void blankTop(final WritableRaster r1, final int[] wtop) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			//int y = wtop[x]-1 < r1.getHeight()-1 ? wtop[x]-1 : r1.getHeight()-1; // ugly hack
 			int y = wtop[x]-1;
@@ -1155,7 +1184,7 @@ public class Vision extends java.lang.Thread {
 		return (r.getSample(x, y, 0) == 0 && r.getSample(x, y, 1) == 0 && r.getSample(x, y, 2) == 0);
 	}
 
-	public static void setExtrema4(final WritableRaster r1, final WritableRaster r2, final int ox, final int oy, final Extrema m, final Colors c, final int[] qx, final int[] qy) {
+	public void setExtrema4(final WritableRaster r1, final WritableRaster r2, final int ox, final int oy, final Extrema m, final Colors c, final int[] qx, final int[] qy) {
 		int s = 0;
 		int e = 1;
 		qx[0] = ox;
@@ -1243,7 +1272,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void setExtrema3(final WritableRaster r1, final WritableRaster r2, final int ox, final int oy, final Extrema m, final Colors c) {
+	public void setExtrema3(final WritableRaster r1, final WritableRaster r2, final int ox, final int oy, final Extrema m, final Colors c) {
 		java.util.LinkedList<Integer> qx = new java.util.LinkedList<Integer>();
 		java.util.LinkedList<Integer> qy = new java.util.LinkedList<Integer>();
 		qx.add(ox);
@@ -1277,7 +1306,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	private static void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m, final Colors c) {
+	private void setExtrema2(final WritableRaster raster, final WritableRaster r2, final int x, final int y, final Extrema m, final Colors c) {
 			Rectangle bounds = raster.getBounds();
 			int fillL = x;
 			do {
@@ -1460,7 +1489,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void findBlueLine(final WritableRaster r1, final int[] wtop, final int[] wbot) {
+	public void findBlueLine(final WritableRaster r1, final int[] wtop, final int[] wbot) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int y = r1.getHeight()-1;
 			wtop[x] = y;
@@ -1491,7 +1520,7 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static void findWalls(final WritableRaster r1, final int[] wtop, final int[] wbot) {
+	public void findWalls(final WritableRaster r1, final int[] wtop, final int[] wbot) {
 		for (int x = 0; x < r1.getWidth(); ++x) {
 			int y = r1.getHeight()-1;
 			wbot[x] = 0;
@@ -1879,7 +1908,19 @@ public class Vision extends java.lang.Thread {
 		}
 	}
 
-	public static Colors getColor(int r, int g, int b) {
+	public static Colors getColorHsv(int r, int g, int b) {
+		if (isRedHsv(r,g,b)) return Colors.Red;
+		else if (isYellowHsv(r,g,b)) return Colors.Yellow;
+		else if (isBlueHsv(r,g,b)) return Colors.Blue;
+		//else if (r > 190 && g > 190 && b > 170) return Colors.White;
+		else if (isWhiteHsv(r,g,b)) return Colors.White;
+		else if (isCarpetHsv(r,g,b)) return Colors.Carpet;
+		else return Colors.None;
+	}
+
+	public Colors getColor(int r, int g, int b) {
+		return ctable[r*65536+g*256+b];
+		/*
 		if (isRed(r,g,b)) return Colors.Red;
 		else if (isYellow(r,g,b)) return Colors.Yellow;
 		else if (isBlue(r,g,b)) return Colors.Blue;
@@ -1887,13 +1928,16 @@ public class Vision extends java.lang.Thread {
 		else if (isWhite(r,g,b)) return Colors.White;
 		else if (isCarpet(r,g,b)) return Colors.Carpet;
 		else return Colors.None;
+		*/
 	}
 
-	public static Colors getColor(WritableRaster r1, int x, int y) {
+	public Colors getColor(WritableRaster r1, int x, int y) {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
+			return ctable[r*65536+g*256+b];
+			/*
 			//if (r > 110 && 5*(g+b) < 6*r) return Colors.Red;
 			if (isRed(r,g,b)) return Colors.Red;
 			else if (isYellow(r,g,b)) return Colors.Yellow;
@@ -1901,52 +1945,101 @@ public class Vision extends java.lang.Thread {
 			//else if (r > 190 && g > 190 && b > 170) return Colors.White;
 			else if (isWhite(r,g,b)) return Colors.White;
 			else if (isCarpet(r,g,b)) return Colors.Carpet;
+			*/
 		} return Colors.None;
 	}
 
-	public static boolean isCarpet(final WritableRaster r1, final int x, final int y) {
+	public boolean isCarpet(final WritableRaster r1, final int x, final int y) {
 		return isCarpet(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public static boolean isRed(final WritableRaster r1, final int x, final int y) {
+	public boolean isRed(final WritableRaster r1, final int x, final int y) {
 		return isRed(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public static boolean isYellow(final WritableRaster r1, final int x, final int y) {
+	public boolean isYellow(final WritableRaster r1, final int x, final int y) {
 		return isYellow(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public static boolean isBlue(final WritableRaster r1, final int x, final int y) {
+	public boolean isBlue(final WritableRaster r1, final int x, final int y) {
 		return isBlue(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public static boolean isWhite(final WritableRaster r1, final int x, final int y) {
+	public boolean isWhite(final WritableRaster r1, final int x, final int y) {
 		return isWhite(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public static boolean isCarpet(final int h, final int s, final int v) {
+	public boolean isCarpet(final int r, final int g, final int b) {
+		return (ctable[r*65536+g*256+b] == Colors.Carpet);
+	}
+
+	public boolean isRed(final int r, final int g, final int b) {
+		return (ctable[r*65536+g*256+b] == Colors.Red);
+	}
+
+	public boolean isYellow(final int r, final int g, final int b) {
+		return (ctable[r*65536+g*256+b] == Colors.Yellow);
+	}
+
+	public boolean isBlue(final int r, final int g, final int b) {
+		return (ctable[r*65536+g*256+b] == Colors.Blue);
+	}
+
+	public boolean isWhite(final int r, final int g, final int b) {
+		return (ctable[r*65536+g*256+b] == Colors.White);
+	}
+
+	public static boolean isCarpetHsv(final int h, final int s, final int v) {
 		//return false;
 		return (50 <= h && h <= 200) && (s <= 50) && (v <= 220);
 	}
 
-	public static boolean isRed(final int h, final int s, final int v) {
+
+	public static boolean isRedHsv(final int h, final int s, final int v) {
 		// 0
 		return (220 <= h || h <= 7) && (77 <= s && s <= 170) && (64 <= v && v <= 220);
 	}
 
-	public static boolean isYellow(final int h, final int s, final int v) {
+	public static boolean isYellowHsv(final int h, final int s, final int v) {
 		// 43
 		return (8 <= h && h <= 90) && (100 <= s) & (170 <= v);
 	}
 
-	public static boolean isBlue(final int h, final int s, final int v) {
+	public static boolean isBlueHsv(final int h, final int s, final int v) {
 		// 170
 		return (91 <= h && h <= 219) && (90 <= s) && (100 <= v);
 	}
 
-	public static boolean isWhite(final int h, final int s, final int v) {
+	public static boolean isWhiteHsv(final int h, final int s, final int v) {
 		return (h <= 60 || 240 <= h) && (s <= 80) && (140 <= v);
 	}
+
+	/*
+	public static boolean isCarpetHsv(final int h, final int s, final int v) {
+		//return false;
+		return (50 <= h && h <= 200) && (s <= 50) && (v <= 220);
+	}
+
+	
+	public static boolean isRedHsv(final int h, final int s, final int v) {
+		// 0
+		return (220 <= h || h <= 7) && (77 <= s && s <= 170) && (64 <= v && v <= 220);
+	}
+
+	public static boolean isYellowHsv(final int h, final int s, final int v) {
+		// 43
+		return (8 <= h && h <= 90) && (100 <= s) & (170 <= v);
+	}
+
+	public static boolean isBlueHsv(final int h, final int s, final int v) {
+		// 170
+		return (91 <= h && h <= 219) && (90 <= s) && (100 <= v);
+	}
+
+	public static boolean isWhiteHsv(final int h, final int s, final int v) {
+		return (h <= 60 || 240 <= h) && (s <= 80) && (140 <= v);
+	}
+	*/
 
 	/* RGB
 

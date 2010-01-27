@@ -1371,6 +1371,30 @@ public class Main {
 		}
 	}
 
+	public static void testturn() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(5);
+		Vision v = new Vision();
+		v.setup(a, 0);
+		Gyroscope g = new Gyroscope();
+		g.setup(a, 2);
+		java.lang.Thread.sleep(250);
+		g.start();
+		java.lang.Thread.sleep(1000);
+		v.gyro = g;
+		v.start();
+		v.setState(9);
+		a.start();
+		java.lang.Thread.sleep(296000); // 296 seconds
+		v.bye();
+		g.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void testgate() {
 		try {
 		Arbiter a = new Arbiter();
@@ -1530,6 +1554,7 @@ public class Main {
 			else if (args[0].contentEquals("navigate")) navigate();
 			else if (args[0].contentEquals("navodom")) navodom();
 			else if (args[0].contentEquals("explore")) explore();
+			else if (args[0].contentEquals("testturn")) testturn();
 			else if (args[0].contentEquals("testmousecontroller")) testmousecontroller();
 			else if (args[0].contentEquals("saveimages")) saveimages();
 			else if (args[0].contentEquals("testmouse")) testmouse3();

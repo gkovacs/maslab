@@ -87,10 +87,10 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4};
-	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 2.00f, 0.4f, 0.975f, 0.975f};
-	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright"};
-	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, 30, 30, 30};
+	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 2.00f, 0.4f, 0.975f, 0.975f, 0.975f, 0.975f, 0.975f};
+	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright", "turnright", "turnleft", "edgeforward"};
+	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1, -1, -1, -1};
 	public int statetimeout = 0;
 	public boolean turningright = true;
 	public boolean goforward = false;
@@ -102,6 +102,9 @@ public class Vision extends java.lang.Thread {
 	//public MouseController mc = null;
 	//public Orc o = null;
 	public Odometry odom = null;
+	public Gyroscope gyro = null;
+	public int curangle = 0;
+	public int desangle = 0;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;
@@ -124,6 +127,9 @@ public class Vision extends java.lang.Thread {
 			} else {
 				newstate = 3;
 			}
+		} if (newstate == 9) { // turn 90 degrees
+			curangle = gyro.anglei;
+			desangle = curangle + 90 % 360;
 		}
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
@@ -270,7 +276,7 @@ public class Vision extends java.lang.Thread {
 					gatetimer = 0;
 					shoottimer = 0;
 				} else { // approach the gate
-				float basevel = 0.6f;
+				float basevel = 0.7f;
 				//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
 				float rspeed = -k*gatepxoffset; //+ 0.6f;
 				float lspeed = k*gatepxoffset; //+ 0.6f;
@@ -373,6 +379,26 @@ public class Vision extends java.lang.Thread {
 			} if (state == 8) { // rotate right
 				leftMotorAction[idx] = 0.7f;
 				rightMotorAction[idx] = -0.1f;
+			} if (state == 9) { // turn right 90 degrees
+				int cangle = gyro.anglei;
+				if (Math.abs(cangle-desangle) < 5) { // we're done
+					leftMotorAction[idx] = 0.0f;
+					rightMotorAction[idx] = 0.0f;
+					break;
+				} else {
+					leftMotorAction[idx] = 0.7f;
+					rightMotorAction[idx] = -0.7f;
+				}
+			} if (state == 10) { // turn left 90 degrees
+				int cangle = gyro.anglei;
+				if (Math.abs(cangle-desangle) < 5) { // we're done
+					leftMotorAction[idx] = 0.0f;
+					rightMotorAction[idx] = 0.0f;
+					break;
+				} else {
+					leftMotorAction[idx] = -0.7f;
+					rightMotorAction[idx] = 0.7f;
+				}
 			}
 			java.lang.Thread.sleep(10);
 		}

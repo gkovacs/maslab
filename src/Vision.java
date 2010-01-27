@@ -73,7 +73,7 @@ public class Vision extends java.lang.Thread {
 	public int[] walltopm = null;
 	public int[] queuex = null;
 	public int[] queuey = null;
-	public Colors[] ctable = null;
+	//public Colors[] ctable = null;
 	public boolean circleseen = false;
 	public boolean gateseen = false;
 	public boolean unknownseen = false;
@@ -156,32 +156,6 @@ public class Vision extends java.lang.Thread {
 		try {
 		//byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		//Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
-		ctable = new Colors[16777216];
-		for (int r = 0; r < 256; ++r) {
-			for (int g = 0; g < 256; ++g) {
-				for (int b = 0; b < 256; ++b) {
-					int max = Math.max(Math.max(r, g), b);
-					int min = Math.min(Math.min(r, g), b);
-					int h = 0;
-					int s = 0;
-					int delta = max-min;
-					if (delta == 0) delta = 1;
-					if (max != 0) {
-						s = 255*delta/max;
-						if (max == r) {
-							h = (g-b)*85/(2*delta);
-							if (h < 0)
-								h += 256;
-						} else if (max == g) {
-							h = 85 + (b-r)*85/(2*delta);
-						} else { // max == b
-							h = 170 + (r-g)*85/(2*delta);
-						}
-						ctable[r*65536+g*256+b] = getColorHsv(h,s,max);
-					}
-				}
-			}
-		}
 		System.out.println("1");
 		orc.camera.Camera c;
 		System.out.println("1a");
@@ -507,6 +481,32 @@ public class Vision extends java.lang.Thread {
 		rightMotorWeight = a.rightMotorWeight;
 		rollerAction = a.rollerAction;
 		rollerWeight = a.rollerWeight;
+		CON.ctable = new int[16777216];
+		for (int r = 0; r < 256; ++r) {
+			for (int g = 0; g < 256; ++g) {
+				for (int b = 0; b < 256; ++b) {
+					int max = Math.max(Math.max(r, g), b);
+					int min = Math.min(Math.min(r, g), b);
+					int h = 0;
+					int s = 0;
+					int delta = max-min;
+					if (delta == 0) delta = 1;
+					if (max != 0) {
+						s = 255*delta/max;
+						if (max == r) {
+							h = (g-b)*85/(2*delta);
+							if (h < 0)
+								h += 256;
+						} else if (max == g) {
+							h = 85 + (b-r)*85/(2*delta);
+						} else { // max == b
+							h = 170 + (r-g)*85/(2*delta);
+						}
+						CON.ctable[r*65536+g*256+b] = getColorHsv(h,s,max).ordinal();
+					}
+				}
+			}
+		}
 	}
 
 	public void bye() {
@@ -1918,8 +1918,8 @@ public class Vision extends java.lang.Thread {
 		else return Colors.None;
 	}
 
-	public Colors getColor(int r, int g, int b) {
-		return ctable[r*65536+g*256+b];
+	public static Colors getColor(int r, int g, int b) {
+		return CON.cmap[CON.ctable[r*65536+g*256+b]];
 		/*
 		if (isRed(r,g,b)) return Colors.Red;
 		else if (isYellow(r,g,b)) return Colors.Yellow;
@@ -1931,12 +1931,12 @@ public class Vision extends java.lang.Thread {
 		*/
 	}
 
-	public Colors getColor(WritableRaster r1, int x, int y) {
+	public static Colors getColor(WritableRaster r1, int x, int y) {
 		if (x >= 0 && y >= 0 && x < r1.getWidth() && y < r1.getHeight()) {
 			int r = r1.getSample(x, y, 0);
 			int g = r1.getSample(x, y, 1);
 			int b = r1.getSample(x, y, 2);
-			return ctable[r*65536+g*256+b];
+			return CON.cmap[CON.ctable[r*65536+g*256+b]];
 			/*
 			//if (r > 110 && 5*(g+b) < 6*r) return Colors.Red;
 			if (isRed(r,g,b)) return Colors.Red;
@@ -1949,44 +1949,44 @@ public class Vision extends java.lang.Thread {
 		} return Colors.None;
 	}
 
-	public boolean isCarpet(final WritableRaster r1, final int x, final int y) {
+	public static boolean isCarpet(final WritableRaster r1, final int x, final int y) {
 		return isCarpet(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public boolean isRed(final WritableRaster r1, final int x, final int y) {
+	public static boolean isRed(final WritableRaster r1, final int x, final int y) {
 		return isRed(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public boolean isYellow(final WritableRaster r1, final int x, final int y) {
+	public static boolean isYellow(final WritableRaster r1, final int x, final int y) {
 		return isYellow(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public boolean isBlue(final WritableRaster r1, final int x, final int y) {
+	public static boolean isBlue(final WritableRaster r1, final int x, final int y) {
 		return isBlue(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public boolean isWhite(final WritableRaster r1, final int x, final int y) {
+	public static boolean isWhite(final WritableRaster r1, final int x, final int y) {
 		return isWhite(r1.getSample(x, y, 0),r1.getSample(x, y, 1),r1.getSample(x, y, 2));
 	}
 
-	public boolean isCarpet(final int r, final int g, final int b) {
-		return (ctable[r*65536+g*256+b] == Colors.Carpet);
+	public static boolean isCarpet(final int r, final int g, final int b) {
+		return (CON.ctable[r*65536+g*256+b] == Colors.Carpet.ordinal());
 	}
 
-	public boolean isRed(final int r, final int g, final int b) {
-		return (ctable[r*65536+g*256+b] == Colors.Red);
+	public static boolean isRed(final int r, final int g, final int b) {
+		return (CON.ctable[r*65536+g*256+b] == Colors.Red.ordinal());
 	}
 
-	public boolean isYellow(final int r, final int g, final int b) {
-		return (ctable[r*65536+g*256+b] == Colors.Yellow);
+	public static boolean isYellow(final int r, final int g, final int b) {
+		return (CON.ctable[r*65536+g*256+b] == Colors.Yellow.ordinal());
 	}
 
-	public boolean isBlue(final int r, final int g, final int b) {
-		return (ctable[r*65536+g*256+b] == Colors.Blue);
+	public static boolean isBlue(final int r, final int g, final int b) {
+		return (CON.ctable[r*65536+g*256+b] == Colors.Blue.ordinal());
 	}
 
-	public boolean isWhite(final int r, final int g, final int b) {
-		return (ctable[r*65536+g*256+b] == Colors.White);
+	public static boolean isWhite(final int r, final int g, final int b) {
+		return (CON.ctable[r*65536+g*256+b] == Colors.White.ordinal());
 	}
 
 	public static boolean isCarpetHsv(final int h, final int s, final int v) {

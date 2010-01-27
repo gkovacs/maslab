@@ -87,7 +87,7 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, -1500, -1500, -5500};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, -1500, -1500, -1500};
 	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 2.00f, 0.4f, 0.975f, 0.975f, 3.975f, 3.975f, 3.975f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright", "turnright", "turnleft", "edgeforward"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1, -1, -1, -1};
@@ -181,7 +181,7 @@ public class Vision extends java.lang.Thread {
 		rightMotorWeight[idx] = 0.5f;
 		rollerWeight[idx] = 0.5f;
 		rollerAction[idx] = 1.0f;
-		setState(11);
+		setState(0);
 		// 0 = rotating
 		// 1 = going forward to get seen ball
 		// 2 = capturing previously seen ball
@@ -216,7 +216,7 @@ public class Vision extends java.lang.Thread {
 			processImage();
 			++gatetimer;
 			System.out.println("gate timer is "+gatetimer);
-			/*
+			
 			if (unknownseen && state != 4 && state != 5) {
 				if (unknownpxoffset > 0) {
 					setState(8);
@@ -237,7 +237,7 @@ public class Vision extends java.lang.Thread {
 					setState(3);
 				}
 			}
-			*/
+			
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
 				if (turningright) {
@@ -311,7 +311,7 @@ public class Vision extends java.lang.Thread {
 				if (shoottimer < 8) { // go back
 					int cangle = gyro.anglei;
 					float basevel = -0.7f;
-					float nk = 0.01f;
+					float nk = 0.02f;
 					leftMotorAction[idx] = basevel - (float)(nk*(circsub(cangle, desangle)));
 					rightMotorAction[idx] = basevel + (float)(nk*(circsub(cangle, desangle)));
 					/*
@@ -343,7 +343,7 @@ public class Vision extends java.lang.Thread {
 					} else { // forward
 					int cangle = gyro.anglei;
 					float basevel = 0.7f;
-					float nk = 0.01f;
+					float nk = 0.02f;
 					leftMotorAction[idx] = basevel - (float)(nk*(circsub(cangle, desangle)));
 					rightMotorAction[idx] = basevel + (float)(nk*(circsub(cangle, desangle)));
 					/*
@@ -431,7 +431,7 @@ public class Vision extends java.lang.Thread {
 			} if (state == 11) { // edge forward
 				double cangle = gyro.angled;
 				float basevel = 0.7f;
-				double nk = 0.5;
+				double nk = 0.1;
 				leftMotorAction[idx] = basevel - (float)(nk*(circsub(cangle, desangle)));
 				rightMotorAction[idx] = basevel + (float)(nk*(circsub(cangle, desangle)));
 			}

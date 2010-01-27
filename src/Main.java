@@ -1351,7 +1351,8 @@ public class Main {
 		g.start();
 		java.lang.Thread.sleep(1000);
 		v.start();
-		v.gatetimer = 501;
+		//v.gatetimer = 501;
+		v.gyro = g;
 		ir.start();
 		//e.start();
 		//b.start();
@@ -1384,7 +1385,7 @@ public class Main {
 		java.lang.Thread.sleep(1000);
 		v.gyro = g;
 		v.start();
-		v.setState(11);
+		v.setState(5);
 		a.start();
 		java.lang.Thread.sleep(296000); // 296 seconds
 		v.bye();
@@ -1700,6 +1701,7 @@ public class Main {
 			e.setup(a, g, 1);
 			e.setState(0);
 			//e.targang = 180;
+			java.lang.Thread.sleep(200);
 			g.start();
 			java.lang.Thread.sleep(1000);
 			e.start();

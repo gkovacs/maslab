@@ -481,7 +481,7 @@ public class Vision extends java.lang.Thread {
 		rightMotorWeight = a.rightMotorWeight;
 		rollerAction = a.rollerAction;
 		rollerWeight = a.rollerWeight;
-		CON.ctable = new int[16777216];
+		CON.ctable = new byte[16777216];
 		for (int r = 0; r < 256; ++r) {
 			for (int g = 0; g < 256; ++g) {
 				for (int b = 0; b < 256; ++b) {
@@ -502,7 +502,7 @@ public class Vision extends java.lang.Thread {
 						} else { // max == b
 							h = 170 + (r-g)*85/(2*delta);
 						}
-						CON.ctable[r*65536+g*256+b] = getColorHsv(h,s,max).ordinal();
+						CON.ctable[r*65536+g*256+b] = (byte)getColorHsv(h,s,max).ordinal();
 					}
 				}
 			}

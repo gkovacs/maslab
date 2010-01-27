@@ -31,6 +31,10 @@ public class Gyroscope extends java.lang.Thread {
 	boolean running = true;
 	public int escapemode = 0;
 	public int curidx = 0;
+	WiiMotionPlus g = null;
+	int[] mdf0 = null;
+	int[] mdf1 = null;
+	int[] mdf2 = null;
 
 	public static void printList(int[] c) {
 		if (c.length == 0) return;
@@ -108,45 +112,6 @@ public class Gyroscope extends java.lang.Thread {
 
 	public void run() {
 		try {
-		WiiMotionPlus g = new WiiMotionPlus(o);
-		int numsamples = 300;
-		angles = new long[3];
-		baseang = new int[3];
-		angledisp = new double[100];
-		angledisp[0] = 999.0;
-		angledisp[angledisp.length-1] = 0.0;
-		angledisp[angledisp.length/2] = 999.0;
-		int[] mdf0 = new int[3];
-		int[] mdf1 = new int[3];
-		int[] mdf2 = new int[3];
-		{
-			int[] angvel = g.readAxes();
-			mdf0[2] = angvel[0];
-			mdf1[2] = angvel[1];
-			mdf2[2] = angvel[2];
-			angvel = g.readAxes();
-			mdf0[1] = angvel[0];
-			mdf1[1] = angvel[1];
-			mdf2[1] = angvel[2];
-		}
-		{
-		long ba0 = 0;
-		long ba1 = 0;
-		long ba2 = 0;
-		while (numsamples > 0) {
-			int[] angvel = g.readAxes();
-			shiftleft3(mdf0, angvel[0]);
-			shiftleft3(mdf1, angvel[1]);
-			shiftleft3(mdf2, angvel[2]);
-			ba0 += median3(mdf0[0], mdf0[1], mdf0[2]);
-			ba1 += median3(mdf1[0], mdf1[1], mdf1[2]);
-			ba2 += median3(mdf2[0], mdf2[1], mdf2[2]);
-			--numsamples;
-		}
-		baseang[0] = (int)(ba0/300);
-		baseang[1] = (int)(ba1/300);
-		baseang[2] = (int)(ba2/300);
-		}
 		prevtime = System.currentTimeMillis();
 		while (running) {
 			//double degrees = g.getTheta()/0.005;
@@ -226,6 +191,45 @@ public class Gyroscope extends java.lang.Thread {
 		leftMotorWeight = a.leftMotorWeight;
 		rightMotorAction = a.rightMotorAction;
 		rightMotorWeight = a.rightMotorWeight;
+		g = new WiiMotionPlus(o);
+		int numsamples = 300;
+		angles = new long[3];
+		baseang = new int[3];
+		angledisp = new double[100];
+		angledisp[0] = 999.0;
+		angledisp[angledisp.length-1] = 0.0;
+		angledisp[angledisp.length/2] = 999.0;
+		int[] mdf0 = new int[3];
+		int[] mdf1 = new int[3];
+		int[] mdf2 = new int[3];
+		{
+			int[] angvel = g.readAxes();
+			mdf0[2] = angvel[0];
+			mdf1[2] = angvel[1];
+			mdf2[2] = angvel[2];
+			angvel = g.readAxes();
+			mdf0[1] = angvel[0];
+			mdf1[1] = angvel[1];
+			mdf2[1] = angvel[2];
+		}
+		{
+		long ba0 = 0;
+		long ba1 = 0;
+		long ba2 = 0;
+		while (numsamples > 0) {
+			int[] angvel = g.readAxes();
+			shiftleft3(mdf0, angvel[0]);
+			shiftleft3(mdf1, angvel[1]);
+			shiftleft3(mdf2, angvel[2]);
+			ba0 += median3(mdf0[0], mdf0[1], mdf0[2]);
+			ba1 += median3(mdf1[0], mdf1[1], mdf1[2]);
+			ba2 += median3(mdf2[0], mdf2[1], mdf2[2]);
+			--numsamples;
+		}
+		baseang[0] = (int)(ba0/300);
+		baseang[1] = (int)(ba1/300);
+		baseang[2] = (int)(ba2/300);
+		}
 	}
 
 	public void bye() {

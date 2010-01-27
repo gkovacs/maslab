@@ -87,7 +87,7 @@ public class InfraR extends java.lang.Thread {
 		//Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
 		AnalogInput leftIR = new AnalogInput(o, 7);
 		AnalogInput rightIR = new AnalogInput(o, 0);
-		AnalogInput crossLeftIR = new AnalogInput(o, 5);
+		AnalogInput crossLeftIR = new AnalogInput(o, 4);
 		AnalogInput crossRightIR = new AnalogInput(o, 2);
 		final double desv = 120.0;
 		final double desvCross = 30.0;
@@ -133,9 +133,9 @@ public class InfraR extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (crossRight < 130 || right < 90) { // rotate left
+				if (crossLeft < 130 || right < 90) { // rotate left
 					setState(1);
-				} else if (crossLeft < 130 || left < 90) { // rotate right
+				} else if (crossRight < 130 || left < 90) { // rotate right
 					setState(2);
 				} else {
 			if (left > right) {

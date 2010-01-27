@@ -1350,6 +1350,7 @@ public class Main {
 		Vision v = new Vision();
 		v.setup(a, 0);
 		Gyroscope g = new Gyroscope();
+		java.lang.Thread.sleep(250);
 		g.setup(a, 2);
 		InfraR ir = new InfraR();
 		//Explorer e = new Explorer();
@@ -1359,9 +1360,9 @@ public class Main {
 		//mc.setup(a, 3);
 		//Bump b = new Bump();
 		//b.setup(a,4);
-		java.lang.Thread.sleep(250);
+		//java.lang.Thread.sleep(250);
 		g.start();
-		java.lang.Thread.sleep(1000);
+		//java.lang.Thread.sleep(1000);
 		v.start();
 		//v.gatetimer = 501;
 		v.gyro = g;

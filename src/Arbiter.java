@@ -49,7 +49,7 @@ public class Arbiter extends java.lang.Thread {
 		try {
 		rightMotor = new Motor(o, 1, false);
 		leftMotor = new Motor(o, 0, true);
-		rollers = new Motor(o, 2, true);
+		rollers = new Motor(o, 2, false);
 		rightMotorLog = new float[100];
 		leftMotorLog = new float[100];
 		while (running) {
@@ -61,10 +61,10 @@ public class Arbiter extends java.lang.Thread {
 					maxval = leftMotorWeight[maxidx];
 				}
 			}
-			double lma = leftMotorWeight[maxidx];
+			double lma = leftMotorAction[maxidx];
 			double rma = rightMotorAction[maxidx];
 			leftMotor.setPWM(bound(lma, 1.0f, -1.0f));
-			rightMotor.setPWM(bound(rma, 1.0f, -1.0f)*0.9f);
+			rightMotor.setPWM(bound(rma, 1.0f, -1.0f));
 			rollers.setPWM(rollerAction);
 			java.lang.Thread.sleep(1);
 		}

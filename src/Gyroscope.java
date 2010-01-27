@@ -79,6 +79,7 @@ public class Gyroscope extends java.lang.Thread {
 		for (int x = 0; x < a.length-1; ++x) {
 			tot += Math.abs(a[x]-a[x+1]);
 		}
+		tot += Math.abs(a[a.length-1]-a[0]);
 		return tot;
 	}
 
@@ -87,15 +88,7 @@ public class Gyroscope extends java.lang.Thread {
 		for (int x = 0; x < a.length-1; ++x) {
 			tot += Math.abs(a[x]-a[x+1]);
 		}
-		return tot;
-	}
-
-	public double dispArray(double[] a, int startidx) {
-		double tot = 0;
 		tot += Math.abs(a[a.length-1]-a[0]);
-		for (int x = 0; x < startidx; ++x) {
-			tot += Math.abs(a[x]-a[x+1]);
-		}
 		return tot;
 	}
 
@@ -192,7 +185,7 @@ public class Gyroscope extends java.lang.Thread {
 			//System.out.println(angles[1]*360/80000000);
 			//shiftleft(angledisp, angle);
 			angledisp[curidx] = angle;
-			double dispv = dispArray(angledisp, curidx);
+			double dispv = dispArray(angledisp);
 			curidx = (curidx + 1) % angledisp.length;
 			System.err.println(dispv);
 			if (dispv < 0.05) {

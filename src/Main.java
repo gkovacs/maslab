@@ -1165,27 +1165,39 @@ public class Main {
 	public static void navigate() {
 		try {
 		Arbiter a = new Arbiter();
-		a.setup(4);
-		//Gyroscope g = new Gyroscope();
-		//g.setup(a, 0);
-		//Explorer v = new Explorer();
-		InfraR v = new InfraR();
-		v.setup(a, 0);
-		//MouseController m = new MouseController();
-		//m.setup(a, 2);
+		a.setup(5);
+		//Vision v = new Vision();
+		//v.setup(a, 0);
+		Gyroscope g = new Gyroscope();
+		g.setup(a, 2);
+		InfraR ir = new InfraR();
+		//Explorer e = new Explorer();
+		//e.setup(a, g, 1);
+		ir.setup(a, 1);
+		//MouseController mc = new MouseController();
+		//mc.setup(a, 3);
 		//Bump b = new Bump();
-		//b.setup(a, 3);
+		//b.setup(a,4);
+		java.lang.Thread.sleep(250);
 		//g.start();
+		java.lang.Thread.sleep(1000);
+		//v.start();
+		//v.gatetimer = 501;
+		//v.gyro = g;
+		ir.start();
+		//e.start();
 		//b.start();
-		v.start();
+		//mc.start();
+		//java.lang.Thread.sleep(1000);
 		a.start();
-		//java.lang.Thread.sleep(10000); // 10 seconds
-		//m.start();
-		java.lang.Thread.sleep(295000); // 300 seconds
+		//java.lang.Thread.sleep(5000);
+		java.lang.Thread.sleep(296000); // 296 seconds
+		//v.bye();
+		g.bye();
+		//e.bye();
+		//mc.bye();
+		ir.bye();
 		a.bye();
-		//m.bye();
-		v.bye();
-		//b.bye();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -127,18 +127,21 @@ public class InfraR extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (crossRight < 130 || right < 90) { // rotate left
-					setState(1);
-				} else if (crossLeft < 130 || left < 90) { // rotate right
-					setState(2);
-				} else {
+				if (crossRight < 150 || right < 120 || crossLeft < 150 || left < 120) {
+					if (left > right) { // rotate left
+						setState(1);
+					} else {
+						setState(2);
+					}
+				}
+			{
 			if (left > right) {
 				//leftMotorWeight[idx] = 0.8f;
 				//rightMotorWeight[idx] = 0.8f;
 				double error = left-desv;
 				if (error > 100.0) error = 100.0;
 				if (error < -100.0) error = -100.0;
-				double basevel = 0.8;
+				double basevel = 0.7;
 				//double basevel = bound(1.0-error, 0.7, 0.6);
 				lspeed = -(kp*error-kd*(left-prevleft));//+basevel;
 				rspeed = (kp*error-kd*(left-prevleft));//+basevel;
@@ -157,7 +160,7 @@ public class InfraR extends java.lang.Thread {
 				if (error > 100.0) error = 100.0;
 				if (error < -100.0) error = -100.0;
 				//double basevel = bound(1.0-error, 0.7, 0.6);
-				double basevel = 0.8;
+				double basevel = 0.7;
 				lspeed = (kp*error-kd*(right-prevright));//+basevel;
 				rspeed = -(kp*error-kd*(right-prevright));//+basevel;
 				if (lspeed > rspeed) {
@@ -170,16 +173,16 @@ public class InfraR extends java.lang.Thread {
 			}
 			}
 			} if (state == 1) { // rotate left
-				rspeed = 0.7;
-				lspeed = -0.7;
+				rspeed = 0.6;
+				lspeed = -0.6;
 				if (crossRight > 120 && crossLeft > 120 && right > 100 && left > 100) {
 				//if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 100 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
 				}
 			} if (state == 2) { // rotate right
-				rspeed = -0.7;
-				lspeed = 0.7;
+				rspeed = -0.6;
+				lspeed = 0.6;
 				if (crossRight > 120 && crossLeft > 120 && right > 100 && left > 100) {
 				//if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 40 &&*/ crossRight > 120 && left > 50 && right > 50) {

@@ -309,8 +309,8 @@ public class Vision extends java.lang.Thread {
 					int cangle = gyro.anglei;
 					float basevel = -0.7f;
 					float nk = 0.02f;
-					leftMotorAction[idx] = basevel - (float)(nk*(circsub(cangle, desangle)));
-					rightMotorAction[idx] = basevel + (float)(nk*(circsub(cangle, desangle)));
+					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
+					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
 					/*
 					if (gateseen) {
 					float basevel = -0.7f;
@@ -341,8 +341,8 @@ public class Vision extends java.lang.Thread {
 					int cangle = gyro.anglei;
 					float basevel = 0.7f;
 					float nk = 0.02f;
-					leftMotorAction[idx] = basevel - (float)(nk*(circsub(cangle, desangle)));
-					rightMotorAction[idx] = basevel + (float)(nk*(circsub(cangle, desangle)));
+					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
+					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
 					/*
 					if (gateseen) {
 					float basevel = 0.7f;
@@ -428,8 +428,8 @@ public class Vision extends java.lang.Thread {
 				double cangle = gyro.angled;
 				float basevel = 0.7f;
 				double nk = 0.1;
-				leftMotorAction[idx] = basevel - (float)(nk*(circsub(cangle, desangle)));
-				rightMotorAction[idx] = basevel + (float)(nk*(circsub(cangle, desangle)));
+				leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
+				rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
 			}
 			java.lang.Thread.sleep(10);
 		}

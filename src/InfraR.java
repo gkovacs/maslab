@@ -190,8 +190,8 @@ public class InfraR extends java.lang.Thread {
 			prevright = right;
 			prevCrossLeft = crossLeft;
 			prevCrossRight = crossRight;
-			leftMotorAction[idx] = (float)lspeed;
-			rightMotorAction[idx] = (float)rspeed;
+			leftMotorAction[idx] = lspeed;
+			rightMotorAction[idx] = rspeed;
 			java.lang.Thread.sleep(20);
 		}
 		} catch (Exception e) {

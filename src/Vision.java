@@ -104,8 +104,8 @@ public class Vision extends java.lang.Thread {
 	//public Orc o = null;
 	public Odometry odom = null;
 	public Gyroscope gyro = null;
-	public int curangle = 0;
-	public int desangle = 0;
+	//public int curangle = 0;
+	public double desangle = 0;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;
@@ -129,14 +129,11 @@ public class Vision extends java.lang.Thread {
 				newstate = 3;
 			}
 		} if (newstate == 9) { // turn 90 degrees
-			curangle = gyro.anglei;
-			desangle = curangle + 90 % 360;
+			desangle = gyro.angled + 90.0 % 360.0;
 		} if (newstate == 10) { // turn 90 degrees
-			curangle = gyro.anglei;
-			desangle = curangle + 270 % 360;
+			desangle = gyro.angled + 270.0 % 360.0;
 		} if (newstate == 11) { // go straight
-			curangle = gyro.anglei;
-			desangle = curangle;
+			desangle = gyro.angled;
 		}
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
@@ -397,7 +394,7 @@ public class Vision extends java.lang.Thread {
 				leftMotorAction[idx] = 0.7f;
 				rightMotorAction[idx] = -0.1f;
 			} if (state == 9) { // turn right 90 degrees
-				int cangle = gyro.anglei;
+				double cangle = gyro.angled;
 				if (Math.abs(cangle-desangle) < 5) { // we're done
 					leftMotorAction[idx] = 0.0f;
 					rightMotorAction[idx] = 0.0f;
@@ -407,7 +404,7 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = -0.7f;
 				}
 			} if (state == 10) { // turn left 90 degrees
-				int cangle = gyro.anglei;
+				double cangle = gyro.angled;
 				if (Math.abs(cangle-desangle) < 5) { // we're done
 					leftMotorAction[idx] = 0.0f;
 					rightMotorAction[idx] = 0.0f;
@@ -417,11 +414,11 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = 0.7f;
 				}
 			} if (state == 11) { // edge forward
-				int cangle = gyro.anglei;
+				double cangle = gyro.angled;
 				float basevel = 0.7f;
-				float nk = 0.01f;
-				leftMotorAction[idx] = basevel - nk*(circsub(cangle, desangle));
-				rightMotorAction[idx] = basevel + nk*(circsub(cangle, desangle));
+				double nk = 0.5;
+				leftMotorAction[idx] = basevel - (float)(nk*(circsub(cangle, desangle)));
+				rightMotorAction[idx] = basevel + (float)(nk*(circsub(cangle, desangle)));
 			}
 			java.lang.Thread.sleep(10);
 		}
@@ -435,6 +432,17 @@ public class Vision extends java.lang.Thread {
 			return Math.min(Math.abs(ang2+360-ang1), Math.abs(ang1-ang2));
 		} else {
 			return Math.min(Math.abs(ang1+360-ang2), Math.abs(ang1-ang2));
+		}
+	}
+
+	public double circsub(double ang1, double ang2) {
+		double retv = ang1-ang2;
+		if (retv > 180.0) {
+			return retv - 360.0;
+		} else if (retv < -180.0) {
+			return retv + 360.0;
+		} else {
+			return retv;
 		}
 	}
 

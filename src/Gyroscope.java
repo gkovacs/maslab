@@ -21,7 +21,8 @@ public class Gyroscope extends java.lang.Thread {
 	public int idx = 0;
 	public static final int gyrot = 7213242;
 	public int anglei = 0;
-	public double angle = 0;
+	public double angle = 0.0;
+	public double angled = 0.0;
 	public Orc o = null;
 	public long[] angles = null;
 	public int[] baseang = null;
@@ -174,6 +175,7 @@ public class Gyroscope extends java.lang.Thread {
 			//printList(angles);
 			//System.out.println(angles[1]);
 			anglei = (int)((angles[0]*360/gyrot));
+			angled = ((angles[0]*360.0/gyrot));
 			//System.out.println(anglei);
 			angle = ((angles[0]*2.0*Math.PI/gyrot));
 			//System.out.println(angle);

@@ -92,6 +92,7 @@ public class Vision extends java.lang.Thread {
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright", "turnright", "turnleft", "edgeforward"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1, -1, -1, -1};
 	public int statetimeout = 0;
+	public long timeouttime = System.currentTimeMillis();
 	public boolean turningright = true;
 	public boolean goforward = false;
 	public int shoottimer = 0;
@@ -134,6 +135,9 @@ public class Vision extends java.lang.Thread {
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
 		statetimeout = 0;
+		if (timeouts[state] < 0) {
+			timeouttime = System.currentTimeMillis() - timeouts[state];
+		}
 		//leftMotorAction[idx] = 0.0f;
 		//rightMotorAction[idx] = 0.0f;
 		rollerAction[idx] = 1.0f;
@@ -177,10 +181,16 @@ public class Vision extends java.lang.Thread {
 		// 1 = going forward to get seen ball
 		// 2 = capturing previously seen ball
 		while (running) {
-			if (statetimeout >= timeouts[state]) { // state timed out, make transition
+			if (timeouts[state] >= 0) { // cycle time
+				if (statetimeout >= timeouts[state]) { // state timed out, make transition
 				setState(transitions[state]);
 			} else {
 				++statetimeout;
+			}
+			} else { // human time
+				if (System.currentTimeMillis() >= timeouttime) {
+					setState(transitions[state]);
+				}
 			}
 			System.out.println("state is "+state+" timeout is "+statetimeout);
 			/*

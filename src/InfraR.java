@@ -83,10 +83,9 @@ public class InfraR extends java.lang.Thread {
 		AnalogInput rightIR = new AnalogInput(o, 0);
 		AnalogInput crossLeftIR = new AnalogInput(o, 5);
 		AnalogInput crossRightIR = new AnalogInput(o, 2);
-		final double desv = 150.0;
+		final double desv = 120.0;
 		final double desvCross = 30.0;
 		final double kp = 0.002;
-		final double kpn = 0.002;
 		final double kd = 0.001;
 		double prevleft = leftIR.getVoltage();
 		double prevright = rightIR.getVoltage();
@@ -128,48 +127,60 @@ public class InfraR extends java.lang.Thread {
 			if (leftcooldown > 0) --leftcooldown;
 			if (rightcooldown > 0) --rightcooldown;
 			if (state == 0) { // forwards
-				if (crossRight < 200 || right < 150 || crossLeft < 200 || left < 150) {
-					if (left > right) { // rotate left
-						setState(1);
-					} else {
-						setState(2);
-					}
+				if (crossRight < 130 || right < 90) { // rotate left
+					setState(1);
+				} else if (crossLeft < 130 || left < 90) { // rotate right
+					setState(2);
 				} else {
-			if (right > left) {
+			if (left > right) {
 				//leftMotorWeight[idx] = 0.8f;
 				//rightMotorWeight[idx] = 0.8f;
-				double error = right-left;
-				//if (error > 100.0) error = 100.0;
-				//if (error < -100.0) error = -100.0;
-				double basevel = 0.5;
+				double error = left-desv;
+				if (error > 100.0) error = 100.0;
+				if (error < -100.0) error = -100.0;
+				double basevel = 0.8;
 				//double basevel = bound(1.0-error, 0.7, 0.6);
-				lspeed = -(kpn*error/*-kd*(left-prevleft)*/)+basevel;
-				rspeed = (kpn*error/*-kd*(left-prevleft)*/)+basevel;
+				lspeed = -(kp*error-kd*(left-prevleft));//+basevel;
+				rspeed = (kp*error-kd*(left-prevleft));//+basevel;
+				if (lspeed > rspeed) {
+					rspeed += basevel-Math.abs(lspeed);
+					lspeed = basevel;
+				} else {
+					lspeed += basevel-Math.abs(rspeed);
+					rspeed = basevel;
+				}
 				sideVote = true;
 			} else {
 				//leftMotorWeight[idx] = 0.8f;
 				//rightMotorWeight[idx] = 0.8f;
-				double error = left-right;//right-desv;
-				//if (error > 100.0) error = 100.0;
-				//if (error < -100.0) error = -100.0;
+				double error = right-desv;
+				if (error > 100.0) error = 100.0;
+				if (error < -100.0) error = -100.0;
 				//double basevel = bound(1.0-error, 0.7, 0.6);
-				double basevel = 0.5;
-				lspeed = (kpn*error/*-kd*(right-prevright)*/)+basevel;
-				rspeed = -(kpn*error/*-kd*(right-prevright)*/)+basevel;
+				double basevel = 0.8;
+				lspeed = (kp*error-kd*(right-prevright));//+basevel;
+				rspeed = -(kp*error-kd*(right-prevright));//+basevel;
+				if (lspeed > rspeed) {
+					rspeed += basevel-Math.abs(lspeed);
+					lspeed = basevel;
+				} else {
+					lspeed += basevel-Math.abs(rspeed);
+					rspeed = basevel;
+				}
 			}
 			}
 			} if (state == 1) { // rotate left
-				rspeed = 0.6;
-				lspeed = -0.6;
-				if (crossRight > 200 && crossLeft > 200 && right > 120 && left > 120) {
+				rspeed = 0.7;
+				lspeed = -0.7;
+				if (crossRight > 120 && crossLeft > 120 && right > 100 && left > 100) {
 				//if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 100 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
 				}
 			} if (state == 2) { // rotate right
-				rspeed = -0.6;
-				lspeed = 0.6;
-				if (crossRight > 200 && crossLeft > 200 && right > 120 && left > 120) {
+				rspeed = -0.7;
+				lspeed = 0.7;
+				if (crossRight > 120 && crossLeft > 120 && right > 100 && left > 100) {
 				//if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 40 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
@@ -179,8 +190,8 @@ public class InfraR extends java.lang.Thread {
 			prevright = right;
 			prevCrossLeft = crossLeft;
 			prevCrossRight = crossRight;
-			leftMotorAction[idx] = lspeed;
-			rightMotorAction[idx] = rspeed;
+			leftMotorAction[idx] = (float)lspeed;
+			rightMotorAction[idx] = (float)rspeed;
 			java.lang.Thread.sleep(20);
 		}
 		} catch (Exception e) {

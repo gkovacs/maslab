@@ -87,8 +87,8 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, 30, 30, 30};
-	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 2.00f, 0.4f, 0.975f, 0.975f, 0.975f, 0.975f, 0.975f};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, 100, 100, 100};
+	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 2.00f, 0.4f, 0.975f, 0.975f, 3.975f, 3.975f, 3.975f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright", "turnright", "turnleft", "edgeforward"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1, -1, -1, -1};
 	public int statetimeout = 0;
@@ -130,6 +130,9 @@ public class Vision extends java.lang.Thread {
 		} if (newstate == 9) { // turn 90 degrees
 			curangle = gyro.anglei;
 			desangle = curangle + 90 % 360;
+		} if (newstate == 10) { // turn 90 degrees
+			curangle = gyro.anglei;
+			desangle = curangle + 270 % 360;
 		}
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
@@ -173,6 +176,7 @@ public class Vision extends java.lang.Thread {
 		rightMotorWeight[idx] = 0.5f;
 		rollerWeight[idx] = 0.5f;
 		rollerAction[idx] = 1.0f;
+		setState(10);
 		// 0 = rotating
 		// 1 = going forward to get seen ball
 		// 2 = capturing previously seen ball
@@ -201,7 +205,7 @@ public class Vision extends java.lang.Thread {
 			processImage();
 			++gatetimer;
 			System.out.println("gate timer is "+gatetimer);
-
+			/*
 			if (unknownseen && state != 4 && state != 5) {
 				if (unknownpxoffset > 0) {
 					setState(8);
@@ -222,7 +226,7 @@ public class Vision extends java.lang.Thread {
 					setState(3);
 				}
 			}
-			
+			*/
 			//if (found > 0) { // moving towards ball
 			if (state == 0) { // idly searching, nothing interesting in sight, turn left
 				if (turningright) {

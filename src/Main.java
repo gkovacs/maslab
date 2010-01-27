@@ -1384,7 +1384,7 @@ public class Main {
 		java.lang.Thread.sleep(1000);
 		v.gyro = g;
 		v.start();
-		v.setState(9);
+		v.setState(10);
 		a.start();
 		java.lang.Thread.sleep(296000); // 296 seconds
 		v.bye();

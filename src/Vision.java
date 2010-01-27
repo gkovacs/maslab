@@ -20,8 +20,8 @@ public class Vision extends java.lang.Thread {
 	public float[] leftMotorWeight = null;
 	public float[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
-	public float[] rollerAction = null;
-	public float[] rollerWeight = null;
+	//public float[] rollerAction = null;
+	//public float[] rollerWeight = null;
 	public int idx = 0;
 	public int found = 0;
 	public int lifetime = 0;
@@ -105,6 +105,7 @@ public class Vision extends java.lang.Thread {
 	//public Orc o = null;
 	public Odometry odom = null;
 	public Gyroscope gyro = null;
+	public Arbiter arb = null;
 	public double desangle = 0;
 
 	public static boolean reverseb(boolean b) {
@@ -115,7 +116,7 @@ public class Vision extends java.lang.Thread {
 	public void setWeight(float newweight) {
 		leftMotorWeight[idx] = newweight;
 		rightMotorWeight[idx] = newweight;
-		rollerWeight[idx] = newweight;
+		//rollerWeight[idx] = newweight;
 	}
 
 	public void setState(int newstate) {
@@ -136,6 +137,9 @@ public class Vision extends java.lang.Thread {
 			desangle = gyro.angled;
 		} if (newstate == 5) { // gate shoot
 			desangle = gyro.angled;
+			arb.rollerAction = -1.0;
+		} else {
+			arb.rollerAction = 1.0;
 		}
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
@@ -143,12 +147,7 @@ public class Vision extends java.lang.Thread {
 		if (timeouts[state] < 0) {
 			timeouttime = System.currentTimeMillis() - timeouts[state];
 		}
-		//leftMotorAction[idx] = 0.0f;
-		//rightMotorAction[idx] = 0.0f;
-		rollerAction[idx] = 1.0f;
 		setWeight(weights[newstate]);
-		//state = 6;
-		//mc.state = state;
 		return;
 	}
 
@@ -180,8 +179,6 @@ public class Vision extends java.lang.Thread {
 		}
 		leftMotorWeight[idx] = 0.5f;
 		rightMotorWeight[idx] = 0.5f;
-		rollerWeight[idx] = 0.5f;
-		rollerAction[idx] = 1.0f;
 		setState(0);
 		// 0 = rotating
 		// 1 = going forward to get seen ball
@@ -307,7 +304,6 @@ public class Vision extends java.lang.Thread {
 				rightMotorAction[idx] = rspeed;
 				}
 			} if (state == 5) { // gate delivery shoot
-				rollerAction[idx] = -1.0f;
 				++shoottimer;
 				if (shoottimer < 8) { // go back
 					int cangle = gyro.anglei;
@@ -370,7 +366,6 @@ public class Vision extends java.lang.Thread {
 					}
 				}
 			} if (state == 6) { // explore
-				rollerAction[idx] = 0.0f;
 				/*
 				if (gaplen < 20 || gapminlen < 5) {
 					System.err.println("backing up gapminlen is "+gapminlen);
@@ -474,13 +469,12 @@ public class Vision extends java.lang.Thread {
 	}
 
 	public void setup(Arbiter a, int ActionWeightIndex) {
+		arb = a;
 		idx = ActionWeightIndex;
 		leftMotorAction = a.leftMotorAction;
 		leftMotorWeight = a.leftMotorWeight;
 		rightMotorAction = a.rightMotorAction;
 		rightMotorWeight = a.rightMotorWeight;
-		rollerAction = a.rollerAction;
-		rollerWeight = a.rollerWeight;
 		CON.ctable = new byte[16777216];
 		for (int r = 0; r < 256; ++r) {
 			for (int g = 0; g < 256; ++g) {

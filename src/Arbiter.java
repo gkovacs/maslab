@@ -18,28 +18,12 @@ public class Arbiter extends java.lang.Thread {
 	public float[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
 	public float[] rightMotorLog = null;
-	public float[] rollerAction = null;
-	public float[] rollerWeight = null;
+	public double rollerAction = 0.0;
 	public Orc o = null;
 	public Motor rightMotor = null;
 	public Motor leftMotor = null;
 	public Motor rollers = null;
 	public byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
-
-	public float kp = 0.1f;
-	public float kd = 0.0f;
-	public float ki = 0.0f;
-
-	//public int state = 0;
-	//public int timeback = 0;
-	//public int cooldown = 0;
-
-/*
-	public void setState(int newstate) {
-		if (cooldown > 0) return;
-		state = newstate;
-	}
-*/
 
 	public float maxVal(float[] vals, float[] weights) {
 		float maxweight = 0.0f;
@@ -66,48 +50,22 @@ public class Arbiter extends java.lang.Thread {
 		rightMotor = new Motor(o, 1, false);
 		leftMotor = new Motor(o, 0, true);
 		rollers = new Motor(o, 2, true);
-		/*
-		QuadratureEncoder e0 = new QuadratureEncoder(o, 0, false);
-		QuadratureEncoder e1 = new QuadratureEncoder(o, 1, false);
-		MotorController c0 = new MotorController(kp, kd, ki);
-		MotorController c1 = new MotorController(kp, kd, ki);
-		*/
-
 		rightMotorLog = new float[100];
 		leftMotorLog = new float[100];
 		while (running) {
-			/*
-			float lma = maxVal(leftMotorAction, leftMotorWeight);
-			float rma = maxVal(rightMotorAction, rightMotorWeight);
-			c0.targetvelocity = lma;
-			c1.targetvelocity = rma;
-			float rightpwm = c0.getPWM((float)e0.getVelocity()*17.9f);
-			rightMotor.setPWM(rightpwm);
-			float leftpwm = c1.getPWM((float)e1.getVelocity()*17.9f);
-			leftMotor.setPWM(leftpwm);
-			System.out.println("rightpwm is "+rightpwm+"leftpwm is "+leftpwm);
-			java.lang.Thread.sleep(50);
-			*/
-			//if (state == 0) { // arbitrate
-			//if (cooldown > 100) --cooldown;
-			float lma = maxVal(leftMotorAction, leftMotorWeight);
-			float rma = maxVal(rightMotorAction, rightMotorWeight);
-			float rla = maxVal(rollerAction, rollerWeight);
-			//shiftright(leftMotorLog, lma);
-			//shiftright(rightMotorLog, rma);
-			System.out.println("left: "+lma+" right: "+rma);
-			leftMotor.setPWM((float)bound(lma, 1.0f, -1.0f));
-			rightMotor.setPWM((float)bound(rma, 1.0f, -1.0f)*0.9f);
-			rollers.setPWM((float)bound(rla, 1.0f, -1.0f));
-			//} else { // turning back time
-			//	leftMotor.setPWM(-leftMotorLog[timeback]);
-			//	rightMotor.setPWM(-rightMotorLog[timeback]);
-			//	if (++timeback >= leftMotorLog.length) {
-			//		setState(0);
-			//		timeback = 0;
-			//		cooldown = 100;
-			//	}
-			//}
+			int maxidx = 0;
+			float maxval = Float.MIN_VALUE;
+			for (int i = 0; i < leftMotorWeight.length; ++i) {
+				if (leftMotorWeight[i] > maxval) {
+					maxidx = i;
+					maxval = leftMotorWeight[maxidx];
+				}
+			}
+			float lma = leftMotorWeight[maxidx];
+			float rma = rightMotorAction[maxidx];
+			leftMotor.setPWM(bound(lma, 1.0f, -1.0f));
+			rightMotor.setPWM(bound(rma, 1.0f, -1.0f)*0.9f);
+			rollers.setPWM(rollerAction);
 			java.lang.Thread.sleep(10);
 		}
 		} catch (Exception e) {
@@ -134,8 +92,6 @@ public class Arbiter extends java.lang.Thread {
 		leftMotorWeight = new float[numComrades];
 		rightMotorAction = new float[numComrades];
 		rightMotorWeight = new float[numComrades];
-		rollerAction = new float[numComrades];
-		rollerWeight = new float[numComrades];
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -220,8 +220,8 @@ public class Gyroscope extends java.lang.Thread {
 		leftMotorWeight = a.leftMotorWeight;
 		rightMotorAction = a.rightMotorAction;
 		rightMotorWeight = a.rightMotorWeight;
-		rollerAction = a.rollerAction;
-		rollerWeight = a.rollerWeight;
+		//rollerAction = a.rollerAction;
+		//rollerWeight = a.rollerWeight;
 	}
 
 	public void bye() {

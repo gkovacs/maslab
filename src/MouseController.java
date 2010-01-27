@@ -14,8 +14,6 @@ public class MouseController extends java.lang.Thread {
 	public float[] leftMotorWeight = null;
 	public float[] rightMotorAction = null;
 	public float[] rightMotorWeight = null;
-	public float[] rollerAction = null;
-	public float[] rollerWeight = null;
 	public int idx = 0;
 	public int xvel = 0;
 	public int yvel = 0;
@@ -84,7 +82,6 @@ public class MouseController extends java.lang.Thread {
 
 	public void run() {
 		try {
-		rollerWeight[idx] = 0.0f;
 		leftMotorWeight[idx] = 0.0f;
 		rightMotorWeight[idx] = 0.0f;
 		xdisp = new long[40];
@@ -223,8 +220,6 @@ public class MouseController extends java.lang.Thread {
 		leftMotorWeight = a.leftMotorWeight;
 		rightMotorAction = a.rightMotorAction;
 		rightMotorWeight = a.rightMotorWeight;
-		rollerAction = a.rollerAction;
-		rollerWeight = a.rollerWeight;
 	}
 
 	public void bye() {

@@ -111,6 +111,17 @@ public class Explorer extends java.lang.Thread {
 		}
 	}
 
+	public int circsub(int ang1, int ang2) {
+		int retv = ang1-ang2;
+		if (retv > 180) {
+			return retv - 360;
+		} else if (retv < -180) {
+			return retv + 360;
+		} else {
+			return retv;
+		}
+	}
+
 	public static double max(double a, double b, double c, double d) {
 		if (a > b && a > c && a > d) return a;
 		if (b > a && b > c && b > d) return b;

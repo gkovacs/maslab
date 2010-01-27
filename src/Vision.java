@@ -87,7 +87,7 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.005f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, 100, 100, 100};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, -1500, -1500, -1500};
 	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 2.00f, 0.4f, 0.975f, 0.975f, 3.975f, 3.975f, 3.975f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright", "turnright", "turnleft", "edgeforward"};
 	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1, -1, -1, -1};
@@ -134,6 +134,9 @@ public class Vision extends java.lang.Thread {
 		} if (newstate == 10) { // turn 90 degrees
 			curangle = gyro.anglei;
 			desangle = curangle + 270 % 360;
+		} if (newstate == 11) { // go straight
+			curangle = gyro.anglei;
+			desangle = curangle;
 		}
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
@@ -180,7 +183,7 @@ public class Vision extends java.lang.Thread {
 		rightMotorWeight[idx] = 0.5f;
 		rollerWeight[idx] = 0.5f;
 		rollerAction[idx] = 1.0f;
-		setState(10);
+		setState(11);
 		// 0 = rotating
 		// 1 = going forward to get seen ball
 		// 2 = capturing previously seen ball
@@ -413,11 +416,35 @@ public class Vision extends java.lang.Thread {
 					leftMotorAction[idx] = -0.7f;
 					rightMotorAction[idx] = 0.7f;
 				}
+			} if (state == 11) { // edge forward
+				int cangle = gyro.anglei;
+				float basevel = 0.7f;
+				leftMotorAction[idx] = basevel + k*(circsub(cangle, desangle));
+				rightMotorAction[idx] = basevel - k*(circsub(cangle, desangle));
 			}
 			java.lang.Thread.sleep(10);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public int circdiff(int ang1, int ang2) {
+		if (ang1 > ang2) {
+			return Math.min(Math.abs(ang2+360-ang1), Math.abs(ang1-ang2));
+		} else {
+			return Math.min(Math.abs(ang1+360-ang2), Math.abs(ang1-ang2));
+		}
+	}
+
+	public int circsub(int ang1, int ang2) {
+		int retv = ang1-ang2;
+		if (retv > 180) {
+			return retv - 360;
+		} else if (retv < -180) {
+			return retv + 360;
+		} else {
+			return retv;
 		}
 	}
 

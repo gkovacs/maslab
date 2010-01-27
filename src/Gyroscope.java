@@ -109,6 +109,9 @@ public class Gyroscope extends java.lang.Thread {
 		angles = new long[3];
 		baseang = new int[3];
 		angledisp = new double[100];
+		angledisp[0] = 999.0;
+		angledisp[angledisp.length-1] = 999.0;
+		angledisp[angledisp.length/2] = 0.0;
 		int[] mdf0 = new int[3];
 		int[] mdf1 = new int[3];
 		int[] mdf2 = new int[3];
@@ -171,31 +174,37 @@ public class Gyroscope extends java.lang.Thread {
 			//printList(angles);
 			//System.out.println(angles[1]);
 			anglei = (int)((angles[0]*360/gyrot));
-			System.out.println(anglei);
+			//System.out.println(anglei);
 			angle = ((angles[0]*2.0*Math.PI/gyrot));
 			//System.out.println(angle);
 			//System.out.println(angles[1]*360/80000000);
 			shiftleft(angledisp, angle);
-			System.out.println(dispArray(angledisp));
-			if (dispArray(angledisp) < 0.5) {
-				leftMotorWeight[idx] = 1.5f;
-				rightMotorWeight[idx] = 1.5f;
-				if (escapemode < 10) { // backup
-					leftMotorAction[idx] = -0.7f;
-					rightMotorAction[idx] = -0.7f;
-				} else if (escapemode < 20) { // backleft
-					leftMotorAction[idx] = -0.3f;
-					rightMotorAction[idx] = -0.9f;
+			System.err.println(dispArray(angledisp));
+			if (dispArray(angledisp) < 0.05) {
+				escapemode = 60;
+			} if (escapemode > 0) {
+				leftMotorWeight[idx] = 2.5f;
+				rightMotorWeight[idx] = 2.5f;
+				if (escapemode < 20) { // backup
+					leftMotorAction[idx] = -0.8f;
+					rightMotorAction[idx] = -0.8f;
+				} else if (escapemode < 50) { // backleft
+					leftMotorAction[idx] = -0.4f;
+					rightMotorAction[idx] = -0.8f;
 				} else { // backright
-					leftMotorAction[idx] = -0.9f;
-					rightMotorAction[idx] = -0.3f;
+					leftMotorAction[idx] = -0.8f;
+					rightMotorAction[idx] = -0.4f;
 				}
-				escapemode = (escapemode + 1) % 30;
+				angledisp[0] = 999.0;
+				angledisp[angledisp.length-1] = 999.0;
+				angledisp[angledisp.length/2] = 0.0;
+				--escapemode;
 			} else {
 				leftMotorWeight[idx] = 0.0f;
 				rightMotorWeight[idx] = 0.0f;
 			}
 			prevtime += deltatime;
+			java.lang.Thread.sleep(10);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();

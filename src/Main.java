@@ -1337,8 +1337,8 @@ public class Main {
 		a.setup(5);
 		Vision v = new Vision();
 		v.setup(a, 0);
-		//Gyroscope g = new Gyroscope();
-		//g.setup(a, 2);
+		Gyroscope g = new Gyroscope();
+		g.setup(a, 2);
 		InfraR ir = new InfraR();
 		//Explorer e = new Explorer();
 		//e.setup(a, g, 1);
@@ -1349,7 +1349,7 @@ public class Main {
 		//b.setup(a,4);
 		v.start();
 		ir.start();
-		//g.start();
+		g.start();
 		//e.start();
 		//b.start();
 		//mc.start();
@@ -1358,7 +1358,7 @@ public class Main {
 		//java.lang.Thread.sleep(5000);
 		java.lang.Thread.sleep(296000); // 296 seconds
 		v.bye();
-		//g.bye();
+		g.bye();
 		//e.bye();
 		//mc.bye();
 		ir.bye();
@@ -1714,6 +1714,7 @@ public class Main {
 			Gyroscope g = new Gyroscope();
 			g.setup(a, 0);
 			g.start();
+			a.start();
 			java.lang.Thread.sleep(296000);
 			a.bye();
 			g.bye();

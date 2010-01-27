@@ -12,14 +12,23 @@ import orc.*;
 
 public class Gyroscope extends java.lang.Thread {
 
+	public float[] leftMotorAction = null;
+	public float[] leftMotorWeight = null;
+	public float[] rightMotorAction = null;
+	public float[] rightMotorWeight = null;
+	public float[] rollerAction = null;
+	public float[] rollerWeight = null;
+	public int idx = 0;
 	public static final int gyrot = 7213242;
 	public int anglei = 0;
 	public double angle = 0;
 	public Orc o = null;
 	public long[] angles = null;
 	public int[] baseang = null;
+	public double[] angledisp = null;
 	long prevtime = 0;
 	boolean running = true;
+	public int escapemode = 0;
 
 	public static void printList(int[] c) {
 		if (c.length == 0) return;
@@ -63,6 +72,30 @@ public class Gyroscope extends java.lang.Thread {
 		}
 	}
 
+	public long dispArray(long[] a) {
+		long tot = 0;
+		for (int x = 0; x < a.length-1; ++x) {
+			tot += Math.abs(a[x]-a[x+1]);
+		}
+		return tot;
+	}
+
+	public double dispArray(double[] a) {
+		double tot = 0;
+		for (int x = 0; x < a.length-1; ++x) {
+			tot += Math.abs(a[x]-a[x+1]);
+		}
+		return tot;
+	}
+
+	public static void shiftleft(double[] a, double v) {
+		int i = 0;
+		for (; i < a.length-1; ++i) {
+			a[i] = a[i+1];
+		}
+		a[i] = v;
+	}
+
 	public static void shiftleft3(int[] a, int v) {
 		a[0] = a[1];
 		a[1] = a[2];
@@ -75,6 +108,7 @@ public class Gyroscope extends java.lang.Thread {
 		int numsamples = 300;
 		angles = new long[3];
 		baseang = new int[3];
+		angledisp = new double[100];
 		int[] mdf0 = new int[3];
 		int[] mdf1 = new int[3];
 		int[] mdf2 = new int[3];
@@ -141,6 +175,26 @@ public class Gyroscope extends java.lang.Thread {
 			angle = ((angles[0]*2.0*Math.PI/gyrot));
 			//System.out.println(angle);
 			//System.out.println(angles[1]*360/80000000);
+			shiftleft(angledisp, angle);
+			System.out.println(dispArray(angledisp));
+			if (dispArray(angledisp) < 0.5) {
+				leftMotorWeight[idx] = 1.5f;
+				rightMotorWeight[idx] = 1.5f;
+				if (escapemode < 10) { // backup
+					leftMotorAction[idx] = -0.7f;
+					rightMotorAction[idx] = -0.7f;
+				} else if (escapemode < 20) { // backleft
+					leftMotorAction[idx] = -0.3f;
+					rightMotorAction[idx] = -0.9f;
+				} else { // backright
+					leftMotorAction[idx] = -0.9f;
+					rightMotorAction[idx] = -0.3f;
+				}
+				escapemode = (escapemode + 1) % 30;
+			} else {
+				leftMotorWeight[idx] = 0.0f;
+				rightMotorWeight[idx] = 0.0f;
+			}
 			prevtime += deltatime;
 		}
 		} catch (Exception e) {
@@ -150,6 +204,13 @@ public class Gyroscope extends java.lang.Thread {
 
 	public void setup(Arbiter a, int ActionWeightIndex) {
 		o = a.o;
+		idx = ActionWeightIndex;
+		leftMotorAction = a.leftMotorAction;
+		leftMotorWeight = a.leftMotorWeight;
+		rightMotorAction = a.rightMotorAction;
+		rightMotorWeight = a.rightMotorWeight;
+		rollerAction = a.rollerAction;
+		rollerWeight = a.rollerWeight;
 	}
 
 	public void bye() {

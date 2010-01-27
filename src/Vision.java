@@ -270,7 +270,7 @@ public class Vision extends java.lang.Thread {
 					gatetimer = 0;
 					shoottimer = 0;
 				} else { // approach the gate
-				float basevel = 0.55f;
+				float basevel = 0.6f;
 				//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
 				float rspeed = -k*gatepxoffset; //+ 0.6f;
 				float lspeed = k*gatepxoffset; //+ 0.6f;

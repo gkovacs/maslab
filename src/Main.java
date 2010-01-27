@@ -1368,6 +1368,37 @@ public class Main {
 		}
 	}
 
+	public static void testgate() {
+		try {
+		Arbiter a = new Arbiter();
+		a.setup(1);
+		Vision v = new Vision();
+		v.setup(a, 0);
+		v.setState(4);
+		v.gatetimer = 501;
+		InfraR ir = new InfraR();
+		ir.setup(a, 1);
+		//MouseController mc = new MouseController();
+		//mc.setup(a, 2);
+		//Bump b = new Bump();
+		//b.setup(a,3);
+		v.start();
+		//ir.start();
+		//b.start();
+		//mc.start();
+		java.lang.Thread.sleep(1000);
+		a.start();
+		//java.lang.Thread.sleep(5000);
+		java.lang.Thread.sleep(296000); // 296 seconds
+		v.bye();
+		ir.bye();
+		//mc.bye();
+		a.bye();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void testshoot() {
 		try {
 		Arbiter a = new Arbiter();
@@ -1484,6 +1515,7 @@ public class Main {
 			else if (args[0].contentEquals("testbump")) testbump();
 			else if (args[0].contentEquals("bump")) bump();
 			else if (args[0].contentEquals("testshoot")) testshoot();
+			else if (args[0].contentEquals("testgate")) testgate();
 			else if (args[0].contentEquals("testchannel")) testchannel();
 			else if (args[0].contentEquals("testcirc")) testcirc(args[1]);
 			else if (args[0].contentEquals("testimage")) testimage(args[1]);

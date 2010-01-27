@@ -104,7 +104,6 @@ public class Vision extends java.lang.Thread {
 	//public Orc o = null;
 	public Odometry odom = null;
 	public Gyroscope gyro = null;
-	public int curangle = 0;
 	public int desangle = 0;
 
 	public static boolean reverseb(boolean b) {
@@ -129,14 +128,13 @@ public class Vision extends java.lang.Thread {
 				newstate = 3;
 			}
 		} if (newstate == 9) { // turn 90 degrees
-			curangle = gyro.anglei;
-			desangle = curangle + 90 % 360;
+			desangle = gyro.anglei + 90 % 360;
 		} if (newstate == 10) { // turn 90 degrees
-			curangle = gyro.anglei;
-			desangle = curangle + 270 % 360;
+			desangle = gyro.anglei + 270 % 360;
 		} if (newstate == 11) { // go straight
-			curangle = gyro.anglei;
-			desangle = curangle;
+			desangle = gyro.anglei;
+		} if (newstate == 5) { // gate shoot
+			desangle = gyro.anglei;
 		}
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
@@ -311,6 +309,12 @@ public class Vision extends java.lang.Thread {
 				rollerAction[idx] = -1.0f;
 				++shoottimer;
 				if (shoottimer < 8) { // go back
+					int cangle = gyro.anglei;
+					float basevel = -0.7f;
+					float nk = 0.01f;
+					leftMotorAction[idx] = basevel - nk*(circsub(cangle, desangle));
+					rightMotorAction[idx] = basevel + nk*(circsub(cangle, desangle));
+					/*
 					if (gateseen) {
 					float basevel = -0.7f;
 					//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
@@ -329,6 +333,7 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = -0.7f;
 					leftMotorAction[idx] = -0.7f;
 					}
+					 */
 				} else if (shoottimer < 10) { // stop
 					rightMotorAction[idx] = 0.0f;
 					leftMotorAction[idx] = 0.0f;
@@ -336,6 +341,12 @@ public class Vision extends java.lang.Thread {
 					if (shoottimer == 17) {
 						shoottimer = 0;
 					} else { // forward
+					int cangle = gyro.anglei;
+					float basevel = 0.7f;
+					float nk = 0.01f;
+					leftMotorAction[idx] = basevel - nk*(circsub(cangle, desangle));
+					rightMotorAction[idx] = basevel + nk*(circsub(cangle, desangle));
+					/*
 					if (gateseen) {
 					float basevel = 0.7f;
 					//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
@@ -354,6 +365,7 @@ public class Vision extends java.lang.Thread {
 					rightMotorAction[idx] = 0.7f;
 					leftMotorAction[idx] = 0.7f;
 					}
+					*/
 					}
 				}
 			} if (state == 6) { // explore

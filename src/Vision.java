@@ -85,7 +85,7 @@ public class Vision extends java.lang.Thread {
 	public int unknownwidth;
 	public int gatetimer = 0;
 	public int gatepxoffset;
-	public final float k = 0.005f;
+	public final float k = 0.0025f;
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, -1500, -1500, -1500};
@@ -431,7 +431,7 @@ public class Vision extends java.lang.Thread {
 				leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
 				rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
 			}
-			java.lang.Thread.sleep(10);
+			java.lang.Thread.sleep(5);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();

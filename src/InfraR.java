@@ -83,10 +83,9 @@ public class InfraR extends java.lang.Thread {
 		AnalogInput rightIR = new AnalogInput(o, 0);
 		AnalogInput crossLeftIR = new AnalogInput(o, 5);
 		AnalogInput crossRightIR = new AnalogInput(o, 2);
-		final double desv = 150.0;
+		final double desv = 120.0;
 		final double desvCross = 30.0;
 		final double kp = 0.002;
-		final double kpn = 0.002;
 		final double kd = 0.001;
 		double prevleft = leftIR.getVoltage();
 		double prevright = rightIR.getVoltage();
@@ -133,36 +132,16 @@ public class InfraR extends java.lang.Thread {
 				} else if (crossLeft < 130 || left < 90) { // rotate right
 					setState(2);
 				} else {
-			if (right > left) {
+			if (left > right) {
 				//leftMotorWeight[idx] = 0.8f;
 				//rightMotorWeight[idx] = 0.8f;
-				double error = right-left;
-				//if (error > 100.0) error = 100.0;
-				//if (error < -100.0) error = -100.0;
-				double basevel = 0.7;
+				double error = left-desv;
+				if (error > 100.0) error = 100.0;
+				if (error < -100.0) error = -100.0;
+				double basevel = 0.8;
 				//double basevel = bound(1.0-error, 0.7, 0.6);
-				lspeed = -(kpn*error/*-kd*(left-prevleft)*/)+basevel;
-				rspeed = (kpn*error/*-kd*(left-prevleft)*/)+basevel;
-				/*
-				if (lspeed > rspeed) {
-					rspeed += basevel-Math.abs(lspeed);
-					lspeed = basevel;
-				} else {
-					lspeed += basevel-Math.abs(rspeed);
-					rspeed = basevel;
-				}*/
-				sideVote = true;
-			} else {
-				//leftMotorWeight[idx] = 0.8f;
-				//rightMotorWeight[idx] = 0.8f;
-				double error = left-right;//right-desv;
-				//if (error > 100.0) error = 100.0;
-				//if (error < -100.0) error = -100.0;
-				//double basevel = bound(1.0-error, 0.7, 0.6);
-				double basevel = 0.7;
-				lspeed = (kpn*error/*-kd*(right-prevright)*/)+basevel;
-				rspeed = -(kpn*error/*-kd*(right-prevright)*/)+basevel;
-				/*
+				lspeed = -(kp*error-kd*(left-prevleft));//+basevel;
+				rspeed = (kp*error-kd*(left-prevleft));//+basevel;
 				if (lspeed > rspeed) {
 					rspeed += basevel-Math.abs(lspeed);
 					lspeed = basevel;
@@ -170,7 +149,24 @@ public class InfraR extends java.lang.Thread {
 					lspeed += basevel-Math.abs(rspeed);
 					rspeed = basevel;
 				}
-				*/
+				sideVote = true;
+			} else {
+				//leftMotorWeight[idx] = 0.8f;
+				//rightMotorWeight[idx] = 0.8f;
+				double error = right-desv;
+				if (error > 100.0) error = 100.0;
+				if (error < -100.0) error = -100.0;
+				//double basevel = bound(1.0-error, 0.7, 0.6);
+				double basevel = 0.8;
+				lspeed = (kp*error-kd*(right-prevright));//+basevel;
+				rspeed = -(kp*error-kd*(right-prevright));//+basevel;
+				if (lspeed > rspeed) {
+					rspeed += basevel-Math.abs(lspeed);
+					lspeed = basevel;
+				} else {
+					lspeed += basevel-Math.abs(rspeed);
+					rspeed = basevel;
+				}
 			}
 			}
 			} if (state == 1) { // rotate left

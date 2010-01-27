@@ -30,6 +30,7 @@ public class Gyroscope extends java.lang.Thread {
 	long prevtime = 0;
 	boolean running = true;
 	public int escapemode = 0;
+	public int curidx = 0;
 
 	public static void printList(int[] c) {
 		if (c.length == 0) return;
@@ -84,6 +85,15 @@ public class Gyroscope extends java.lang.Thread {
 	public double dispArray(double[] a) {
 		double tot = 0;
 		for (int x = 0; x < a.length-1; ++x) {
+			tot += Math.abs(a[x]-a[x+1]);
+		}
+		return tot;
+	}
+
+	public double dispArray(double[] a, int startidx) {
+		double tot = 0;
+		tot += Math.abs(a[a.length-1]-a[0]);
+		for (int x = 0; x < startidx; ++x) {
 			tot += Math.abs(a[x]-a[x+1]);
 		}
 		return tot;
@@ -180,9 +190,12 @@ public class Gyroscope extends java.lang.Thread {
 			angle = ((angles[0]*2.0*Math.PI/gyrot));
 			//System.out.println(angle);
 			//System.out.println(angles[1]*360/80000000);
-			shiftleft(angledisp, angle);
-			System.err.println(dispArray(angledisp));
-			if (dispArray(angledisp) < 0.05) {
+			//shiftleft(angledisp, angle);
+			angledisp[curidx] = angle;
+			double dispv = dispArray(angledisp, curidx);
+			curidx = (curidx + 1) % angledisp.length;
+			System.err.println(dispv);
+			if (dispv < 0.05) {
 				escapemode = 80;
 			} if (escapemode > 0) {
 				leftMotorWeight[idx] = 2.5f;

@@ -169,6 +169,7 @@ public class Gyroscope extends java.lang.Thread {
 					//rightMotorAction[idx] = 0.0f;
 				//}
 				angledisp[0] = 999.0;
+				angledisp[curidx] = 0.0;
 				angledisp[angledisp.length-1] = 0.0;
 				angledisp[angledisp.length/2] = 999.0;
 				--escapemode;
@@ -199,9 +200,9 @@ public class Gyroscope extends java.lang.Thread {
 		angledisp[0] = 999.0;
 		angledisp[angledisp.length-1] = 0.0;
 		angledisp[angledisp.length/2] = 999.0;
-		int[] mdf0 = new int[3];
-		int[] mdf1 = new int[3];
-		int[] mdf2 = new int[3];
+		mdf0 = new int[3];
+		mdf1 = new int[3];
+		mdf2 = new int[3];
 		{
 			int[] angvel = g.readAxes();
 			mdf0[2] = angvel[0];

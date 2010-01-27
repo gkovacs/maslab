@@ -627,10 +627,10 @@ public class Vision extends java.lang.Thread {
 		mapL.repaint();
 		*/
 		//shadeColors(hsvR,colorR);
-		shadeColors(origR,colorR);
-		colorC.setImage(colorI);
-		colorL.setIcon(colorC);
-		colorL.repaint();
+		//shadeColors(origR,colorR);
+		//colorC.setImage(colorI);
+		//colorL.setIcon(colorC);
+		//colorL.repaint();
 		//seekStart2(r,r3);
 		/*
 		rgb2hsv(origR, wallR);

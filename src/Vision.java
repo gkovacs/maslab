@@ -288,14 +288,17 @@ public class Vision extends java.lang.Thread {
 				rollerAction[idx] = -1.0f;
 				++shoottimer;
 				if (shoottimer < 8) { // go back
-					rightMotorAction[idx] = -1.0f;
-					leftMotorAction[idx] = -1.0f;
-				} else { // go forward
-					if (shoottimer == 15) {
+					rightMotorAction[idx] = -0.7f;
+					leftMotorAction[idx] = -0.7f;
+				} else if (shoottimer < 10) { // stop
+					rightMotorAction[idx] = 0.0f;
+					leftMotorAction[idx] = 0.0f;
+				}else {
+					if (shoottimer == 17) {
 						shoottimer = 0;
 					}
-					rightMotorAction[idx] = 1.0f;
-					leftMotorAction[idx] = 1.0f;
+					rightMotorAction[idx] = 0.7f;
+					leftMotorAction[idx] = 0.7f;
 				}
 			} if (state == 6) { // explore
 				rollerAction[idx] = 0.0f;

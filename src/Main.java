@@ -1337,17 +1337,20 @@ public class Main {
 		a.setup(5);
 		Vision v = new Vision();
 		v.setup(a, 0);
-		Gyroscope g = new Gyroscope();
-		g.setup(a, 2);
-		Explorer e = new Explorer();
-		e.setup(a, g, 1);
-		MouseController mc = new MouseController();
-		mc.setup(a, 3);
-		Bump b = new Bump();
-		b.setup(a,4);
+		//Gyroscope g = new Gyroscope();
+		//g.setup(a, 2);
+		InfraR ir = new InfraR();
+		//Explorer e = new Explorer();
+		//e.setup(a, g, 1);
+		ir.setup(a, 1);
+		//MouseController mc = new MouseController();
+		//mc.setup(a, 3);
+		//Bump b = new Bump();
+		//b.setup(a,4);
 		v.start();
-		g.start();
-		e.start();
+		ir.start();
+		//g.start();
+		//e.start();
 		//b.start();
 		//mc.start();
 		//java.lang.Thread.sleep(1000);
@@ -1355,9 +1358,10 @@ public class Main {
 		//java.lang.Thread.sleep(5000);
 		java.lang.Thread.sleep(296000); // 296 seconds
 		v.bye();
-		g.bye();
-		e.bye();
-		mc.bye();
+		//g.bye();
+		//e.bye();
+		//mc.bye();
+		ir.bye();
 		a.bye();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1374,10 +1378,10 @@ public class Main {
 		v.gatetimer = 501;
 		InfraR ir = new InfraR();
 		ir.setup(a, 1);
-		MouseController mc = new MouseController();
-		mc.setup(a, 2);
-		Bump b = new Bump();
-		b.setup(a,3);
+		//MouseController mc = new MouseController();
+		//mc.setup(a, 2);
+		//Bump b = new Bump();
+		//b.setup(a,3);
 		v.start();
 		//ir.start();
 		//b.start();
@@ -1388,7 +1392,7 @@ public class Main {
 		java.lang.Thread.sleep(296000); // 296 seconds
 		v.bye();
 		ir.bye();
-		mc.bye();
+		//mc.bye();
 		a.bye();
 		} catch (Exception e) {
 			e.printStackTrace();

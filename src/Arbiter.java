@@ -63,7 +63,7 @@ public class Arbiter extends java.lang.Thread {
 		try {
 		rightMotor = new Motor(o, 1, false);
 		leftMotor = new Motor(o, 0, true);
-		rollers = new Motor(o, 2, false);
+		rollers = new Motor(o, 2, true);
 		/*
 		QuadratureEncoder e0 = new QuadratureEncoder(o, 0, false);
 		QuadratureEncoder e1 = new QuadratureEncoder(o, 1, false);
@@ -94,9 +94,9 @@ public class Arbiter extends java.lang.Thread {
 			shiftright(leftMotorLog, lma);
 			shiftright(rightMotorLog, rma);
 			System.out.println("left: "+lma+" right: "+rma);
-			leftMotor.setPWM((float)bound(lma, 1.0f, -1.0f)*0.95);
-			rightMotor.setPWM((float)bound(rma, 1.0f, -1.0f));
-			rollers.setPWM((float)bound(rla, 0.5f, -0.5f));
+			leftMotor.setPWM((float)bound(lma, 1.0f, -1.0f));
+			rightMotor.setPWM((float)bound(rma, 1.0f, -1.0f)*0.9f);
+			rollers.setPWM((float)bound(rla, 1.0f, -1.0f));
 			} else { // turning back time
 				leftMotor.setPWM(-leftMotorLog[timeback]);
 				rightMotor.setPWM(-rightMotorLog[timeback]);

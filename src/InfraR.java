@@ -43,6 +43,12 @@ public class InfraR extends java.lang.Thread {
 		a[i] = v;
 	}
 
+	public static void shiftleft3(double[] a, double v) {
+		a[0] = a[1];
+		a[1] = a[2];
+		a[2] = v;
+	}
+
 	public static double averageArray(double[] a) {
 		double total = 0.0;
 		for (int i = 0; i < a.length; ++i) {
@@ -103,10 +109,10 @@ public class InfraR extends java.lang.Thread {
 		int leftcooldown = 0;
 		setState(0);
 		while (running) {
-			shiftleft(leftIRreadings, 62.5/leftIR.getVoltage());
-			shiftleft(rightIRreadings, 62.5/rightIR.getVoltage());
-			shiftleft(crossLeftIRreadings, 62.5/crossLeftIR.getVoltage());
-			shiftleft(crossRightIRreadings, 62.5/crossRightIR.getVoltage());
+			shiftleft3(leftIRreadings, 62.5/leftIR.getVoltage());
+			shiftleft3(rightIRreadings, 62.5/rightIR.getVoltage());
+			shiftleft3(crossLeftIRreadings, 62.5/crossLeftIR.getVoltage());
+			shiftleft3(crossRightIRreadings, 62.5/crossRightIR.getVoltage());
 			double left = median3(leftIRreadings[0], leftIRreadings[1], leftIRreadings[2]);//a.getVoltage()
 			//double left = 999999.0;
 			double right = median3(rightIRreadings[0], rightIRreadings[1], rightIRreadings[2]);
@@ -170,16 +176,16 @@ public class InfraR extends java.lang.Thread {
 			}
 			}
 			} if (state == 1) { // rotate left
-				rspeed = 0.7;
-				lspeed = -0.7;
+				rspeed = 0.6;
+				lspeed = -0.6;
 				if (crossRight > 120 && crossLeft > 120 && right > 100 && left > 100) {
 				//if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 100 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
 				}
 			} if (state == 2) { // rotate right
-				rspeed = -0.7;
-				lspeed = 0.7;
+				rspeed = -0.6;
+				lspeed = 0.6;
 				if (crossRight > 120 && crossLeft > 120 && right > 100 && left > 100) {
 				//if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 40 &&*/ crossRight > 120 && left > 50 && right > 50) {
@@ -190,8 +196,8 @@ public class InfraR extends java.lang.Thread {
 			prevright = right;
 			prevCrossLeft = crossLeft;
 			prevCrossRight = crossRight;
-			leftMotorAction[idx] = (float)lspeed;
-			rightMotorAction[idx] = (float)rspeed;
+			leftMotorAction[idx] = lspeed;
+			rightMotorAction[idx] = rspeed;
 			java.lang.Thread.sleep(20);
 		}
 		} catch (Exception e) {

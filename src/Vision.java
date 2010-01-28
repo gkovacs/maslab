@@ -198,7 +198,7 @@ public class Vision extends java.lang.Thread {
 					setState(transitions[state]);
 				}
 			}
-			System.out.println("time is "+System.currentTimeMillis()+" state is "+state+" timeout is "+statetimeout);
+			System.out.println("time is "+System.currentTimeMillis()+" state is "+names[state]+" ("+state+") timeout is "+statetimeout);
 			/*
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;

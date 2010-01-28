@@ -89,7 +89,7 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.001f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, -1000, -1000, -1000};
+	public int[] timeouts = {80, 80, 15, 15, 80, 63, 99999, 4, 4, -1000, -1000, -1000};
 	public float[] weights = {0.3f, 0.965f, 0.4f, 0.4f, 0.965f, 99.00f, 0.4f, 0.965f, 0.965f, 3.975f, 3.975f, 3.975f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright", "turnright", "turnleft", "edgeforward"};
 	public int[] transitions = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
@@ -353,9 +353,18 @@ public class Vision extends java.lang.Thread {
 					double nk = 0.02;
 					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
 					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
-				} else { // 3rd forward
+				} else if (shoottimer < 58) { // 3rd forward
 					int cangle = gyro.anglei;
 					double basevel = 0.8;
+					double nk = 0.02;
+					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
+					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
+					if (shoottimer == 57) {
+						desangle = cangle;
+					}
+				} else {
+					int cangle = gyro.anglei;
+					double basevel = -0.7;
 					double nk = 0.02;
 					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
 					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));

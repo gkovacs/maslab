@@ -153,7 +153,7 @@ public class Gyroscope extends java.lang.Thread {
 			double dispv = dispArray(angledisp);
 			curidx = (curidx + 1) % angledisp.length;
 			//System.err.println(dispv);
-			if (dispv < 0.05) {
+			if (dispv < 0.08) {
 				escapemode = 80;
 			} if (escapemode > 0) {
 				leftMotorWeight[idx] = 2.5f;
@@ -178,7 +178,7 @@ public class Gyroscope extends java.lang.Thread {
 				rightMotorWeight[idx] = 0.0f;
 			}
 			prevtime += deltatime;
-			java.lang.Thread.sleep(10);
+			java.lang.Thread.sleep(5);
 		}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -196,7 +196,7 @@ public class Gyroscope extends java.lang.Thread {
 		int numsamples = 300;
 		angles = new long[3];
 		baseang = new int[3];
-		angledisp = new double[100];
+		angledisp = new double[300];
 		angledisp[0] = 999.0;
 		angledisp[angledisp.length-1] = 0.0;
 		angledisp[angledisp.length/2] = 999.0;

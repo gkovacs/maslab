@@ -1516,14 +1516,44 @@ public class Main {
 	public static void competition() {
 		try {
 		Arbiter a = new Arbiter();
-		a.setup(1);
+		a.setup(5);
 		Vision v = new Vision();
 		v.setup(a, 0);
+		Gyroscope g = new Gyroscope();
+		java.lang.Thread.sleep(250);
+		g.setup(a, 2);
+		InfraR ir = new InfraR();
+		//Explorer e = new Explorer();
+		//e.setup(a, g, 1);
+		ir.setup(a, 1);
+		//MouseController mc = new MouseController();
+		//mc.setup(a, 3);
+		//Bump b = new Bump();
+		//b.setup(a,4);
+		//java.lang.Thread.sleep(250);
+		g.start();
+		//java.lang.Thread.sleep(1000);
 		v.testmode = false;
-		a.start();
 		v.start();
-		java.lang.Thread.sleep(296000); // 296 seconds
+		//v.gatetimer = 501;
+		v.gyro = g;
+		BotClientSender b = new BotClientSender();
+		b.origI = v.origI;
+		b.procI = v.dispI;
+		b.start();
+		ir.start();
+		//e.start();
+		//b.start();
+		//mc.start();
+		//java.lang.Thread.sleep(1000);
+		a.start();
+		//java.lang.Thread.sleep(5000);
+		java.lang.Thread.sleep(293000); // 296 seconds
 		v.bye();
+		g.bye();
+		//e.bye();
+		//mc.bye();
+		ir.bye();
 		a.bye();
 		} catch (Exception e) {
 			e.printStackTrace();

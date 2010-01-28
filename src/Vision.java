@@ -200,7 +200,7 @@ public class Vision extends java.lang.Thread {
 					setState(transitions[state]);
 				}
 			}
-			System.out.println("time is "+(System.currentTimeMillis()-starttime)+" state is "+names[state]+" ("+state+") timeout is "+statetimeout);
+			System.out.println("time is "+((System.currentTimeMillis()-starttime)/1000)+" state is "+names[state]+" ("+state+") timeout is "+statetimeout);
 			/*
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;
@@ -305,7 +305,7 @@ public class Vision extends java.lang.Thread {
 					}
 				} else { // approach the gate
 				gatehide = 0;
-				double gatek = 0.0005;
+				double gatek = 0.005;
 				double basevel = 0.7f;
 				//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
 				double rspeed = -gatek*gatepxoffset; //+ 0.6f;

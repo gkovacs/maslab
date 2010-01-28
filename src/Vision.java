@@ -1627,7 +1627,7 @@ public class Vision extends java.lang.Thread {
 						} /*if (m.ty == 0) {
 							System.out.println("fails top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
-						}*/ if (heufail >= 1) {
+						}*/ if (heufail >= 2) {
 							System.out.println("unknown at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							unknownFound(r2,m,c);
 						} else {

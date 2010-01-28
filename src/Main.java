@@ -1155,6 +1155,7 @@ public class Main {
 		//a.start();
 		v.start();
 		BotClientSender b = new BotClientSender();
+		java.lang.Thread.sleep(1000);
 		b.origI = v.origI;
 		b.procI = v.dispI;
 		b.start();
@@ -1550,6 +1551,7 @@ public class Main {
 		a.start();
 		//java.lang.Thread.sleep(5000);
 		BotClientSender b = new BotClientSender();
+		java.lang.Thread.sleep(1000);
 		b.origI = v.origI;
 		b.procI = v.dispI;
 		b.start();

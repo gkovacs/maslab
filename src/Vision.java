@@ -322,12 +322,16 @@ public class Vision extends java.lang.Thread {
 				}
 			} if (state == 5) { // gate delivery shoot
 				++shoottimer;
+				arb.rollerAction = -1.0;
 				if (shoottimer < 15) { // go forwrd
 					int cangle = gyro.anglei;
 					float basevel = 0.8f;
 					float nk = 0.02f;
 					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
 					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
+					if (shoottimer == 14) {
+						desangle = cangle;
+					}
 					/*
 					if (gateseen) {
 					float basevel = -0.7f;

@@ -1605,6 +1605,8 @@ public class Vision extends java.lang.Thread {
 					// drawline(r2, m.rtx+(m.lbx-m.rtx)/3, m.rty+(m.lby-m.rty)/3, m.lbx-(m.lbx-m.rtx)/3, m.lby-(m.lby-m.rty)/3);
 					//  drawline(r2, m.rtx, m.rty, m.lbx, m.lby);
 					if (matchvnon[0] > matchvnon[1] && m.ty != 0) {
+						if (false) {
+						/*
 						int lbrb = (m.lbx-m.rbx)*(m.lbx-m.rbx)+(m.lby-m.rby)*(m.lby-m.rby); // bot-left to bot-right distance squared
 						int lbrt = (m.lbx-m.rtx)*(m.lbx-m.rtx)+(m.lby-m.rty)*(m.lby-m.rty); // bot-left to top-right distance squared
 						int ltrb = (m.ltx-m.rbx)*(m.ltx-m.rbx)+(m.lty-m.rby)*(m.lty-m.rby); // top-left to bot-right distance squared
@@ -1615,25 +1617,18 @@ public class Vision extends java.lang.Thread {
 						} if (m.lbx > m.tx || m.tx > m.rbx) {
 							System.out.println("fails central-top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
-						} /*if (Math.abs(m.tx-m.lbx) > 3*(Math.abs(m.rbx-m.tx)) || 3*(Math.abs(m.tx-m.lbx)) < Math.abs(m.rbx-m.tx)) {
-							System.out.println("fails centered-center heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							++heufail;
-						}*/ if (m.tx == 0 || m.tx == r2.getWidth()-1 || m.bx == 0 || m.bx == r2.getWidth()-1) {
+						} if (m.tx == 0 || m.tx == r2.getWidth()-1 || m.bx == 0 || m.bx == r2.getWidth()-1) {
 							System.out.println("fails top-bottom-xedge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
 						} if (m.lbx == 0 || m.ltx == 0 || m.rtx == r2.getWidth()-1 || m.rbx == r2.getWidth()-1) { // don't classify if the corner is off the page; likely gate
 							System.out.println("fails corner-edge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
-						} if (Math.min(m.rbx - m.bx , m.bx - m.lbx) < 2*(Math.abs(m.ty-m.by))) {
+						} if (Math.min(Math.abs(m.rbx - m.bx) , Math.abs(m.bx - m.lbx)) < 6*(Math.abs(m.ty-m.by))) {
 							++heufail;
-						}
-
-						/*if (m.ty == 0) {
-							System.out.println("fails top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
-							++heufail;
-						}*/ if (heufail >= 2) {
+						}  if (heufail >= 2) {
 							System.out.println("unknown at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							unknownFound(r2,m,c);
+						*/
 						} else {
 							System.out.println("ball"+matchvnon[0]+" vs "+matchvnon[1]);
 							// TODO radius (intersection) of ball

@@ -325,63 +325,40 @@ public class Vision extends java.lang.Thread {
 				arb.rollerAction = -1.0;
 				if (shoottimer < 15) { // go forwrd
 					int cangle = gyro.anglei;
-					float basevel = 0.8f;
-					float nk = 0.02f;
+					double basevel = 0.8;
+					double nk = 0.02;
 					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
 					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
 					if (shoottimer == 14) {
 						desangle = cangle;
 					}
-					/*
-					if (gateseen) {
-					float basevel = -0.7f;
-					//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
-					float rspeed = k*gatepxoffset; //+ 0.6f;
-					float lspeed = -k*gatepxoffset; //+ 0.6f;
-					if (lspeed > rspeed) {
-						rspeed += basevel-Math.abs(lspeed);
-						lspeed = basevel;
-					} else {
-						lspeed += basevel-Math.abs(rspeed);
-						rspeed = basevel;
-					}
-					leftMotorAction[idx] = lspeed;
-					rightMotorAction[idx] = rspeed;
-					} else {
-					rightMotorAction[idx] = -0.7f;
-					leftMotorAction[idx] = -0.7f;
-					}
-					 */
-				} else {
-					if (shoottimer == 20) {
-						shoottimer = 0;
-					} else { // forward
+				} else if (shoottimer < 23) { // 1st reverse
 					int cangle = gyro.anglei;
-					float basevel = -0.7f;
-					float nk = 0.02f;
+					double basevel = -0.7;
+					double nk = 0.02;
 					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
 					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
-					/*
-					if (gateseen) {
-					float basevel = 0.7f;
-					//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
-					float rspeed = -k*gatepxoffset; //+ 0.6f;
-					float lspeed = k*gatepxoffset; //+ 0.6f;
-					if (lspeed > rspeed) {
-						rspeed += basevel-Math.abs(lspeed);
-						lspeed = basevel;
-					} else {
-						lspeed += basevel-Math.abs(rspeed);
-						rspeed = basevel;
+				} else if (shoottimer < 38) { // 2nd forward
+					int cangle = gyro.anglei;
+					double basevel = 0.8;
+					double nk = 0.02;
+					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
+					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
+					if (shoottimer == 37) {
+						desangle = cangle;
 					}
-					leftMotorAction[idx] = lspeed;
-					rightMotorAction[idx] = rspeed;
-					} else {
-					rightMotorAction[idx] = 0.7f;
-					leftMotorAction[idx] = 0.7f;
-					}
-					*/
-					}
+				} else if (shoottimer < 43) { // 2nd reverse
+					int cangle = gyro.anglei;
+					double basevel = -0.7;
+					double nk = 0.02;
+					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
+					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
+				} else { // 3rd forward
+					int cangle = gyro.anglei;
+					double basevel = 0.8;
+					double nk = 0.02;
+					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
+					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
 				}
 			} if (state == 6) { // explore
 				/*

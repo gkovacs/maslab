@@ -86,7 +86,7 @@ public class Vision extends java.lang.Thread {
 	public int gatetimer = 0;
 	public int ballcount = 0;
 	public int gatepxoffset;
-	public final float k = 0.002f;
+	public final float k = 0.003f;
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 70, 99999, 4, 4, -1000, -1000, -1000};

@@ -84,14 +84,15 @@ public class Vision extends java.lang.Thread {
 	public int gateheight;
 	public int unknownwidth;
 	public int gatetimer = 0;
+	public int ballcount = 0;
 	public int gatepxoffset;
-	public final float k = 0.0015f;
+	public final float k = 0.001f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, -1500, -1500, -1500};
-	public float[] weights = {0.3f, 0.965f, 0.4f, 0.4f, 0.965f, 2.00f, 0.4f, 0.965f, 0.965f, 3.975f, 3.975f, 3.975f};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, -1000, -1000, 50};
+	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 99.00f, 0.4f, 0.975f, 0.975f, 3.975f, 3.975f, 3.975f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright", "turnright", "turnleft", "edgeforward"};
-	public int[] transitions = {-1, -1, -1, -1, 3, -1, 6, -1, -1, -1, -1, -1};
+	public int[] transitions = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 	public int statetimeout = 0;
 	public long timeouttime = System.currentTimeMillis();
 	public boolean turningright = true;
@@ -107,6 +108,7 @@ public class Vision extends java.lang.Thread {
 	public Gyroscope gyro = null;
 	public Arbiter arb = null;
 	public double desangle = 0;
+	public int gatehide = 0;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;
@@ -144,6 +146,7 @@ public class Vision extends java.lang.Thread {
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
 		statetimeout = 0;
+		gatehide = 0;
 		if (timeouts[state] < 0) {
 			timeouttime = System.currentTimeMillis() - timeouts[state];
 		}
@@ -195,7 +198,7 @@ public class Vision extends java.lang.Thread {
 					setState(transitions[state]);
 				}
 			}
-			System.out.println("state is "+state+" timeout is "+statetimeout);
+			System.out.println("time is "+System.currentTimeMillis()+" state is "+state+" timeout is "+statetimeout);
 			/*
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;
@@ -213,7 +216,7 @@ public class Vision extends java.lang.Thread {
 			unknownwidth = 0;
 			processImage();
 			++gatetimer;
-			System.out.println("gate timer is "+gatetimer);
+			System.out.println("ballcount is "+ballcount);
 			
 			if (unknownseen && state != 4 && state != 5) {
 				if (unknownpxoffset > 0) {
@@ -227,7 +230,8 @@ public class Vision extends java.lang.Thread {
 			}
 			
 			if (gateseen && state != 5) {
-				if (gatetimer > 500) {
+				//if (gatetimer > 500) {
+				if (gatetimer > 500 || ballcount >= 2) {
 					System.out.println("approach gate");
 					setState(4);
 				} else if (gatewidth > 100 || gateheight > 100) {
@@ -249,9 +253,10 @@ public class Vision extends java.lang.Thread {
 			if (state == 1) { // getball
 				if (!circleseen) { // ball out of sight, let's capture it
 					if (circleradius > 5 || circlecentery > origR.getHeight()/2) { // capture the ball
-						setState(2);
-						setWeight(1.0f);
-						statetimeout = 20;
+						setState(11);
+						setWeight(9.0f);
+						//statetimeout = 20;
+						++ballcount;
 					} else { // we misssed the ball, search further //go back // search further
 						//setState(-1);
 						if (pxoffset > 0) { // likely disappeared off the right, scan right
@@ -287,12 +292,22 @@ public class Vision extends java.lang.Thread {
 				} else*/ if (gatewidth > 150) { // shoot those balls
 					setState(5);
 					gatetimer = 0;
+					ballcount = 0;
 					shoottimer = 0;
+				} else if (!gateseen) {
+					if (unknownseen) { {
+						gatepxoffset = unknownpxoffset;
+					}
+					} else if (++gatehide >= 10) {
+						setState(1);
+					}
 				} else { // approach the gate
-				float basevel = 0.7f;
+				gatehide = 0;
+				double gatek = 0.0005;
+				double basevel = 0.7f;
 				//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
-				float rspeed = -k*gatepxoffset; //+ 0.6f;
-				float lspeed = k*gatepxoffset; //+ 0.6f;
+				double rspeed = -gatek*gatepxoffset; //+ 0.6f;
+				double lspeed = gatek*gatepxoffset; //+ 0.6f;
 				if (lspeed > rspeed) {
 					rspeed += basevel-Math.abs(lspeed);
 					lspeed = basevel;
@@ -305,9 +320,9 @@ public class Vision extends java.lang.Thread {
 				}
 			} if (state == 5) { // gate delivery shoot
 				++shoottimer;
-				if (shoottimer < 8) { // go back
+				if (shoottimer < 10) { // go forwrd
 					int cangle = gyro.anglei;
-					float basevel = -0.7f;
+					float basevel = 0.7f;
 					float nk = 0.02f;
 					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
 					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
@@ -331,15 +346,12 @@ public class Vision extends java.lang.Thread {
 					leftMotorAction[idx] = -0.7f;
 					}
 					 */
-				} else if (shoottimer < 10) { // stop
-					rightMotorAction[idx] = 0.0f;
-					leftMotorAction[idx] = 0.0f;
-				}else {
+				} else {
 					if (shoottimer == 17) {
 						shoottimer = 0;
 					} else { // forward
 					int cangle = gyro.anglei;
-					float basevel = 0.7f;
+					float basevel = -0.7f;
 					float nk = 0.02f;
 					leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
 					rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
@@ -1701,7 +1713,7 @@ public class Vision extends java.lang.Thread {
 			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Purple);
 		else
 			filledRectange(r, m.ty, m.by, m.lx, m.rx, Colors.Green);
-		if (m.by-m.ty < 40 && m.rbx - m.lbx < 40) return;
+		//if (m.by-m.ty < 40 && m.rbx - m.lbx < 40) return;
 		gatepxoffset = (m.rbx + m.lbx)/2-r.getWidth()/2;
 		gatewidth = (m.rbx - m.lbx);
 		gateheight = (m.by-m.ty);

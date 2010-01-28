@@ -1537,10 +1537,6 @@ public class Main {
 		v.start();
 		//v.gatetimer = 501;
 		v.gyro = g;
-		BotClientSender b = new BotClientSender();
-		b.origI = v.origI;
-		b.procI = v.dispI;
-		b.start();
 		ir.start();
 		//e.start();
 		//b.start();
@@ -1548,6 +1544,10 @@ public class Main {
 		//java.lang.Thread.sleep(1000);
 		a.start();
 		//java.lang.Thread.sleep(5000);
+		BotClientSender b = new BotClientSender();
+		b.origI = v.origI;
+		b.procI = v.dispI;
+		b.start();
 		java.lang.Thread.sleep(293000); // 296 seconds
 		a.bye();
 		b.bye();

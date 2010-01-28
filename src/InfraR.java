@@ -121,7 +121,7 @@ public class InfraR extends java.lang.Thread {
 			double crossLeft = median3(crossLeftIRreadings[0], crossLeftIRreadings[1], crossLeftIRreadings[2]);
 			double crossRight = median3(crossRightIRreadings[0], crossRightIRreadings[1], crossRightIRreadings[2]);
 			
-			System.out.println("left is "+left+"right is "+right);
+			//System.out.println("left is "+left+"right is "+right);
 			//System.out.println(right);
 			double lspeed = 0.0;
 			double rspeed = 0.0;

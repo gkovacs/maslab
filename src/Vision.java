@@ -233,10 +233,10 @@ public class Vision extends java.lang.Thread {
 			
 			if (gateseen && state != 5) {
 				//if (gatetimer > 500) {
-				if (gatetimer > 500 || ballcount >= 2) {
+				if (gatetimer > 300 || ballcount >= 1) {
 					System.out.println("approach gate");
 					setState(4);
-				} else if (gatewidth > 100 || gateheight > 100) {
+				} else /*if (gatewidth > 100 || gateheight > 100)*/ {
 					System.out.println("backup from gate");
 					setState(3);
 				}

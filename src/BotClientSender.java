@@ -20,8 +20,10 @@ public class BotClientSender extends java.lang.Thread {
 	public ImageChannel procim = new ImageChannel("procim");
 	public BufferedImage origI = null;
 	public BufferedImage procI = null;
+	public boolean running = true;
 
 	public void start() {
+		while (running) {
 		try {
 		java.lang.Thread.sleep(1000);
 		origim.publish(origI);
@@ -29,5 +31,10 @@ public class BotClientSender extends java.lang.Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		}
+	}
+
+	public void bye() {
+		running = false;
 	}
 }

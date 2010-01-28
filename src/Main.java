@@ -1549,12 +1549,13 @@ public class Main {
 		a.start();
 		//java.lang.Thread.sleep(5000);
 		java.lang.Thread.sleep(293000); // 296 seconds
+		a.bye();
+		b.bye();
 		v.bye();
 		g.bye();
 		//e.bye();
 		//mc.bye();
 		ir.bye();
-		a.bye();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

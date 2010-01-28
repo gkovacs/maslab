@@ -22,7 +22,7 @@ public class BotClientSender extends java.lang.Thread {
 	public BufferedImage procI = null;
 	public boolean running = true;
 
-	public void start() {
+	public void run() {
 		while (origim == null) {
 			try {
 				java.lang.Thread.sleep(1000);

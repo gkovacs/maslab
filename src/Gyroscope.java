@@ -146,7 +146,7 @@ public class Gyroscope extends java.lang.Thread {
 			angled = ((angles[0]*360.0/gyrot));
 			//System.out.println(anglei);
 			angle = ((angles[0]*2.0*Math.PI/gyrot));
-			//System.out.println(angle);
+			System.out.println(angled);
 			//System.out.println(angles[1]*360/80000000);
 			//shiftleft(angledisp, angle);
 			angledisp[curidx] = angle;

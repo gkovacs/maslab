@@ -89,7 +89,7 @@ public class Vision extends java.lang.Thread {
 	public final float k = 0.001f;
 	public int state = 0;
 	public int capturecounter = 0;
-	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, -1000, -1000, 50};
+	public int[] timeouts = {80, 80, 15, 15, 80, 60, 99999, 4, 4, -1000, -1000, -1000};
 	public float[] weights = {0.3f, 0.975f, 0.4f, 0.4f, 0.975f, 99.00f, 0.4f, 0.975f, 0.975f, 3.975f, 3.975f, 3.975f};
 	public String[] names = {"rotate", "fetchball", "forward", "reverse", "gate", "shoot", "explore", "scanleft", "scanright", "turnright", "turnleft", "edgeforward"};
 	public int[] transitions = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
@@ -441,7 +441,7 @@ public class Vision extends java.lang.Thread {
 			} if (state == 11) { // edge forward
 				double cangle = gyro.angled;
 				float basevel = 0.7f;
-				double nk = 0.1;
+				double nk = 0.01;
 				leftMotorAction[idx] = basevel - (nk*(circsub(cangle, desangle)));
 				rightMotorAction[idx] = basevel + (nk*(circsub(cangle, desangle)));
 			}

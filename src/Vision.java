@@ -109,6 +109,7 @@ public class Vision extends java.lang.Thread {
 	public Arbiter arb = null;
 	public double desangle = 0;
 	public int gatehide = 0;
+	public long starttime = 0;
 
 	public static boolean reverseb(boolean b) {
 		if (b) return false;
@@ -158,6 +159,7 @@ public class Vision extends java.lang.Thread {
 		try {
 		//byte[] inet = {(byte)192, (byte)168, (byte)237, (byte)7};
 		//Orc o = new orc.Orc(java.net.Inet4Address.getByAddress(inet));
+		starttime = System.currentTimeMillis();
 		System.out.println("1");
 		orc.camera.Camera c;
 		System.out.println("1a");
@@ -198,7 +200,7 @@ public class Vision extends java.lang.Thread {
 					setState(transitions[state]);
 				}
 			}
-			System.out.println("time is "+System.currentTimeMillis()+" state is "+names[state]+" ("+state+") timeout is "+statetimeout);
+			System.out.println("time is "+(System.currentTimeMillis()-starttime)+" state is "+names[state]+" ("+state+") timeout is "+statetimeout);
 			/*
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;

@@ -200,7 +200,7 @@ public class Vision extends java.lang.Thread {
 					setState(transitions[state]);
 				}
 			}
-			System.out.println("time is "+((System.currentTimeMillis()-starttime)/1000)+" state is "+names[state]+" ("+state+") timeout is "+statetimeout);
+			//System.out.println("time is "+((System.currentTimeMillis()-starttime)/1000)+" state is "+names[state]+" ("+state+") timeout is "+statetimeout);
 			/*
 			if (found > 0) --found;
 			if (lifetime > 0) --lifetime;
@@ -230,13 +230,27 @@ public class Vision extends java.lang.Thread {
 			if (circleseen && state != 4 && state != 5) {
 				setState(1);
 			}
-			
+			boolean gateshoot = false;
 			if (gateseen && state != 5) {
 				//if (gatetimer > 500) {
-				if (gatetimer > 300 || ballcount >= 1) {
+				long disptime = System.currentTimeMillis()-starttime;
+				if (disptime > 250000) { // endgame
+					if (ballcount >= 1 || gatetimer > 200) {
+						gateshoot = true;
+					}
+				} else if (disptime > 150000) {
+					if (ballcount >= 1 || gatetimer > 400) {
+						gateshoot = true;
+					}
+				} else { // startgame
+					if (ballcount >= 2 || gatetimer > 600) {
+						gateshoot = true;
+					}
+				}
+				if (gateshoot) {
 					System.out.println("approach gate");
 					setState(4);
-				} else /*if (gatewidth > 100 || gateheight > 100)*/ {
+				} else {
 					System.out.println("backup from gate");
 					setState(3);
 				}

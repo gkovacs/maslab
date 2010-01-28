@@ -319,7 +319,7 @@ public class Vision extends java.lang.Thread {
 					}
 				} else { // approach the gate
 				gatehide = 0;
-				double gatek = 0.005;
+				double gatek = 0.004;
 				double basevel = 0.7f;
 				//float basevel = bound(1.0f-Math.abs(gatepxoffset)/0.1f, 1.0f, 0.7f);
 				double rspeed = -gatek*gatepxoffset; //+ 0.6f;

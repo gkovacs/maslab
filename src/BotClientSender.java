@@ -16,21 +16,37 @@ import java.awt.*;
 import java.awt.image.*;
 
 public class BotClientSender extends java.lang.Thread {
-	public ImageChannel origim = new ImageChannel("origim");
-	public ImageChannel procim = new ImageChannel("procim");
+	public ImageChannel origim = null;
+	public ImageChannel procim = null;
 	public BufferedImage origI = null;
 	public BufferedImage procI = null;
 	public boolean running = true;
 
 	public void start() {
-		while (running) {
-		try {
-		java.lang.Thread.sleep(1000);
-		origim.publish(origI);
-		procim.publish(procI);
-		} catch (Exception e) {
-			e.printStackTrace();
+		while (origim == null) {
+			try {
+				java.lang.Thread.sleep(1000);
+				origim = new ImageChannel("origim");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
+		while (procim == null) {
+			try {
+				java.lang.Thread.sleep(1000);
+				procim = new ImageChannel("procim");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		while (running) {
+			try {
+				java.lang.Thread.sleep(1000);
+				origim.publish(origI);
+				procim.publish(procI);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

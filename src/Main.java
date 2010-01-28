@@ -1758,7 +1758,7 @@ public class Main {
 			Gyroscope g = new Gyroscope();
 			g.setup(a, 0);
 			g.start();
-			a.start();
+			//a.start();
 			java.lang.Thread.sleep(296000);
 			a.bye();
 			g.bye();

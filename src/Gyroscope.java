@@ -35,6 +35,7 @@ public class Gyroscope extends java.lang.Thread {
 	int[] mdf0 = null;
 	int[] mdf1 = null;
 	int[] mdf2 = null;
+	boolean turndirec = true;
 
 	public static void printList(int[] c) {
 		if (c.length == 0) return;
@@ -153,7 +154,12 @@ public class Gyroscope extends java.lang.Thread {
 			double dispv = dispArray(angledisp);
 			curidx = (curidx + 1) % angledisp.length;
 			//System.err.println(dispv);
-			if (dispv < 0.08) {
+			if (dispv < 0.15) {
+				if (turndirec) {
+					turndirec = false;
+				} else {
+					turndirec = true;
+				}
 				escapemode = 80;
 			} if (escapemode > 0) {
 				leftMotorWeight[idx] = 2.5f;
@@ -161,13 +167,17 @@ public class Gyroscope extends java.lang.Thread {
 				if (escapemode > 40) { // backup
 					leftMotorAction[idx] = -0.8f;
 					rightMotorAction[idx] = -0.8f;
-				} else { // left
+				} else if (turndirec) { // left
 					leftMotorAction[idx] = -0.8f;
 					rightMotorAction[idx] = 0.8f;
 				} //else { // backright
 					//leftMotorAction[idx] = -0.8f;
 					//rightMotorAction[idx] = 0.0f;
 				//}
+				else { /// right
+					leftMotorAction[idx] = 0.8f;
+					rightMotorAction[idx] = -0.8f;
+				}
 				angledisp[0] = 999.0;
 				angledisp[curidx] = 0.0;
 				angledisp[angledisp.length-1] = 0.0;

@@ -27,7 +27,7 @@ public class BotClientSender extends java.lang.Thread {
 		try {
 		java.lang.Thread.sleep(1000);
 		origim.publish(origI);
-		origim.publish(procI);
+		procim.publish(procI);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

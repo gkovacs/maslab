@@ -19,12 +19,16 @@ public class InfraR extends java.lang.Thread {
 	public int idx = 0;
 	public int state = 0;
 	public String[] names = {"forward", "left", "right", "back"};
+	public int[] timeouts = {80, 80, 80, 80};
 	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f};
+	public int[] transitions = {0, 0, 0, 0};
+	public int statetimeout = 0;
 	public Orc o = null;
 
 	public void setState(int newstate) {
 		System.err.println("transition to "+names[newstate]);
 		state = newstate;
+		statetimeout = 0;
 		leftMotorWeight[idx] = weights[newstate];
 		rightMotorWeight[idx] = weights[newstate];
 	}
@@ -109,6 +113,11 @@ public class InfraR extends java.lang.Thread {
 		int leftcooldown = 0;
 		setState(0);
 		while (running) {
+			if (statetimeout >= timeouts[state]) { // state timed out, make transition
+				setState(transitions[state]);
+			} else {
+				++statetimeout;
+			}
 			shiftleft3(leftIRreadings, 62.5/leftIR.getVoltage());
 			shiftleft3(rightIRreadings, 62.5/rightIR.getVoltage());
 			shiftleft3(crossLeftIRreadings, 62.5/crossLeftIR.getVoltage());
@@ -178,7 +187,7 @@ public class InfraR extends java.lang.Thread {
 			} if (state == 1) { // rotate left
 				rspeed = 0.6;
 				lspeed = -0.6;
-				if (crossRight > 120 && crossLeft > 120 && right > 100 && left > 100) {
+				if (crossRight > 130 && crossLeft > 130 && right > 90 && left > 90) {
 				//if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 100 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);
@@ -186,7 +195,7 @@ public class InfraR extends java.lang.Thread {
 			} if (state == 2) { // rotate right
 				rspeed = -0.6;
 				lspeed = 0.6;
-				if (crossRight > 120 && crossLeft > 120 && right > 100 && left > 100) {
+				if (crossRight > 130 && crossLeft > 130 && right > 90 && left > 90) {
 				//if (((crossRight > 120 && crossLeft > 120) || (crossRight-prevCrossRight) > 0 || (crossLeft-prevCrossLeft) > 0) && ((right > 120 && left > 120) || (left-prevleft) > 0 || (right-prevright) > 0)) {
 				//if (/*crossLeft > 40 &&*/ crossRight > 120 && left > 50 && right > 50) {
 					setState(0);

@@ -1371,6 +1371,7 @@ public class Main {
 		//java.lang.Thread.sleep(1000);
 		v.start();
 		//v.gatetimer = 501;
+		v.testmode = false;
 		v.gyro = g;
 		ir.start();
 		//e.start();

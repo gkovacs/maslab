@@ -86,7 +86,7 @@ public class Vision extends java.lang.Thread {
 	public int gatetimer = 0;
 	public int ballcount = 0;
 	public int gatepxoffset;
-	public final float k = 0.0025f;
+	public final float k = 0.002f;
 	public int state = 0;
 	public int capturecounter = 0;
 	public int[] timeouts = {80, 80, 15, 15, 80, 70, 99999, 4, 4, -1000, -1000, -1000};
@@ -282,7 +282,7 @@ public class Vision extends java.lang.Thread {
 						}
 					}
 				} else { // we see a ball, go to it
-				float basevel = 0.7f;
+				float basevel = 0.65f;
 				//float basevel = bound(1.0f-Math.abs(pxoffset)/0.1f, 1.0f, 0.7f);
 				float rspeed = -k*pxoffset; //+ 0.6f;
 				float lspeed = k*pxoffset; //+ 0.6f;

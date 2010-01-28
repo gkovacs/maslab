@@ -291,7 +291,7 @@ public class Vision extends java.lang.Thread {
 			} if (state == 4) { // gate delivery approach
 				/*if (!gateseen) { // we missed the gate, back up
 					setState(3);
-				} else*/ if (gatewidth > 150) { // shoot those balls
+				} else*/ if (gatewidth > 140) { // shoot those balls
 					setState(5);
 					gatetimer = 0;
 					ballcount = 0;

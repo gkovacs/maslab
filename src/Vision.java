@@ -1624,7 +1624,11 @@ public class Vision extends java.lang.Thread {
 						} if (m.lbx == 0 || m.ltx == 0 || m.rtx == r2.getWidth()-1 || m.rbx == r2.getWidth()-1) { // don't classify if the corner is off the page; likely gate
 							System.out.println("fails corner-edge heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
-						} /*if (m.ty == 0) {
+						} if (Math.min(m.rbx - m.bx , m.bx - m.lbx) < 2*(Math.abs(m.ty-m.by))) {
+							++heufail;
+						}
+
+						/*if (m.ty == 0) {
 							System.out.println("fails top heuristic at "+(+m.lx+m.rx)/2+","+(m.by+m.ty)/2);
 							++heufail;
 						}*/ if (heufail >= 2) {

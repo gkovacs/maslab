@@ -1154,8 +1154,11 @@ public class Main {
 		v.setup(a, 0);
 		//a.start();
 		v.start();
+		BotClientSender b = new BotClientSender();
+		b.start();
 		java.lang.Thread.sleep(300000); // 300 seconds
 		v.bye();
+		b.bye();
 		//a.bye();
 		} catch (Exception e) {
 			e.printStackTrace();

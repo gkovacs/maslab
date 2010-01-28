@@ -153,7 +153,7 @@ public class Gyroscope extends java.lang.Thread {
 			angledisp[curidx] = angle;
 			double dispv = dispArray(angledisp);
 			curidx = (curidx + 1) % angledisp.length;
-			System.err.println(dispv);
+			//System.err.println(dispv);
 			if (dispv < 0.15) {
 				if (turndirec) {
 					turndirec = false;

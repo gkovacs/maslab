@@ -243,7 +243,7 @@ public class Vision extends java.lang.Thread {
 						gateshoot = true;
 					}
 				} else { // startgame
-					if (ballcount >= 2 || gatetimer > 600) {
+					if (ballcount >= 1 || gatetimer > 600) {
 						gateshoot = true;
 					}
 				}

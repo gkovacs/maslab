@@ -19,7 +19,7 @@ public class InfraR extends java.lang.Thread {
 	public int idx = 0;
 	public int state = 0;
 	public String[] names = {"forward", "left", "right", "back"};
-	public int[] timeouts = {80, 103, 80, 80};
+	public int[] timeouts = {80, 80, 103, 80};
 	public float[] weights = {0.5f, 0.97f, 0.97f, 0.97f};
 	public int[] transitions = {0, 0, 0, 0};
 	public int statetimeout = 0;

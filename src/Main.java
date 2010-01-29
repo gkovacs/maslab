@@ -1556,7 +1556,7 @@ public class Main {
 		b.origI = v.origI;
 		b.procI = v.dispI;
 		b.start();
-		java.lang.Thread.sleep(293000); // 296 seconds
+		java.lang.Thread.sleep(294000); // 296 seconds
 		a.bye();
 		b.bye();
 		v.bye();
